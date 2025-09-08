@@ -1,2 +1,3 @@
-# HOT_PushNotifications
-House configurations for push notifications for HOT app
+# HOT_TOURNAMENT
+
+
