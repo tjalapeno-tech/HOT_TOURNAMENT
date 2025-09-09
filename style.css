@@ -211,6 +211,19 @@ button[type="submit"]:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.payment-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.payment-row .payment-option {
+  flex: 1 1 280px;
+  min-width: 260px;
+  max-width: 320px;
+}
+
 
 @media (max-width: 600px) {
   .payment-container {
