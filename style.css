@@ -79,6 +79,10 @@ footer {
   font-size: 14px;
 }
 
+/* -------------------------
+   FORM STYLING
+------------------------- */
+
 .form-container {
   max-width: 500px;
   margin: 50px auto;
@@ -130,120 +134,15 @@ button[type="submit"]:hover {
 }
 
 /* -------------------------
-   E-TRANSFER PAGE STYLES
+   PAYMENT PAGE STYLING
 ------------------------- */
 
-.etransfer-container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-.etransfer-container h1,
-.etransfer-container h2 {
-  font-family: 'Roboto Slab', serif;
-  color: #0e1a40;
-}
-
-.etransfer-container p,
-.etransfer-container li {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #1d3b55;
-}
-
-.etransfer-list {
-  margin-top: 20px;
-  padding-left: 20px;
-}
-
-.etransfer-note {
-  font-size: 14px;
-  color: #555;
-  margin-top: 15px;
-}
-
-.etransfer-bank-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.etransfer-bank-links a {
-  flex: 1 1 45%;
-  background-color: #1b365d;
-  color: white;
-  text-decoration: none;
-  text-align: center;
-  padding: 12px;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.etransfer-bank-links a:hover {
-  background-color: #2d4d80;
-}
-
 .payment-page {
+  padding: 40px 20px;
   display: flex;
   justify-content: center;
-  padding: 40px 20px;
 }
 
 .payment-container {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 0 20px; /* adds horizontal spacing for smaller screens */
-  font-family: 'Roboto', sans-serif;
-}
-
-.payment-option {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 30px;
-  border: 2px solid #dcdcdc;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.payment-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-/* Target payment boxes inside the row */
-.payment-row .payment-option {
-  flex: 1 1 320px;
-  max-width: 400px;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  border: 2px solid #dcdcdc;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Ensure consistent styling for the e-transfer option */
-.etransfer-option {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  border: 2px solid #dcdcdc;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-top: 30px;
-}
-
-
-@media (max-width: 600px) {
-  .payment-container {
-    padding: 0 15px;
-  }
-}
-
+  max-width: 1000px;
+  width:
