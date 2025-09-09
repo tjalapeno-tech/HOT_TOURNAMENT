@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,9 +6,9 @@
   <title>Payment</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
-  
 </head>
 <body>
+
 <div id="header-placeholder"></div>
 <script>
   fetch("header.html")
@@ -18,15 +17,16 @@
       document.getElementById("header-placeholder").innerHTML = data;
     });
 </script>
-  <section class="hero">
-    <h1>Team Registration Payment</h1>
-    <p>Secure your spot by finalizing your registration!</p>
-  </section>
+
+<section class="hero">
+  <h1>Team Registration Payment</h1>
+  <p>Secure your spot by finalizing your registration!</p>
+</section>
 
 <main class="payment-page">
   <div class="payment-container">
 
-    <!-- Two-column credit card section -->
+    <!-- Two credit card options side by side -->
     <div class="payment-row">
       <div class="payment-option">
         <h2>💳 Pay Deposit by Credit Card ($650.00)</h2>
@@ -43,13 +43,14 @@
       </div>
     </div>
 
-    <!-- E-transfer option (full width under the flex row) -->
+    <!-- E-transfer full-width below -->
     <div class="payment-option etransfer-option">
       <h2>💸 Pay by E-Transfer</h2>
       <p>Prefer to send an Interac e-Transfer? Click below for details and instructions.</p>
       <a href="etransfer.html" class="payment-button">E-Transfer Instructions</a>
       <p class="note">* Please include your team name in the message field when sending e-transfer.</p>
     </div>
+
   </div>
 </main>
 
