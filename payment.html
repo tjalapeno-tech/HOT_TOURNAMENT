@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .payment-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 12px;
+      background-color: #f4f4f4;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .payment-container h1 {
+      text-align: center;
+      font-family: 'Roboto Slab', serif;
+    }
+
+    .payment-option {
+      margin-top: 30px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #dcdcdc;
+    }
+
+    .payment-option h2 {
+      margin-bottom: 10px;
+    }
+
+    .payment-button {
+      display: inline-block;
+      padding: 12px 20px;
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background-color: #1b365d; /* Huntsville navy blue */
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .payment-button:hover {
+      background-color: #2d4d80;
+    }
+
+    .note {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .icon {
+      font-size: 28px;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+<script>
+  fetch("header.html")
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById("header-placeholder").innerHTML = data;
+    });
+</script>
+
+<main class="payment-container">
+  <h1>Team Registration Payment</h1>
+
+  <div class="payment-option">
+    <h2>💳 Pay by Credit Card</h2>
+    <p>Click the button below to pay the $300 team deposit via Square.</p>
+    <a href="https://square.link/u/YOUR_PAYMENT_LINK" target="_blank" class="payment-button">Pay with Square</a>
+    <p class="note">* Your payment will be securely processed by Square.</p>
+  </div>
+
+  <div class="payment-option">
+    <h2>💸 Pay by E-Transfer</h2>
+    <p>Prefer to send an Interac e-Transfer? Click below for details and instructions.</p>
+    <a href="etransfer.html" class="payment-button">E-Transfer Instructions</a>
+    <p class="note">* Please include your team name in the message field when sending e-transfer.</p>
+  </div>
+</main>
+</body>
+</html>
