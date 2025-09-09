@@ -6,16 +6,18 @@
   <title>Register Your Team</title>
   <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
-  <script>
-    // Load header
-    fetch('/header.html')
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById('header-container').innerHTML = data;
-      });
-  </script>
 </head>
 <body>
+
+    <!-- Load shared header -->
+<div id="header-placeholder"></div>
+<script>
+  fetch("header.html")
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById("header-placeholder").innerHTML = data;
+    });
+</script>
 <main class="form-container">
   <h1>Team Registration</h1>
   <form id="registrationForm" action="mailto:operations@huntsvilleoldtimers.com" method="POST" enctype="text/plain" onsubmit="return handleFormSubmit()">
