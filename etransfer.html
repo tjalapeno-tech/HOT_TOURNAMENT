@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E-Transfer Instructions</title>
+  <link rel="stylesheet" href="style.css">
+  
+</head>
+<body>
+<div id="header-placeholder"></div>
+<script>
+  fetch("header.html")
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById("header-placeholder").innerHTML = data;
+    });
+</script>
+
+<main class="etransfer-container">
+  <h1>Pay by E-Transfer</h1>
+
+  <p>Please send your team registration deposit of <strong>$650</strong> via Interac e-Transfer to the following address:</p>
+
+  <h2>Recipient Email</h2>
+  <p><strong>operations@huntsvilleoldtimers.com</strong></p>
+
+  <h2>Important:</h2>
+  <ul>
+    <li>Include your <strong>Team Name</strong> in the message field</li>
+    <li>Ensure the spelling of the email address is correct</li>
+    <li>Retain a copy of your confirmation email for your records</li>
+  </ul>
+
+  <h2>Quick Links to Your Bank</h2>
+  <div class="bank-links">
+    <a href="https://www.td.com/ca/en/personal-banking/" target="_blank">TD Canada Trust</a>
+    <a href="https://www.rbcroyalbank.com/" target="_blank">RBC Royal Bank</a>
+    <a href="https://www.scotiabank.com/ca/en/personal.html" target="_blank">Scotiabank</a>
+    <a href="https://www.cibc.com/en/personal-banking.html" target="_blank">CIBC</a>
+    <a href="https://www.bmo.com/main/personal/" target="_blank">BMO Bank of Montreal</a>
+  </div>
+
+  <p class="note">If you have any issues, please email us at <strong>operations@huntsvilleoldtimers.com</strong></p>
+</main>
+</body>
+</html>
