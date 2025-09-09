@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
 </head>
 <body>
-
 <div id="header-placeholder"></div>
 <script>
   fetch("header.html")
@@ -25,27 +24,28 @@
       <label>Team Name*</label>
       <input type="text" id="team" required>
     </div>
-
     <div class="form-group">
       <label>Team Rep*</label>
       <input type="text" id="repName" required>
     </div>
-
     <div class="form-group">
       <label>Contact Email*</label>
       <input type="email" id="repEmail" required>
     </div>
-
     <div class="form-group">
       <label>Contact Phone*</label>
       <input type="text" id="repPhone" required>
     </div>
-
     <div class="form-group">
       <label>Division*</label>
-      <select id="division" required></select>
+      <select id="division" required>
+        <option value="">--Select--</option>
+        <option value="Men 35+">Men 35+</option>
+        <option value="Men 45+">Men 45+</option>
+        <option value="Men 55+">Men 55+</option>
+        <option value="Women Open">Women Open</option>
+      </select>
     </div>
-
     <div class="form-group">
       <label>Skill Level*</label>
       <select id="skill" required>
@@ -57,49 +57,46 @@
         <option>E</option>
       </select>
     </div>
-
     <button type="submit">Register</button>
   </form>
 </main>
 
 <script>
-const divisionSelect = document.getElementById("division");
-const form = document.getElementById("registrationForm");
+const divisionLimits = {
+  "Men 35+": 8,
+  "Men 45+": 8,
+  "Men 55+": 4,
+  "Women Open": 8
+};
+
+const scriptUrl = "https://script.google.com/macros/s/AKfycbwvZ0ve_CoK7flTX5RJFjlvxTpD3Wze7-kUv4B5klsEopPDRl5j6cCvEyCRttJqfiiSxg/exec"; 
+
+// Disable full divisions
+fetch(scriptUrl)
+  .then(response => response.json())
+  .then(counts => {
+    for (const [division, max] of Object.entries(divisionLimits)) {
+      if ((counts[division] || 0) >= max) {
+        const option = document.querySelector(`#division option[value="${division}"]`);
+        if (option) {
+          option.disabled = true;
+          option.textContent += " (Full)";
+        }
+      }
+    }
+  });
+
 let formSubmitted = false;
 
-window.addEventListener("DOMContentLoaded", () => {
-  fetch("https://script.google.com/macros/s/PASTE_YOUR_DEPLOYED_URL_HERE/exec")
-    .then(res => res.json())
-    .then(data => {
-      const divisions = {
-        "Men 35+": "Men 35+",
-        "Men 45+": "Men 45+",
-        "Men 55+": "Men 55+",
-        "Women Open": "Women Open"
-      };
-
-      Object.entries(divisions).forEach(([key, label]) => {
-        const spots = data[key];
-        const option = document.createElement("option");
-        option.value = key;
-        option.disabled = spots <= 0;
-        option.textContent = `${label} (${spots > 0 ? spots + ' spot' + (spots > 1 ? 's' : '') + ' left' : 'Full'})`;
-        divisionSelect.appendChild(option);
-      });
-    })
-    .catch(err => {
-      console.error("Error fetching divisions:", err);
-    });
-});
-
-form.addEventListener("submit", function(e) {
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
   e.preventDefault();
+
   if (formSubmitted) return;
 
-  const registerButton = this.querySelector('button[type="submit"]');
+  const button = this.querySelector('button[type="submit"]');
   formSubmitted = true;
-  registerButton.disabled = true;
-  registerButton.textContent = "Registering...";
+  button.disabled = true;
+  button.textContent = "Registering...";
 
   const data = {
     team: document.getElementById('team').value.trim(),
@@ -110,26 +107,25 @@ form.addEventListener("submit", function(e) {
     skill: document.getElementById('skill').value
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbw5NBuP31v6U1O1V-dGodsi7wZ3Td5lbFR8n9NThTsZ8MH8LUYYZduWtKu5jgYejxj4Uw/exec", {
+  fetch(scriptUrl, {
     method: 'POST',
     body: JSON.stringify(data)
   })
   .then(response => {
-    if (response.ok) {
-      alert("Team successfully registered!");
-      window.location.href = "payment.html";
-    } else {
-      throw new Error("Form submission failed.");
-    }
+    if (!response.ok) throw new Error("Failed to submit form.");
+    return response.text();
+  })
+  .then(result => {
+    alert("Team successfully registered!");
+    window.location.href = "payment.html";
   })
   .catch(error => {
     alert("Error: " + error.message);
     formSubmitted = false;
-    registerButton.disabled = false;
-    registerButton.textContent = "Register";
+    button.disabled = false;
+    button.textContent = "Register";
   });
 });
 </script>
-
 </body>
 </html>
