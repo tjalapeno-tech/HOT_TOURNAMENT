@@ -4,105 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Huntsville Oldtimers Tournament</title>
+  <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background-color: #f8f8f8;
-      color: #0e1a40;
-    }
-
-    header {
-      background-color: #0e1a40;
-      color: white;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    header img {
-      height: 60px;
-    }
-
-    nav {
-      display: flex;
-      gap: 15px;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-
-    nav a:hover {
-      color: #ff3c38;
-    }
-
-    .hero {
-      background: linear-gradient(to bottom right, #0e1a40, #c8102e);
-      color: white;
-      text-align: center;
-      padding: 100px 20px;
-    }
-
-    .hero h1 {
-      font-family: 'Roboto Slab', serif;
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
-
-    .hero p {
-      font-size: 20px;
-      margin-bottom: 30px;
-    }
-
-    .hero button {
-      background-color: #ffffff;
-      color: #0e1a40;
-      border: none;
-      padding: 15px 30px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .hero button:hover {
-      background-color: #e0e0e0;
-    }
-
-    footer {
-      background-color: #0e1a40;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 14px;
-    }
-  </style>
 </head>
 <body>
-  <header>
-    <img src="/images/electric.png" alt="Huntsville Oldtimers Logo" />
-    <nav>
-      <a href="#about">About</a>
-      <a href="#schedule">Schedule</a>
-      <a href="#standings">Standings</a>
-      <a href="#gallery">Gallery</a>
-      <a href="#divisions">Divisions</a>
-      <a href="#contact">Contact</a>
-      <a href="#register">Register</a>
-    </nav>
-  </header>
+
+  <!-- Load shared header -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      });
+  </script>
 
   <section class="hero">
     <h1>Huntsville Oldtimers Tournament</h1>
     <p>Welcome to the classic ice hockey tournament of the year. Register your team now!</p>
-    <a href="#register"><button>Register Your Team</button></a>
+    <a href="register.html"><button>Register Your Team</button></a>
   </section>
 
   <footer>
