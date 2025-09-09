@@ -186,4 +186,53 @@ button[type="submit"]:hover {
       margin-right: 10px;
       vertical-align: middle;
     }
+
+.etransfer-container {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      font-family: 'Roboto', sans-serif;
+    }
+
+    h1, h2 {
+      font-family: 'Roboto Slab', serif;
+      color: #0e1a40;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .bank-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .bank-links a {
+      flex: 1 1 45%;
+      background-color: #1b365d;
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .bank-links a:hover {
+      background-color: #2d4d80;
+    }
+
+    .note {
+      font-size: 14px;
+      color: #555;
+      margin-top: 15px;
+    }
   </style>
