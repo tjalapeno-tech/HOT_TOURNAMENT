@@ -28,12 +28,17 @@
 
   <div class="form-group">
     <label>Team Rep*</label>
-    <input type="text" id="rep" required>
+    <input type="text" id="repName" required>
   </div>
 
   <div class="form-group">
-    <label>Contact Info*</label>
-    <input type="text" id="contact" required>
+    <label>Contact Email*</label>
+    <input type="text" id="repEmail" required>
+  </div>
+
+  <div class="form-group">
+    <label>Contact Phone*</label>
+    <input type="text" id="repPhone" required>
   </div>
 
   <div class="form-group">
@@ -61,33 +66,51 @@
 
   <button type="submit">Register</button>
 </form>
-
 <script>
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbx2dSi3-50CHjio9qByKfW080iZ-Yz8vXKtiVC5dvC0-p2TEZoRMAwY3Cv8InlSf4duRg/exec';
+let formSubmitted = false;
 
-  document.getElementById('registrationForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.getElementById('registrationForm').addEventListener('submit', function(e) {
+  e.preventDefault();
 
-    const data = {
-      team: document.getElementById('team').value,
-      rep: document.getElementById('rep').value,
-      contact: document.getElementById('contact').value,
-      division: document.getElementById('division').value,
-      skill: document.getElementById('skill').value
-    };
+  const registerButton = this.querySelector('button[type="submit"]');
 
-    fetch(scriptURL, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    })
-    .then(response => {
+  if (formSubmitted) {
+    return; // Prevent multiple submits
+  }
+
+  formSubmitted = true;
+  registerButton.disabled = true;
+  registerButton.textContent = "Registering...";
+
+  const data = {
+    team: document.getElementById('team').value.trim(),
+    repName: document.getElementById('repName').value.trim(),
+    repEmail: document.getElementById('repEmail').value.trim(),
+    repPhone: document.getElementById('repPhone').value.trim(),
+    division: document.getElementById('division').value
+    skill: document.getElementByID('skill').value
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbx2dSi3-50CHjio9qByKfW080iZ-Yz8vXKtiVC5dvC0-p2TEZoRMAwY3Cv8InlSf4duRg/exec", {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+  .then(response => {
+    if (response.ok) {
       alert("Team successfully registered!");
       window.location.href = "payment.html";
-    })
-    .catch(error => alert('Error: ' + error.message));
+    } else {
+      throw new Error("Failed to submit form.");
+    }
+  })
+  .catch(error => {
+    alert('Error: ' + error.message);
+    formSubmitted = false;
+    registerButton.disabled = false;
+    registerButton.textContent = "Register";
   });
+});
 </script>
-
 </main>
 <script>
     function handleFormSubmit() {
