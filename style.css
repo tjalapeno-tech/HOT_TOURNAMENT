@@ -20,6 +20,10 @@ header img {
   height: 60px;
 }
 
+.header-logo {
+  height: 80px; /* Adjust size as desired */
+}
+
 nav {
   display: flex;
   gap: 15px;
