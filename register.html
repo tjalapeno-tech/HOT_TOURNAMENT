@@ -20,47 +20,74 @@
 </script>
 <main class="form-container">
   <h1>Team Registration</h1>
-  <form id="registrationForm" action="mailto:operations@huntsvilleoldtimers.com" method="POST" enctype="text/plain" onsubmit="return handleFormSubmit()">
-    <div class="form-group">
-      <label for="team">Team Name*</label>
-      <input type="text" id="team" name="Team Name" required>
-    </div>
+  <form id="registrationForm">
+  <div class="form-group">
+    <label>Team Name*</label>
+    <input type="text" id="team" required>
+  </div>
 
-    <div class="form-group">
-      <label for="rep">Team Representative*</label>
-      <input type="text" id="rep" name="Team Rep" required>
-    </div>
+  <div class="form-group">
+    <label>Team Rep*</label>
+    <input type="text" id="rep" required>
+  </div>
 
-    <div class="form-group">
-      <label for="contact">Contact Email / Phone*</label>
-      <input type="text" id="contact" name="Contact Info" required>
-    </div>
+  <div class="form-group">
+    <label>Contact Info*</label>
+    <input type="text" id="contact" required>
+  </div>
 
-    <div class="form-group">
-      <label for="division">Division*</label>
-      <select id="division" name="Division" required>
-        <option value="">--Select Division--</option>
-        <option>Men 35+</option>
-        <option>Men 45+</option>
-        <option>Men 55+</option>
-        <option>Women Open</option>
-      </select>
-    </div>
+  <div class="form-group">
+    <label>Division*</label>
+    <select id="division" required>
+      <option value="">--Select--</option>
+      <option>Men 35+</option>
+      <option>Men 45+</option>
+      <option>Men 55+</option>
+      <option>Women Open</option>
+    </select>
+  </div>
 
-    <div class="form-group">
-      <label for="skill">Skill Level*</label>
-      <select id="skill" name="Skill Level" required>
-        <option value="">--Select Skill--</option>
-        <option>A</option>
-        <option>B</option>
-        <option>C</option>
-        <option>D</option>
-        <option>E</option>
-      </select>
-    </div>
+  <div class="form-group">
+    <label>Skill Level*</label>
+    <select id="skill" required>
+      <option value="">--Select--</option>
+      <option>A</option>
+      <option>B</option>
+      <option>C</option>
+      <option>D</option>
+      <option>E</option>
+    </select>
+  </div>
 
-    <button type="submit">Register</button>
-  </form>
+  <button type="submit">Register</button>
+</form>
+
+<script>
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbx2dSi3-50CHjio9qByKfW080iZ-Yz8vXKtiVC5dvC0-p2TEZoRMAwY3Cv8InlSf4duRg/exec';
+
+  document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const data = {
+      team: document.getElementById('team').value,
+      rep: document.getElementById('rep').value,
+      contact: document.getElementById('contact').value,
+      division: document.getElementById('division').value,
+      skill: document.getElementById('skill').value
+    };
+
+    fetch(scriptURL, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      alert("Team successfully registered!");
+      window.location.href = "payment.html";
+    })
+    .catch(error => alert('Error: ' + error.message));
+  });
+</script>
+
 </main>
 <script>
     function handleFormSubmit() {
