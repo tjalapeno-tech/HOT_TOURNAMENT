@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
 </head>
+<body>
 
-<header>
-  <!-- Load shared header -->
+    <!-- Load shared header -->
 <div id="header-placeholder"></div>
 <script>
   fetch("header.html")
@@ -18,11 +18,7 @@
       document.getElementById("header-placeholder").innerHTML = data;
     });
 </script>
-
-</header>
-
-  <body>
-
+  
   <section class="hero">
     <h1>Huntsville Oldtimers Tournament</h1>
     <p>Welcome to the home of Huntsville Oldtimers Hockey Tournament! Register your team now!</p>
