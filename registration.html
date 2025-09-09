@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register Your Team</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Load header
+    fetch('/header.html')
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('header-container').innerHTML = data;
+      });
+  </script>
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <main class="form-container">
+    <h1>Team Registration</h1>
+    <form id="registrationForm" action="mailto:operations@huntsvilleoldtimers.com" method="POST" enctype="text/plain" onsubmit="return handleFormSubmit()">
+      <label for="team">Team Name*</label>
+      <input type="text" id="team" name="Team Name" required>
+
+      <label for="rep">Team Representative*</label>
+      <input type="text" id="rep" name="Team Rep" required>
+
+      <label for="contact">Contact Email / Phone*</label>
+      <input type="text" id="contact" name="Contact Info" required>
+
+      <label for="division">Division*</label>
+      <select id="division" name="Division" required>
+        <option value="">--Select Division--</option>
+        <option>Men 35+</option>
+        <option>Men 45+</option>
+        <option>Men 55+</option>
+        <option>Women Open</option>
+      </select>
+
+      <label for="skill">Skill Level*</label>
+      <select id="skill" name="Skill Level" required>
+        <option value="">--Select Skill--</option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+        <option>E</option>
+      </select>
+
+      <button type="submit">Register</button>
+    </form>
+  </main>
+
+  <script>
+    function handleFormSubmit() {
+      // Wait briefly and redirect to payment screen
+      setTimeout(() => {
+        window.location.href = "/payment.html"; // You can change this to your payment page
+      }, 200);
+
+      return true; // Allow the form to submit via mailto
+    }
+  </script>
+</body>
+</html>
