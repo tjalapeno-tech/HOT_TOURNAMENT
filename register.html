@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <script>
     // Load header
-    fetch('/components/header.html')
+    fetch('/header.html')
       .then(res => res.text())
       .then(data => {
         document.getElementById('header-container').innerHTML = data;
