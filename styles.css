@@ -3,12 +3,12 @@
 body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
-  background-color: #f4f0de; /* pale white */
+  background-color: #1d3b55; /* retro navy  */ 
   color: #004C97;
 }
 
 header {
-  background-color: #1d3b55; /* retro navy */
+  background-color: #f4f0de; /* retro blue */
   color: white;
   padding: 20px;
   display: flex;
