@@ -1,4 +1,4 @@
-/* styles.css - Retro Quebec Nordiques Inspired Theme */
+/* style.css - HOT*/
 
 body {
   margin: 0;
@@ -78,3 +78,54 @@ footer {
   padding: 15px;
   font-size: 14px;
 }
+
+.form-container {
+  max-width: 500px;
+  margin: 50px auto;
+  background-color: #ffffffcc;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 6px;
+  font-size: 16px;
+  color: #0e1a40;
+}
+
+input, select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+button[type="submit"] {
+  background-color: #c8102e;
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #a00e22;
+}
+
