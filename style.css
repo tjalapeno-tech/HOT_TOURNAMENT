@@ -188,3 +188,21 @@ button[type="submit"]:hover {
 .etransfer-bank-links a:hover {
   background-color: #2d4d80;
 }
+
+.payment-page {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.payment-container {
+  max-width: 700px;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .payment-container {
+    padding: 0 15px;
+  }
+}
+
