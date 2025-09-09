@@ -1,3 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register Your Team</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // Load header
+    fetch('/components/header.html')
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('header-container').innerHTML = data;
+      });
+  </script>
+</head>
+<body>
 <main class="form-container">
   <h1>Team Registration</h1>
   <form id="registrationForm" action="mailto:operations@huntsvilleoldtimers.com" method="POST" enctype="text/plain" onsubmit="return handleFormSubmit()">
@@ -42,3 +59,15 @@
     <button type="submit">Register</button>
   </form>
 </main>
+<script>
+    function handleFormSubmit() {
+      // Wait briefly and redirect to payment screen
+      setTimeout(() => {
+        window.location.href = "/payment.html"; // You can change this to your payment page
+      }, 200);
+
+      return true; // Allow the form to submit via mailto
+    }
+  </script>
+</body>
+</html>  
