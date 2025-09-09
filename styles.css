@@ -3,12 +3,12 @@
 body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
-  background-color: #f4f7fa; /* pale ice blue */
+  background-color: #004C97; /* pale ice blue */
   color: #1c2e4a;
 }
 
 header {
-  background-color: #1c2e4a; /* retro navy */
+  background-color: #1d3b55; /* retro navy */
   color: white;
   padding: 20px;
   display: flex;
@@ -34,11 +34,11 @@ nav a {
 }
 
 nav a:hover {
-  color: #e63946; /* pale red highlight */
+  color: #AC162C; /* pale red highlight */
 }
 
 .hero {
-  background: linear-gradient(to bottom right, #1c2e4a, #e63946);
+  background: linear-gradient(to bottom right, #1d3b55, #AC162C);
   color: white;
   text-align: center;
   padding: 100px 20px;
