@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Register Your Team</title>
   <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <!-- Load shared header -->
 <div id="header-placeholder"></div>
 <script>
   fetch("header.html")
@@ -18,69 +16,87 @@
       document.getElementById("header-placeholder").innerHTML = data;
     });
 </script>
+
 <main class="form-container">
   <h1>Team Registration</h1>
   <form id="registrationForm">
-  <div class="form-group">
-    <label>Team Name*</label>
-    <input type="text" id="team" required>
-  </div>
+    <div class="form-group">
+      <label>Team Name*</label>
+      <input type="text" id="team" required>
+    </div>
+    <div class="form-group">
+      <label>Team Rep*</label>
+      <input type="text" id="repName" required>
+    </div>
+    <div class="form-group">
+      <label>Contact Email*</label>
+      <input type="email" id="repEmail" required>
+    </div>
+    <div class="form-group">
+      <label>Contact Phone*</label>
+      <input type="text" id="repPhone" required>
+    </div>
+    <div class="form-group">
+      <label>Division*</label>
+      <select id="division" required>
+        <option value="">--Select--</option>
+        <option value="Men 35+">Men 35+</option>
+        <option value="Men 45+">Men 45+</option>
+        <option value="Men 55+">Men 55+</option>
+        <option value="Women Open">Women Open</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Skill Level*</label>
+      <select id="skill" required>
+        <option value="">--Select--</option>
+        <option>A</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+        <option>E</option>
+      </select>
+    </div>
+    <button type="submit">Register</button>
+  </form>
+</main>
 
-  <div class="form-group">
-    <label>Team Rep*</label>
-    <input type="text" id="repName" required>
-  </div>
-
-  <div class="form-group">
-    <label>Contact Email*</label>
-    <input type="text" id="repEmail" required>
-  </div>
-
-  <div class="form-group">
-    <label>Contact Phone*</label>
-    <input type="text" id="repPhone" required>
-  </div>
-
-  <div class="form-group">
-    <label>Division*</label>
-    <select id="division" required>
-      <option value="">--Select--</option>
-      <option>Men 35+</option>
-      <option>Men 45+</option>
-      <option>Men 55+</option>
-      <option>Women Open</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label>Skill Level*</label>
-    <select id="skill" required>
-      <option value="">--Select--</option>
-      <option>A</option>
-      <option>B</option>
-      <option>C</option>
-      <option>D</option>
-      <option>E</option>
-    </select>
-  </div>
-
-  <button type="submit">Register</button>
-</form>
 <script>
+const divisionLimits = {
+  "Men 35+": 8,
+  "Men 45+": 8,
+  "Men 55+": 4,
+  "Women Open": 8
+};
+
+const scriptUrl = "https://script.google.com/macros/s/AKfycbxfoS6jj0u0i_RsAObUdrEFprjudGcYsSkmFVne0JVXIbqIf8IBxOZV1qROCf2JRvn-0g/exec"; 
+
+// Disable full divisions
+fetch(scriptUrl)
+  .then(response => response.json())
+  .then(counts => {
+    for (const [division, max] of Object.entries(divisionLimits)) {
+      if ((counts[division] || 0) >= max) {
+        const option = document.querySelector(`#division option[value="${division}"]`);
+        if (option) {
+          option.disabled = true;
+          option.textContent += " (Full)";
+        }
+      }
+    }
+  });
+
 let formSubmitted = false;
 
 document.getElementById('registrationForm').addEventListener('submit', function(e) {
   e.preventDefault();
 
-  const registerButton = this.querySelector('button[type="submit"]');
+  if (formSubmitted) return;
 
-  if (formSubmitted) {
-    return; // Prevent multiple submits
-  }
-
+  const button = this.querySelector('button[type="submit"]');
   formSubmitted = true;
-  registerButton.disabled = true;
-  registerButton.textContent = "Registering...";
+  button.disabled = true;
+  button.textContent = "Registering...";
 
   const data = {
     team: document.getElementById('team').value.trim(),
@@ -91,36 +107,25 @@ document.getElementById('registrationForm').addEventListener('submit', function(
     skill: document.getElementById('skill').value
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbwlJgGluOwMtPCW2km01rQnHMIi_yDBGNdSsXgPTJqSa-OTETGYkAZkIcjvIzPdx_KI7g/exec", {
+  fetch(scriptUrl, {
     method: 'POST',
     body: JSON.stringify(data)
   })
   .then(response => {
-    if (response.ok) {
-      alert("Team successfully registered!");
-      window.location.href = "payment.html";
-    } else {
-      throw new Error("Failed to submit form.");
-    }
+    if (!response.ok) throw new Error("Failed to submit form.");
+    return response.text();
+  })
+  .then(result => {
+    alert("Team successfully registered!");
+    window.location.href = "payment.html";
   })
   .catch(error => {
-    alert('Error: ' + error.message);
+    alert("Error: " + error.message);
     formSubmitted = false;
-    registerButton.disabled = false;
-    registerButton.textContent = "Register";
+    button.disabled = false;
+    button.textContent = "Register";
   });
 });
 </script>
-</main>
-<script>
-    function handleFormSubmit() {
-      // Wait briefly and redirect to payment screen
-      setTimeout(() => {
-        window.location.href = "/payment.html"; // You can change this to your payment page
-      }, 200);
-
-      return true; // Allow the form to submit via mailto
-    }
-  </script>
 </body>
-</html>  
+</html>
