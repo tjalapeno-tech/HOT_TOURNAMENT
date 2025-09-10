@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("header-placeholder").innerHTML = data);
+</script>
+
+<section class="hero">
+  <h1>Photo Gallery</h1>
+  <p>Moments from games, events, and tournaments.</p>
+</section>
+
+<main class="content-container">
+  <p>Photos will be uploaded soon! Check back for updates.</p>
+</main>
+
+</body>
+</html>
