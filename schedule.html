@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Schedule</title>
+  <link rel="stylesheet" href="style-main.css">
+  
+</head>
+<body>
+<div id="header-placeholder"></div>
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("header-placeholder").innerHTML = data);
+</script>
+
+<section class="hero">
+  <h1>Game Schedule</h1>
+  <p>Upcoming games, dates, and times will appear here.</p>
+</section>
+
+<main class="content-container">
+  <p>Stay tuned for the full season schedule.</p>
+</main>
+
+</body>
+</html>
