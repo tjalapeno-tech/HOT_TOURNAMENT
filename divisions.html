@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Divisions</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("header-placeholder").innerHTML = data);
+</script>
+
+<section class="hero">
+  <h1>Divisions</h1>
+  <p>Explore the available divisions and their age groups.</p>
+</section>
+
+<main class="content-container">
+  <ul>
+    <li><strong>Men’s 35+ Division</strong></li>
+    <li><strong>Men’s 45+ Division</strong></li>
+    <li><strong>Men’s 55+ Division</strong></li>
+    <li><strong>Women’s Open Division</strong></li>
+  </ul>
+</main>
+
+</body>
+</html>
