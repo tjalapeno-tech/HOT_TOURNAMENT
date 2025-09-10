@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment Successful</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      });
+  </script>
+
+  <section class="hero">
+    <h1>✅ Payment Received</h1>
+    <p>Thank you for your payment! We've successfully received it and updated your registration.</p>
+    <a href="index.html" class="payment-button" style="margin-top: 20px;">Return to Home</a>
+  </section>
+
+</body>
+</html>
+
