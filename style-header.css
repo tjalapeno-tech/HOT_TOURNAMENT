@@ -27,12 +27,12 @@ header {
   text-transform: uppercase;
   color: white;
   text-decoration: none;
-  padding: 10px 15px;
-  border-radius: 6px;
+  padding: 15px 20px;
+  border-radius: 8px;
   transition: background-color 0.3s, color 0.3s;
 }
 
 .main-nav a:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(252, 255, 243, 0.2);
   color: #AC162C;
 }
