@@ -1,276 +1,38 @@
-/* GLOBAL STYLES */
-body {
-  margin: 0;
-  font-family: 'Roboto', sans-serif;
-  background-color: #1d3b55;
-  color: #1d3b55;
-}
-
-/* HERO SECTION */
-.hero {
-  background: linear-gradient(to bottom, #1d3b55, #AC162C);
-  color: white;
-  text-align: center;
-  padding: 100px 20px;
-}
-
-.hero h1 {
-  font-family: 'Roboto Slab', serif;
-  font-size: 48px;
-  margin-bottom: 10px;
-}
-
-.hero p {
-  font-size: 20px;
-  margin-bottom: 30px;
-}
-
-.hero button {
-  background-color: white;
-  color: #1c2e4a;
-  border: none;
-  padding: 15px 30px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.hero button:hover {
-  background-color: #dee8f0;
-}
-
-/* FOOTER */
-footer {
+/* HEADER & NAVIGATION STYLES */
+header {
   background-color: #1c2e4a;
   color: white;
-  text-align: center;
-  padding: 15px;
-  font-size: 14px;
-}
-
-/* FORM CONTAINER */
-.form-container {
-  max-width: 500px;
-  margin: 50px auto;
-  background-color: #ffffffcc;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* FORM & INPUTS */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-label {
-  font-weight: bold;
-  font-size: 16px;
-  color: #0e1a40;
-  margin-bottom: 8px;
-}
-
-input,
-select {
   padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 100%;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
-button[type="submit"] {
-  background-color: #c8102e;
-  color: white;
-  border: none;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.header-logo {
+  height: 120px;
 }
 
-button[type="submit"]:hover {
-  background-color: #a00e22;
-}
-
-/* CONTENT */
-.content-container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #ffffffcc;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  font-size: 18px;
-  line-height: 1.6;
-  color: #1d3b55;
-}
-
-/* E-TRANSFER PAGE */
-.etransfer-container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.etransfer-container h1,
-.etransfer-container h2 {
-  font-family: 'Roboto Slab', serif;
-  color: #0e1a40;
-}
-
-.etransfer-container p,
-.etransfer-container li {
-  font-size: 16px;
-  line-height: 1.6;
-  color: #1d3b55;
-}
-
-.etransfer-list {
-  margin-top: 20px;
-  padding-left: 20px;
-}
-
-.etransfer-note {
-  font-size: 14px;
-  color: #555;
-  margin-top: 15px;
-}
-
-.etransfer-bank-links {
+.main-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
 }
 
-.etransfer-bank-links a {
-  flex: 1 1 45%;
-  background-color: #1b365d;
+.main-nav a {
+  font-size: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
   color: white;
   text-decoration: none;
-  text-align: center;
-  padding: 12px;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
+  padding: 5px 10px;
+  border-radius: 3px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.etransfer-bank-links a:hover {
-  background-color: #2d4d80;
-}
-
-/* PAYMENT PAGE */
-.payment-page {
-  display: flex;
-  justify-content: center;
-  padding: 40px 20px;
-}
-
-.payment-container {
-  max-width: 1000px;
-  width: 100%;
-  padding: 0 20px;
-  font-family: 'Roboto', sans-serif;
-}
-
-.payment-row {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 30px;
-}
-
-.payment-option {
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  border: 2px solid #dcdcdc;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  flex: 1 1 300px;
-  max-width: 450px;
-}
-
-.payment-button {
-  display: inline-block;
-  margin-top: 10px;
-  background-color: #c8102e;
-  color: white;
-  padding: 12px 20px;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 6px;
-  transition: background-color 0.3s ease;
-}
-
-.payment-button:hover {
-  background-color: #a00e22;
-}
-
-.note {
-  font-size: 14px;
-  color: #444;
-  margin-top: 10px;
-}
-
-.payment-container > .payment-option:last-child {
-  margin: 40px auto 0;
-  max-width: 700px;
-}
-
-/* RESPONSIVE TWEAKS */
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 36px;
-  }
-
-  .payment-row {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .payment-option {
-    max-width: 100%;
-  }
-
-  .main-nav {
-    justify-content: center;
-  }
-
-  .main-nav a {
-    font-size: 16px;
-  }
-
-  .form-container {
-    margin: 30px 15px;
-    padding: 20px;
-  }
-
-  form {
-    gap: 16px;
-  }
-
-  label {
-    font-size: 15px;
-  }
-
-  input,
-  select {
-    font-size: 15px;
-  }
+.main-nav a:hover {
+  background-color: rgba(252, 255, 243, 0.2);
+  color: #AC162C;
 }
