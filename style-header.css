@@ -1,4 +1,4 @@
-/* --- Hamburger Styles --- */
+/* --- Hamburger Styles 
 .hamburger {
   display: none;
   font-size: 32px;
@@ -9,12 +9,12 @@
   margin-right: 10px;
 }
 
-/* --- Responsive Nav --- */
+/* --- Responsive Nav 
 @media (max-width: 768px) {
   .hamburger {
     display: block;
   }
-
+--- */
  /* HEADER & NAVIGATION STYLES */
 header {
   background-color: #1c2e4a;
