@@ -58,10 +58,14 @@ header {
   }
 
   .main-nav a {
-    color: white;
-    padding: 10px;
-    text-decoration: none;
-    font-size: 18px;
+  font-size: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  transition: background-color 0.3s, color 0.3s;
   }
 
 .main-nav a:hover {
