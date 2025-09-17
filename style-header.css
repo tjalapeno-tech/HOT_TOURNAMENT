@@ -1,19 +1,19 @@
-/* --- Hamburger Styles 
 .hamburger {
   display: none;
   font-size: 32px;
   background: none;
-  border: white;
+  border: none;
   color: red;
   cursor: pointer;
   margin-right: 10px;
 }
 
-/* --- Responsive Nav 
 @media (max-width: 768px) {
   .hamburger {
     display: block;
   }
+}
+
 --- */
  /* HEADER & NAVIGATION STYLES */
 header {
