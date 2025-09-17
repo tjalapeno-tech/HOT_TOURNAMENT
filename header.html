@@ -20,12 +20,12 @@
 
 <!-- Hamburger Toggle Script -->
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const toggle = document.getElementById('hamburger-toggle');
-    const nav = document.getElementById('main-nav');
+  document.addEventListener("DOMContentLoaded", function () {
+    const hamburger = document.querySelector(".hamburger");
+    const nav = document.querySelector(".main-nav");
 
-    toggle.addEventListener('click', () => {
-      nav.classList.toggle('show');
+    hamburger.addEventListener("click", () => {
+      nav.classList.toggle("active");
     });
   });
 </script>
