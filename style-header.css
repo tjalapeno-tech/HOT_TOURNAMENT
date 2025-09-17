@@ -13,24 +13,56 @@ header {
   height: 120px;
 }
 
-.main-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-items: center;
-  justify-content: center;
+/* Hamburger Button */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 30px;
+  color: white;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
 }
 
-.main-nav a {
-  font-size: 20px;
-  font-weight: bold;
-  text-transform: uppercase;
-  color: white;
-  text-decoration: none;
-  padding: 5px 10px;
-  border-radius: 3px;
-  transition: background-color 0.3s, color 0.3s;
+/* Main nav styles */
+.main-nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
 }
+
+/* Mobile Menu Hidden */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .main-nav {
+    display: none;
+    flex-direction: column;
+    background-color: #1d3b55;
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
+
+  .main-nav.show {
+    display: flex;
+  }
+
+  .main-nav a {
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+    font-size: 18px;
+  }
 
 .main-nav a:hover {
   background-color: rgba(252, 255, 243, 0.2);
