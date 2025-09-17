@@ -1,6 +1,12 @@
 <header>
+  <!-- Logo -->
   <img src="/assets/images/logo_retro.png" alt="Huntsville Oldtimers Logo" class="header-logo" />
-  <nav class="main-nav">
+
+  <!-- Hamburger Toggle Button -->
+  <button class="hamburger" id="hamburger-toggle" aria-label="Toggle menu">☰</button>
+
+  <!-- Navigation Links -->
+  <nav class="main-nav" id="main-nav">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
     <a href="register.html">Register</a>
@@ -11,4 +17,17 @@
     <a href="contact.html">Contact</a>
   </nav>
 </header>
+
+<!-- Hamburger Toggle Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggle = document.getElementById('hamburger-toggle');
+    const nav = document.getElementById('main-nav');
+
+    toggle.addEventListener('click', () => {
+      nav.classList.toggle('show');
+    });
+  });
+</script>
+
 
