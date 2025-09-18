@@ -21,14 +21,22 @@
 
 <!-- Hamburger Toggle Script -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const hamburger = document.querySelector(".hamburger");
-    const nav = document.querySelector(".main-nav");
+  fetch("header.html")
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById("header-placeholder").innerHTML = data;
 
-    hamburger.addEventListener("click", () => {
-      nav.classList.toggle("active");
-      hamburger.classList.toggle("active");
+      // Run after header is added
+      const hamburger = document.querySelector(".hamburger");
+      const nav = document.querySelector(".main-nav");
+
+      if (hamburger && nav) {
+        hamburger.addEventListener("click", () => {
+          nav.classList.toggle("active");
+          hamburger.classList.toggle("active");
+        });
+      }
     });
-  });
 </script>
+
 
