@@ -6,7 +6,7 @@
     ☰
   </button>
 
-  <!-- Nav Links Wrapper -->
+  <!-- Navigation Menu -->
   <nav class="main-nav">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
@@ -21,24 +21,13 @@
 
 <!-- Hamburger Toggle Script -->
 <script>
-  fetch("header.html")
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById("header-placeholder").innerHTML = data;
+  document.addEventListener("DOMContentLoaded", function () {
+    const hamburger = document.querySelector(".hamburger");
+    const nav = document.querySelector(".main-nav");
 
-      // Run after header is added
-      const hamburger = document.querySelector(".hamburger");
-      const nav = document.querySelector(".main-nav");
-
-      console.log('Hamburger:', hamburger);
-console.log('Nav:', nav);
-      if (hamburger && nav) {
-        hamburger.addEventListener("click", () => {
-          nav.classList.toggle("active");
-          hamburger.classList.toggle("active");
-        });
-      }
+    hamburger.addEventListener("click", () => {
+      nav.classList.toggle("active");
+      hamburger.classList.toggle("active");
     });
+  });
 </script>
-
-
