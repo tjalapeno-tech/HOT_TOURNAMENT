@@ -248,14 +248,6 @@ button[type="submit"]:hover {
     max-width: 100%;
   }
 
-  .main-nav {
-    justify-content: center;
-  }
-
-  .main-nav a {
-    font-size: 16px;
-  }
-
   .form-container {
     margin: 30px 15px;
     padding: 20px;
