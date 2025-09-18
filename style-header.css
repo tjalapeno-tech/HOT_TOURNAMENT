@@ -1,3 +1,14 @@
+/* HAMBURGER BUTTON STYLES */
+.hamburger {
+  display: none;
+  font-size: 32px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
 /* HEADER & NAVIGATION STYLES */
 header {
   background-color: #1c2e4a;
@@ -10,11 +21,13 @@ header {
 }
 
 .header-logo {
-  height: 120px;
+  height: 80px;
 }
 
+/* DEFAULT NAV STYLES (DESKTOP) */
 .main-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   align-items: center;
   justify-content: center;
@@ -36,16 +49,6 @@ header {
   color: #AC162C;
 }
 
-/* HAMBURGER MENU STYLES */
-.hamburger {
-  display: none;
-  font-size: 32px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
 /* MOBILE STYLES */
 @media (max-width: 768px) {
   .hamburger {
@@ -56,17 +59,18 @@ header {
     display: none;
     flex-direction: column;
     width: 100%;
-    text-align: center;
     background-color: #1c2e4a;
-    padding-top: 10px;
+    margin-top: 10px;
   }
 
-  .main-nav.show-nav {
+  .main-nav.active {
     display: flex;
   }
 
   .main-nav a {
-    padding: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    padding: 12px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
   }
 }
