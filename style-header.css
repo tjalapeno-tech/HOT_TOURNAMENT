@@ -1,7 +1,4 @@
-/* ====================
-   HEADER & NAVIGATION
-   ==================== */
-
+/* HEADER & NAVIGATION STYLES */
 header {
   background-color: #1c2e4a;
   color: white;
@@ -16,10 +13,8 @@ header {
   height: 120px;
 }
 
-/* Default Navigation Layout (Desktop) */
 .main-nav {
   display: flex;
-  flex-wrap: wrap;
   gap: 20px;
   align-items: center;
   justify-content: center;
@@ -41,10 +36,7 @@ header {
   color: #AC162C;
 }
 
-/* ====================
-   HAMBURGER BUTTON
-   ==================== */
-
+/* HAMBURGER MENU STYLES */
 .hamburger {
   display: none;
   font-size: 32px;
@@ -52,13 +44,9 @@ header {
   border: none;
   color: white;
   cursor: pointer;
-  margin-right: 10px;
 }
 
-/* ====================
-   RESPONSIVE MOBILE STYLES
-   ==================== */
-
+/* MOBILE STYLES */
 @media (max-width: 768px) {
   .hamburger {
     display: block;
@@ -68,18 +56,17 @@ header {
     display: none;
     flex-direction: column;
     width: 100%;
+    text-align: center;
     background-color: #1c2e4a;
-    margin-top: 10px;
+    padding-top: 10px;
   }
 
-  .main-nav.active {
+  .main-nav.show-nav {
     display: flex;
   }
 
   .main-nav a {
-    padding: 12px 20px;
-    text-align: left;
-    width: 100%;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
 }
