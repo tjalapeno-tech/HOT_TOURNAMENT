@@ -1,22 +1,7 @@
-/* ===== HAMBURGER BUTTON ===== */
-.hamburger {
-  display: none;
-  font-size: 32px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  margin-right: 10px;
-  z-index: 1001;
-  transition: transform 0.3s ease;
-}
+/* ====================
+   HEADER & NAVIGATION
+   ==================== */
 
-.hamburger.active {
-  color: #AC162C;
-  transform: rotate(90deg);
-}
-
-/* ===== HEADER & NAVIGATION STYLES ===== */
 header {
   background-color: #1c2e4a;
   color: white;
@@ -25,21 +10,19 @@ header {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  position: relative;
 }
 
 .header-logo {
   height: 120px;
-  z-index: 1000;
 }
 
+/* Default Navigation Layout (Desktop) */
 .main-nav {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   align-items: center;
   justify-content: center;
-  transition: max-height 0.3s ease-out, opacity 0.3s ease;
 }
 
 .main-nav a {
@@ -58,43 +41,45 @@ header {
   color: #AC162C;
 }
 
-/* ===== MOBILE NAV TOGGLE ===== */
+/* ====================
+   HAMBURGER BUTTON
+   ==================== */
+
+.hamburger {
+  display: none;
+  font-size: 32px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+/* ====================
+   RESPONSIVE MOBILE STYLES
+   ==================== */
+
 @media (max-width: 768px) {
   .hamburger {
     display: block;
-    position: absolute;
-    top: 18px;
-    right: 20px;
   }
 
   .main-nav {
-    display: flex;
+    display: none;
     flex-direction: column;
-    align-items: flex-start;
     width: 100%;
-    padding: 0 10px;
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-  }
-
-  .main-nav.active {
-    max-height: 1000px; /* large enough to show all items */
-    opacity: 1;
+    background-color: #1c2e4a;
     margin-top: 10px;
   }
 
+  .main-nav.active {
+    display: flex;
+  }
+
   .main-nav a {
-    padding: 10px 0;
+    padding: 12px 20px;
+    text-align: left;
     width: 100%;
-  }
-
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-logo {
-    height: 90px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
