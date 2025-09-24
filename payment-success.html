@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment Success</title>
+  <link rel="stylesheet" href="style-header.css">
+  <link rel="stylesheet" href="style-main.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+
+  <style>
+    .success-container {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 30px;
+      background-color: #f4fff3;
+      border: 2px solid #28a745;
+      border-radius: 10px;
+      text-align: center;
+      font-family: 'Roboto', sans-serif;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .success-container h1 {
+      font-size: 32px;
+      color: #28a745;
+      margin-bottom: 20px;
+    }
+
+    .success-container p {
+      font-size: 20px;
+      color: #333;
+    }
+
+    .success-container a {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 10px 20px;
+      background-color: #1c2e4a;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .success-container a:hover {
+      background-color: #AC162C;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      });
+  </script>
+
+  <main class="success-container">
+    <h1>✅ Payment Received</h1>
+    <p>Thank you! Your registration has been confirmed for the <strong>2025 HOT Tournament</strong>.</p>
+    <p>We look forward to seeing your team on the ice!</p>
+    <a href="index.html">Return to Home</a>
+  </main>
+
+</body>
+</html>
+
