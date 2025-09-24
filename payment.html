@@ -4,12 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Payment</title>
-    <link rel="stylesheet" href="style-header.css">
+
+  <link rel="stylesheet" href="style-header.css">
   <link rel="stylesheet" href="style-main.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+
+  <style>
+    /* Optional visual feedback for disabled payment buttons */
+    .payment-button.disabled {
+      background-color: #888;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  </style>
 </head>
 <body>
 
+<!-- Header placeholder -->
 <div id="header-placeholder"></div>
 <script>
   fetch("header.html")
@@ -19,41 +30,62 @@
     });
 </script>
 
+<!-- Hero Section -->
 <section class="hero">
   <h1>Team Registration Payment</h1>
   <p>Secure your spot by finalizing your registration!</p>
 </section>
 
+<!-- Main Payment Section -->
 <main class="payment-page">
   <div class="payment-container">
 
     <div class="payment-row">
+      <!-- Deposit Option -->
       <div class="payment-option">
         <h2>💳 Pay Deposit Online ($650.00)</h2>
         <p>Click the button below to pay the <b>$650 Team Deposit</b> online!</p>
-        <a href="https://square.link/u/6P90WZWu" target="_blank" class="payment-button">Pay <b>DEPOSIT</b> with Square</a>
+        <a href="https://square.link/u/6P90WZWu" class="payment-button external-payment">Pay <b>DEPOSIT</b> with Square</a>
         <p class="note">* Your payment will be securely processed by Square.</p>
       </div>
 
+      <!-- Full Fee Option -->
       <div class="payment-option">
         <h2>💳 Pay Team Fee Online ($1300.00)</h2>
         <p>Click the button below to pay the <b>$1300 Team Fee</b> online!</p>
-        <a href="https://square.link/u/VoX8BiGq" target="_blank" class="payment-button">Pay <b>TEAM FEE</b> with Square</a>
+        <a href="https://square.link/u/VoX8BiGq" class="payment-button external-payment">Pay <b>TEAM FEE</b> with Square</a>
         <p class="note">* Your payment will be securely processed by Square.</p>
       </div>
     </div>
 
-<!--
+    <!-- Optional E-Transfer Block (currently commented out) -->
+    <!--
     <div class="etransfer-option">
       <h2>💸 Pay by E-Transfer</h2>
       <p>Prefer to send an Interac e-Transfer? Click below for details and instructions.</p>
       <a href="etransfer.html" class="payment-button">E-Transfer Instructions</a>
       <p class="note">* Please include your team name in the message field when sending e-transfer.</p>
     </div>
--->
+    -->
 
   </div>  
 </main>
+
+<!-- Prevent Multiple Charges Script -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".external-payment");
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        // Disable button after first click to prevent repeat charges
+        button.classList.add("disabled");
+        button.innerText = "Processing...";
+        button.style.pointerEvents = "none";
+      });
+    });
+  });
+</script>
 
 </body>
 </html>
