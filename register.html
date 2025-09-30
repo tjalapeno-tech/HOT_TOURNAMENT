@@ -18,6 +18,7 @@
   </style>
 </head>
 <body>
+
 <div id="header-placeholder"></div>
 <script>
   fetch("header.html")
@@ -55,13 +56,12 @@
       <input type="text" id="repPhone" name="repPhone" inputmode="numeric" required>
     </div>
 
-<div class="form-group">
-  <label for="division">Division*: </label>
-  <select id="division" name="division" required>
-    <option value="">--Select Division--</option>
-  </select>
-</div>
-
+    <div class="form-group">
+      <label for="division">Division*: </label>
+      <select id="division" name="division" required>
+        <option value="">--Select Division--</option>
+      </select>
+    </div>
 
     <div class="form-group">
       <label for="skill">Skill Level*: </label>
@@ -79,9 +79,10 @@
   </form>
 </main>
 
-
 <script>
 const scriptUrl = "https://script.google.com/macros/s/AKfycbyssVpZ2siSGsemHXleqaVJpZt4qfAw0mZLjUPCGPDE05bI_MHNmOjLN0qoTJtAB_jKVQ/exec";
+
+let formSubmitted = false;
 
 async function populateDivisions() {
   try {
@@ -144,5 +145,6 @@ document.getElementById('registrationForm').addEventListener('submit', function(
   });
 });
 </script>
+
 </body>
 </html>
