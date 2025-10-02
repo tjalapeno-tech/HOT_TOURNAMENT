@@ -80,7 +80,7 @@
 </main>
 
 <script>
-const scriptUrl = "https://script.google.com/macros/s/AKfycbz_luZjc3UJXcN-B2IXu_JBTQjJxyfdT_zsPJ-GYheSVS86I4xBuXl9_S7s3BZcx1vxUA/exec";
+const scriptUrl = "https://script.google.com/macros/s/AKfycby8TQjhikr42esk64GftcNi86ce3i-S5UO8hGrzQu_fiGrt746lhalqSgTMHpwuyMAITg/exec";
 
 let formSubmitted = false;
 
@@ -126,9 +126,10 @@ document.getElementById('registrationForm').addEventListener('submit', function(
   };
 
   fetch(scriptUrl, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  })
+  method: 'POST',
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data)
+})
   .then(response => {
     if (response.ok) {
       alert("Team successfully registered!");
