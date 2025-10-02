@@ -8,16 +8,9 @@
   <link rel="stylesheet" href="style-main.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
   <style>
-    .form-group {
-      margin-bottom: 20px;
-    }
-    select option:disabled {
-      color: gray;
-    }
-    button[disabled] {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+    .form-group { margin-bottom: 20px; }
+    select option:disabled { color: gray; }
+    button[disabled] { opacity: 0.6; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -27,9 +20,7 @@
   // Load shared header
   fetch("header.html")
     .then(response => response.text())
-    .then(data => {
-      document.getElementById("header-placeholder").innerHTML = data;
-    });
+    .then(data => { document.getElementById("header-placeholder").innerHTML = data; });
 </script>
 
 <section class="hero">
@@ -52,12 +43,12 @@
 
     <div class="form-group">
       <label for="repEmail">Contact Email*: </label>
-      <input type="email" id="repEmail" name="repEmail" inputmode="email" required>
+      <input type="email" id="repEmail" name="repEmail" required>
     </div>
 
     <div class="form-group">
       <label for="repPhone">Contact Phone*: </label>
-      <input type="text" id="repPhone" name="repPhone" inputmode="numeric" required>
+      <input type="text" id="repPhone" name="repPhone" required>
     </div>
 
     <div class="form-group">
@@ -108,7 +99,6 @@ async function populateDivisions() {
     alert("Could not load division availability.");
   }
 }
-
 document.addEventListener("DOMContentLoaded", populateDivisions);
 
 // Handle form submission
@@ -118,30 +108,35 @@ document.getElementById('registrationForm').addEventListener('submit', function(
   btn.disabled = true;
   btn.textContent = "Submitting...";
 
-  const formData = new FormData();
-  formData.append("team", document.getElementById('team').value.trim());
-  formData.append("repName", document.getElementById('repName').value.trim());
-  formData.append("repEmail", document.getElementById('repEmail').value.trim());
-  formData.append("repPhone", document.getElementById('repPhone').value.trim());
-  formData.append("division", document.getElementById('division').value);
-  formData.append("skill", document.getElementById('skill').value);
+  // Build URL encoded params
+  const params = new URLSearchParams();
+  params.append("team", document.getElementById('team').value.trim());
+  params.append("repName", document.getElementById('repName').value.trim());
+  params.append("repEmail", document.getElementById('repEmail').value.trim());
+  params.append("repPhone", document.getElementById('repPhone').value.trim());
+  params.append("division", document.getElementById('division').value);
+  params.append("skill", document.getElementById('skill').value);
 
-  fetch(scriptUrl, { method: 'POST', body: formData })
-    .then(r => r.text())
-    .then(txt => {
-      if (txt.includes("Success")) {
-        alert("Team successfully registered!");
-        window.location.href = "payment.html";
-      } else {
-        throw new Error(txt);
-      }
-    })
-    .catch(err => {
-      console.error("Submission error:", err);
-      alert("Error: " + err.message);
-      btn.disabled = false;
-      btn.textContent = "Register";
-    });
+  fetch(scriptUrl, {
+    method: 'POST',
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params.toString()
+  })
+  .then(r => r.text())
+  .then(txt => {
+    if (txt.includes("Success")) {
+      alert("Team successfully registered!");
+      window.location.href = "payment.html";
+    } else {
+      throw new Error(txt);
+    }
+  })
+  .catch(err => {
+    console.error("Submission error:", err);
+    alert("Error: " + err.message);
+    btn.disabled = false;
+    btn.textContent = "Register";
+  });
 });
 </script>
 
