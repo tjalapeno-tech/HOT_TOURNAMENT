@@ -11,9 +11,12 @@
     .form-group {
       margin-bottom: 20px;
     }
-
     select option:disabled {
       color: gray;
+    }
+    button[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
   </style>
 </head>
@@ -21,6 +24,7 @@
 
 <div id="header-placeholder"></div>
 <script>
+  // Load shared header
   fetch("header.html")
     .then(response => response.text())
     .then(data => {
@@ -82,8 +86,7 @@
 <script>
 const scriptUrl = "https://script.google.com/macros/s/AKfycby8TQjhikr42esk64GftcNi86ce3i-S5UO8hGrzQu_fiGrt746lhalqSgTMHpwuyMAITg/exec";
 
-let formSubmitted = false;
-
+// Load division availability
 async function populateDivisions() {
   try {
     const res = await fetch(scriptUrl);
@@ -102,48 +105,43 @@ async function populateDivisions() {
     }
   } catch (err) {
     console.error("Error loading divisions", err);
+    alert("Could not load division availability.");
   }
 }
 
 document.addEventListener("DOMContentLoaded", populateDivisions);
 
+// Handle form submission
 document.getElementById('registrationForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
-
-  if (formSubmitted) return;
-  formSubmitted = true;
   btn.disabled = true;
   btn.textContent = "Submitting...";
 
-  const data = {
-    team: document.getElementById('team').value.trim(),
-    repName: document.getElementById('repName').value.trim(),
-    repEmail: document.getElementById('repEmail').value.trim(),
-    repPhone: document.getElementById('repPhone').value.trim(),
-    division: document.getElementById('division').value,
-    skill: document.getElementById('skill').value
-  };
+  const formData = new FormData();
+  formData.append("team", document.getElementById('team').value.trim());
+  formData.append("repName", document.getElementById('repName').value.trim());
+  formData.append("repEmail", document.getElementById('repEmail').value.trim());
+  formData.append("repPhone", document.getElementById('repPhone').value.trim());
+  formData.append("division", document.getElementById('division').value);
+  formData.append("skill", document.getElementById('skill').value);
 
-  fetch(scriptUrl, {
-  method: 'POST',
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(data)
-})
-  .then(response => {
-    if (response.ok) {
-      alert("Team successfully registered!");
-      window.location.href = "payment.html";
-    } else {
-      throw new Error("Submission failed.");
-    }
-  })
-  .catch(err => {
-    alert("Error: " + err.message);
-    formSubmitted = false;
-    btn.disabled = false;
-    btn.textContent = "Register";
-  });
+  fetch(scriptUrl, { method: 'POST', body: formData })
+    .then(r => r.text())
+    .then(txt => {
+      if (txt.includes("Success")) {
+        alert("Team successfully registered!");
+        window.location.href = "payment.html";
+      } else {
+        throw new Error(txt);
+      }
+    })
+    .catch(err => {
+      console.error("Submission error:", err);
+      alert("Error: " + err.message);
+      btn.disabled = false;
+      btn.textContent = "Register";
+    });
 });
 </script>
 
