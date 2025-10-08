@@ -4,27 +4,67 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About | Huntsville Oldtimers Tournament</title>
-    <link rel="stylesheet" href="style-header.css">
+  <link rel="stylesheet" href="style-header.css">
   <link rel="stylesheet" href="style-main.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+  <style>
+    .tournament-details {
+      background: #f8f9fa;
+      border: 2px solid #d3d3d3;
+      border-radius: 12px;
+      padding: 25px 30px;
+      max-width: 800px;
+      margin: 40px auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .tournament-details h2 {
+      text-align: center;
+      font-family: 'Roboto Slab', serif;
+      color: #1d3c6a; /* navy blue tone */
+      margin-bottom: 20px;
+    }
+    .tournament-details ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      line-height: 1.8;
+    }
+    .tournament-details li {
+      font-size: 1.05em;
+      margin-bottom: 5px;
+    }
+    .tournament-details li strong {
+      color: #b22222; /* red accent */
+    }
+  </style>
 </head>
 <body>
   
-    <div id="header-placeholder"></div>
-<script>
-  fetch("header.html")
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById("header-placeholder").innerHTML = data;
-    });
-</script>
-
-  
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      });
+  </script>
 
   <section class="hero">
     <h1>About the Tournament</h1>
     <p>The Huntsville Oldtimers Tournament is a celebration of community, competition, and camaraderie.</p>
     <p>Hosted annually in the heart of Muskoka, our event welcomes teams from across the region for an unforgettable weekend of hockey.</p>
+  </section>
+
+  <!-- New Tournament Details Section -->
+  <section class="tournament-details">
+    <h2>Tournament Details</h2>
+    <ul>
+      <li><strong>Dates:</strong> December 5–7th</li>
+      <li><strong>Number of Games:</strong> 3 guaranteed per team</li>
+      <li><strong>Fees:</strong> $650 Deposit / $1300 Team Fee</li>
+      <li><strong>Officials:</strong> Locally Officiated</li>
+      <li><strong>Extras:</strong> Food & Drink, Skate Sharpening, and Live Music available on location</li>
+    </ul>
   </section>
 
   <main style="padding: 40px; max-width: 900px; margin: 0 auto; line-height: 1.6;">
@@ -35,7 +75,7 @@
     <ul>
       <li>3 guaranteed games per team</li>
       <li>Friendly, competitive atmosphere</li>
-      <li>Beer gardens, local food, and merchandise vendors</li>
+      <li>Beer garden, local food, and HOT merchandise</li>
       <li>Real-time standings and results posted online</li>
     </ul>
 
