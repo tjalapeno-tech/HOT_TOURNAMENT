@@ -7,7 +7,40 @@
   <link rel="stylesheet" href="style-header.css">
   <link rel="stylesheet" href="style-main.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+
   <style>
+    /* --- Reset and structure fixes --- */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: 'Roboto', sans-serif;
+      background-color: #fff;
+      overflow-x: hidden; /* prevent horizontal scroll */
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    #header-placeholder {
+      width: 100%;
+      display: block;
+      z-index: 10;
+    }
+
+    section.hero {
+      text-align: center;
+      padding: 80px 20px 40px 20px;
+      background-color: #fff;
+      color: #222;
+      z-index: 1;
+      position: relative;
+    }
+
     .tournament-details {
       background: #f8f9fa;
       border: 2px solid #d3d3d3;
@@ -17,57 +50,74 @@
       margin: 40px auto;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       clear: both;
+      position: relative;
+      z-index: 1;
     }
+
     .tournament-details h2 {
       text-align: center;
       font-family: 'Roboto Slab', serif;
       color: #1d3c6a; /* navy blue tone */
       margin-bottom: 20px;
     }
+
     .tournament-details ul {
       list-style: none;
       padding: 0;
       margin: 0;
       line-height: 1.8;
     }
+
     .tournament-details li {
       font-size: 1.05em;
       margin-bottom: 6px;
     }
+
     .tournament-details li strong {
       color: #b22222; /* red accent */
     }
-    section.hero {
-      text-align: center;
-      padding: 60px 20px 30px 20px;
-      background-color: #fff;
-    }
+
     main {
-      padding: 40px 20px;
+      padding: 40px 20px 60px 20px;
       max-width: 900px;
       margin: 0 auto;
       line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+
+    footer {
+      background-color: #1d3c6a;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9em;
+      margin-top: auto;
     }
   </style>
 </head>
+
 <body>
-  
+
+  <!-- Header -->
   <div id="header-placeholder"></div>
   <script>
     fetch("header.html")
       .then(response => response.text())
       .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
-      });
+      })
+      .catch(err => console.error("Header load error:", err));
   </script>
 
+  <!-- Hero Section -->
   <section class="hero">
     <h1>About the Tournament</h1>
     <p>The Huntsville Oldtimers Tournament is a celebration of community, competition, and camaraderie.</p>
     <p>Hosted annually in the heart of Muskoka, our event welcomes teams from across the region for an unforgettable weekend of hockey.</p>
   </section>
 
-  <!-- Fixed Tournament Details Section -->
+  <!-- Tournament Details -->
   <section class="tournament-details">
     <h2>Tournament Details</h2>
     <ul>
@@ -79,6 +129,7 @@
     </ul>
   </section>
 
+  <!-- Main Content -->
   <main>
     <h2>Our Mission</h2>
     <p>We aim to bring together adult recreational hockey players for spirited competition and community building, all while supporting local charities and businesses in Huntsville, Ontario.</p>
@@ -106,10 +157,10 @@
     </ul>
   </main>
 
+  <!-- Footer -->
   <footer>
     &copy; 2025 Huntsville Oldtimers Tournament. All rights reserved.
   </footer>
+
 </body>
 </html>
-
-  
