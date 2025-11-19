@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Huntsville Oldtimers Tournament</title>
+  <link rel="stylesheet" href="style-main.css">  
+  <link rel="stylesheet" href="style-header.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Load shared header -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+      });
+  </script>
+</head>
+<body>
+
+  <section class="hero">
+    <img src="/assets/images/logo_retro.png" alt="Huntsville Oldtimers Logo" style="width: 200px;" />
+
+    <h1>Huntsville Oldtimers Tournament</h1>
+    <h2>December 5-7th 2025</h2>
+
+    <!-- Updated messaging -->
+    <p><b>Registration for the 2025 tournament is now closed.</b></p>
+    <p>Thank you to all teams who registered — we’re excited to welcome you to Huntsville!</p>
+
+    <!-- Optional: replace button with a disabled button -->
+    <!--
+    <button style="background: #777; cursor: not-allowed;" disabled>Registration Closed</button>
+    -->
+
+    <br>
+<!--
+    <p>
+      Please click below to register for our tournament mailing list to be notified about upcoming tournaments.
+    </p>
+-->
+    
+
+  </section>
+  
+  <footer>
+    &copy; 2025 Huntsville Oldtimers All rights reserved.
+  </footer>
+
+</body>
+</html>
