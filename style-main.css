@@ -283,6 +283,6 @@ button[type="submit"]:hover {
 
 .schedule-container iframe {
   width: 100%;
-  height: 1100px;           /* Taller viewport for Google Sheets */
+  height: 1050px;           /* Taller viewport for Google Sheets */
   border: none;
 }
