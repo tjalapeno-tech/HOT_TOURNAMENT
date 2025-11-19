@@ -12,7 +12,7 @@
   <style>
     .schedule-box {
       margin-top: 30px;
-      display: none; /* Hidden until user selects a team */
+      display: none; /* Hidden until user selects a division */
       text-align: center;
     }
 
@@ -22,7 +22,7 @@
       border: none;
     }
 
-    .team-select-container {
+    .division-select-container {
       text-align: center;
       margin-top: 20px;
     }
@@ -61,7 +61,7 @@
       <option value="Murr">Murr (55+)</option>
       <option value="Calvin">Calvin (Women)</option>
       <option value="Nickerson">Nickerson (Women)</option>
-      <!-- Add more teams here -->
+      <!-- Add more divisions here -->
     </select>
 
     <button id="loadScheduleBtn">Show Schedule</button>
@@ -74,7 +74,7 @@
 </main>
 
 <script>
-  // STEP 1: Map teams to their Google Sheets embed URLs
+  // STEP 1: Map divisions to their Google Sheets embed URLs
   const scheduleLinks = {
     Peppler: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_A",
     Clarke: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_B",
@@ -83,11 +83,11 @@
     Murr: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_D",
     Calvin: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_D",
     Nickerson: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_D"
-    // Add all teams here
+    // Add all divisions here
   };
 
   document.getElementById("loadScheduleBtn").addEventListener("click", () => {
-    const team = document.getElementById("divisionSelect").value;
+    const division = document.getElementById("divisionSelect").value;
 
     if (!division) {
       alert("Please select a division.");
