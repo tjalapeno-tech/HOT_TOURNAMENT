@@ -10,18 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
 
   <style>
-    .schedule-box {
-      margin-top: 30px;
-      display: none; /* Hidden until user selects a division */
-      text-align: center;
-    }
-
-    iframe {
-      width: 100%;
-      height: 900px;
-      border: none;
-    }
-
+    /* Only styles specific to the division selector */
     .division-select-container {
       text-align: center;
       margin-top: 20px;
@@ -61,29 +50,29 @@
       <option value="Murr">Murr (55+)</option>
       <option value="Calvin">Calvin (Women)</option>
       <option value="Nickerson">Nickerson (Women)</option>
-      <!-- Add more divisions here -->
     </select>
 
     <button id="loadScheduleBtn">Show Schedule</button>
   </div>
 
-  <div class="schedule-box" id="scheduleBox">
-    <iframe id="scheduleFrame"></iframe>
-  </div>
-
 </main>
+
+<!-- NEW wide schedule container (outside content-container) -->
+<div class="schedule-container" id="scheduleBox" style="display:none;">
+  <iframe id="scheduleFrame"></iframe>
+</div>
 
 <script>
   // STEP 1: Map divisions to their Google Sheets embed URLs
   const scheduleLinks = {
-  Peppler: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=353992226&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-  Clarke: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=536405351&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-  Conlin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1479756402&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-  McKenzie: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1934019366&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-  Murr: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=2064820182&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-  Calvin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1008848308&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-  Nickerson: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1746636518&single=true&widget=true&headers=false&chrome=false&rm=minimal"
-};
+    Peppler: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=353992226&single=true&widget=true&headers=false&chrome=false&rm=minimal",
+    Clarke: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=536405351&single=true&widget=true&headers=false&chrome=false&rm=minimal",
+    Conlin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1479756402&single=true&widget=true&headers=false&chrome=false&rm=minimal",
+    McKenzie: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1934019366&single=true&widget=true&headers=false&chrome=false&rm=minimal",
+    Murr: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=2064820182&single=true&widget=true&headers=false&chrome=false&rm=minimal",
+    Calvin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1008848308&single=true&widget=true&headers=false&chrome=false&rm=minimal",
+    Nickerson: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1746636518&single=true&widget=true&headers=false&chrome=false&rm=minimal"
+  };
 
   document.getElementById("loadScheduleBtn").addEventListener("click", () => {
     const division = document.getElementById("divisionSelect").value;
@@ -100,17 +89,16 @@
       return;
     }
 
-    // Set iframe source
+    // Load the schedule into the iframe
     document.getElementById("scheduleFrame").src = url;
 
-    // Show schedule box
+    // Show the wide schedule container
     document.getElementById("scheduleBox").style.display = "block";
 
-    // Scroll to schedule
+    // Scroll smoothly into view
     document.getElementById("scheduleBox").scrollIntoView({ behavior: "smooth" });
   });
 </script>
 
 </body>
 </html>
-
