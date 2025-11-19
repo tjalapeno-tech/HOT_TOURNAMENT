@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" type="image/png" href="/favicon.png">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-  <title>Schedule</title>
+  <title>Tournament Schedule</title>
 
   <link rel="stylesheet" href="style-main.css">
   <link rel="stylesheet" href="style-header.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
 
   <style>
-    /* Only styles specific to the division selector */
+    /* Only styling needed for the division selector */
     .division-select-container {
       text-align: center;
       margin-top: 20px;
@@ -28,6 +28,7 @@
 </head>
 
 <body>
+<!-- HEADER -->
 <div id="header-placeholder"></div>
 <script>
   fetch("header.html")
@@ -35,15 +36,17 @@
     .then(data => document.getElementById("header-placeholder").innerHTML = data);
 </script>
 
+<!-- HERO -->
 <section class="hero">
   <h1>Tournament Schedule</h1>
   <p>Select your Division below to view your schedule.</p>
 </section>
 
+<!-- DIVISION SELECTOR -->
 <main class="content-container">
-
   <div class="division-select-container">
     <label for="divisionSelect" style="font-size: 18px;">Select Your Division:</label><br>
+
     <select id="divisionSelect">
       <option value="" selected disabled>-- Select Division --</option>
       <option value="Peppler">Peppler (35+)</option>
@@ -57,26 +60,27 @@
 
     <button id="loadScheduleBtn">Show Schedule</button>
   </div>
-
 </main>
 
-<!-- NEW wide schedule container (outside content-container) -->
+<!-- WIDE SCHEDULE CONTAINER -->
 <div class="schedule-container" id="scheduleBox" style="display:none;">
   <iframe id="scheduleFrame"></iframe>
 </div>
 
+<!-- SCRIPT -->
 <script>
-  // STEP 1: Map divisions to their Google Sheets embed URLs
+  /* DIVISION → GOOGLE SHEETS LINK MAPPING */
   const scheduleLinks = {
-    Peppler: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=353992226&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-    Clarke: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=536405351&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-    Conlin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1479756402&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-    McKenzie: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1934019366&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-    Murr: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=2064820182&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-    Calvin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1008848308&single=true&widget=true&headers=false&chrome=false&rm=minimal",
-    Nickerson: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pubhtml?gid=1746636518&single=true&widget=true&headers=false&chrome=false&rm=minimal"
+    Peppler: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=353992226&single=true&output=html",
+    Clarke:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=536405351&single=true&output=html",
+    Conlin:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1479756402&single=true&output=html",
+    McKenzie:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1934019366&single=true&output=html",
+    Murr:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=2064820182&single=true&output=html",
+    Calvin:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1008848308&single=true&output=html",
+    Nickerson:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1746636518&single=true&output=html"
   };
 
+  /* LOAD BUTTON HANDLER */
   document.getElementById("loadScheduleBtn").addEventListener("click", () => {
     const division = document.getElementById("divisionSelect").value;
 
@@ -92,13 +96,13 @@
       return;
     }
 
-    // Load the schedule into the iframe
+    // Update iframe
     document.getElementById("scheduleFrame").src = url;
 
-    // Show the wide schedule container
+    // Show schedule container
     document.getElementById("scheduleBox").style.display = "block";
 
-    // Scroll smoothly into view
+    // Scroll into view
     document.getElementById("scheduleBox").scrollIntoView({ behavior: "smooth" });
   });
 </script>
