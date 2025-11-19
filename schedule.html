@@ -44,20 +44,23 @@
 </script>
 
 <section class="hero">
-  <h1>Game Schedule</h1>
-  <p>Select your team below to view your schedule.</p>
+  <h1>Tournament Schedule</h1>
+  <p>Select your Division below to view your schedule.</p>
 </section>
 
 <main class="content-container">
 
-  <div class="team-select-container">
-    <label for="teamSelect" style="font-size: 18px;">Select Your Team:</label><br>
-    <select id="teamSelect">
-      <option value="" selected disabled>-- Choose Team --</option>
-      <option value="teamA">Team A</option>
-      <option value="teamB">Team B</option>
-      <option value="teamC">Team C</option>
-      <option value="teamD">Team D</option>
+  <div class="division-select-container">
+    <label for="divisionSelect" style="font-size: 18px;">Select Your Division:</label><br>
+    <select id="divisionSelect">
+      <option value="" selected disabled>-- Select Division --</option>
+      <option value="Peppler">Peppler (35+)</option>
+      <option value="Clarke">Clarke (45+)</option>
+      <option value="Conlin">Conlin (45+)</option>
+      <option value="Mckenzie">Mckenzie (55+)</option>
+      <option value="Murr">Murr (55+)</option>
+      <option value="Calvin">Calvin (Women)</option>
+      <option value="Nickerson">Nickerson (Women)</option>
       <!-- Add more teams here -->
     </select>
 
@@ -73,25 +76,28 @@
 <script>
   // STEP 1: Map teams to their Google Sheets embed URLs
   const scheduleLinks = {
-    teamA: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_A",
-    teamB: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_B",
-    teamC: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_C",
-    teamD: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_D"
+    Peppler: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_A",
+    Clarke: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_B",
+    Conlin: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_C",
+    Mckenzie: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_D",
+    Murr: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_D",
+    Calvin: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_D",
+    Nickerson: "YOUR_GOOGLE_SHEET_EMBED_URL_FOR_TEAM_D"
     // Add all teams here
   };
 
   document.getElementById("loadScheduleBtn").addEventListener("click", () => {
-    const team = document.getElementById("teamSelect").value;
+    const team = document.getElementById("divisionSelect").value;
 
-    if (!team) {
-      alert("Please select a team.");
+    if (!division) {
+      alert("Please select a division.");
       return;
     }
 
-    const url = scheduleLinks[team];
+    const url = scheduleLinks[division];
 
     if (!url) {
-      alert("Schedule not available for this team yet.");
+      alert("Schedule not available for this division yet.");
       return;
     }
 
