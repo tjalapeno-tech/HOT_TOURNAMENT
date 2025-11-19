@@ -273,7 +273,7 @@ button[type="submit"]:hover {
 
 .schedule-container {
   width: 100%;
-  max-width: 1400px;        /* Adjust width as needed */
+  max-width: 1000px;        /* Adjust width as needed */
   margin: 40px auto;
   background: #ffffffcc;
   padding: 20px;
