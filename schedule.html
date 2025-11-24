@@ -39,7 +39,14 @@
 <!-- HERO -->
 <section class="hero">
   <h1>Tournament Schedule</h1>
-  <p>Select your Division below to view your schedule.</p>
+  <p>Select your Division below to view your schedule or visit League Lobster!</p>
+  <div class="button-container">
+  <a href="https://scheduler.leaguelobster.com/2439637/huntsville-oldtimers/2025/"
+     target="_blank"
+     class="hot-button">
+    Open Alternate Schedule & Standings
+  </a>
+</div>
 </section>
 
 <!-- DIVISION SELECTOR -->
@@ -92,7 +99,7 @@
     const url = scheduleLinks[division];
 
     if (!url) {
-      alert("Schedule not available for this division yet.");
+      alert("Schedule not available for this division yet. View schedule here: https://scheduler.leaguelobster.com/2439637/huntsville-oldtimers/2025/");
       return;
     }
 
