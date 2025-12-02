@@ -1,1 +1,50 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <title>Standings</title> <link rel="stylesheet" href="style-main.css"> <link rel="stylesheet" href="style-header.css"> <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet"> </head> <body> <!-- Header loads here --> <div id="header-placeholder"></div> <!-- Load the shared header file + attach hamburger --> <script> fetch("header.html") .then(response => response.text()) .then(data => { document.getElementById("header-placeholder").innerHTML = data; // Attach hamburger behavior AFTER header is inserted const hamburger = document.querySelector(".hamburger"); const nav = document.querySelector(".main-nav"); if (hamburger && nav) { hamburger.addEventListener("click", () => { nav.classList.toggle("active"); console.log("Hamburger clicked"); }); } }); </script> <section class="hero"> <h1>Standings</h1> <p>Track team rankings and points throughout the tournament!</p> <div id="ll-schedule-embed" data-schedule-id="2439637" data-language-code="en"></div> <script type="text/javascript" src="//scheduler.leaguelobster.com/static/embed.js"></script> </div> </section> <main class="content-container"> <p>Standings will be updated here as games are played.</p> </main> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Standings</title>
+  <link rel="stylesheet" href="style-main.css">
+  <link rel="stylesheet" href="style-header.css">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Header loads here -->
+  <div id="header-placeholder"></div>
+
+  <!-- Load the shared header file + attach hamburger -->
+  <script>
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+
+        // Attach hamburger behavior AFTER header is inserted
+        const hamburger = document.querySelector(".hamburger");
+        const nav = document.querySelector(".main-nav");
+
+        if (hamburger && nav) {
+          hamburger.addEventListener("click", () => {
+            nav.classList.toggle("active");
+            console.log("Hamburger clicked");
+          });
+        }
+      });
+  </script>
+
+<section class="hero">
+  <h1>Standings</h1>
+  <p>Track team rankings and points throughout the tournament!</p>
+
+  <div id="ll-schedule-embed" data-schedule-id="2439637" data-language-code="en"></div>
+<script type="text/javascript" src="//scheduler.leaguelobster.com/static/embed.js"></script>
+</div>
+</section>
+
+<main class="content-container">
+  <p>Standings will be updated here as games are played.</p>
+</main>
+
+</body>
+</html>
