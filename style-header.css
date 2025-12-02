@@ -14,6 +14,12 @@
   z-index: 9999 !important;
 }
 
+.main-nav {
+  position: relative;
+  z-index: 1;
+}
+
+
 /* HEADER & NAVIGATION STYLES */
 header {
   background-color: #1c2e4a;
