@@ -9,6 +9,11 @@
   margin-right: 10px;
 }
 
+/* FIX: Make hamburger clickable above other elements */
+.hamburger {
+  z-index: 9999 !important;
+}
+
 /* HEADER & NAVIGATION STYLES */
 header {
   background-color: #1c2e4a;
