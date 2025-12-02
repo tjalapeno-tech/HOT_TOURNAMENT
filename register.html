@@ -16,13 +16,28 @@
 </head>
 <body>
 
-<div id="header-placeholder"></div>
-<script>
-  // Load shared header
-  fetch("header.html")
-    .then(response => response.text())
-    .then(data => { document.getElementById("header-placeholder").innerHTML = data; });
-</script>
+<!-- Header loads here -->
+  <div id="header-placeholder"></div>
+
+  <!-- Load the shared header file + attach hamburger -->
+  <script>
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("header-placeholder").innerHTML = data;
+
+        // Attach hamburger behavior AFTER header is inserted
+        const hamburger = document.querySelector(".hamburger");
+        const nav = document.querySelector(".main-nav");
+
+        if (hamburger && nav) {
+          hamburger.addEventListener("click", () => {
+            nav.classList.toggle("active");
+            console.log("Hamburger clicked");
+          });
+        }
+      });
+  </script>
 
 <section class="hero">
   <h1>Team Registration</h1>
