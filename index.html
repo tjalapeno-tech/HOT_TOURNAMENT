@@ -2,34 +2,42 @@
 <html lang="en">
 <head>
   <link rel="icon" type="image/png" href="/favicon.png">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Huntsville Oldtimers Tournament</title>
+
   <link rel="stylesheet" href="style-main.css">  
   <link rel="stylesheet" href="style-header.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+</head>
 
-  <!-- Load shared header -->
+<body>
+
+  <!-- Header loads here -->
   <div id="header-placeholder"></div>
+
+  <!-- Load the shared header file + attach hamburger -->
   <script>
     fetch("header.html")
       .then(response => response.text())
       .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
 
-      const hamburger = document.querySelector(".hamburger");
-      const nav = document.querySelector(".main-nav");
+        // Attach hamburger behavior AFTER header is inserted
+        const hamburger = document.querySelector(".hamburger");
+        const nav = document.querySelector(".main-nav");
 
-      if (hamburger && nav) {
-        hamburger.addEventListener("click", () => {
-          nav.classList.toggle("active");
-          console.log("Hamburger clicked");
+        if (hamburger && nav) {
+          hamburger.addEventListener("click", () => {
+            nav.classList.toggle("active");
+            console.log("Hamburger clicked");
+          });
+        }
       });
   </script>
-</head>
-<body>
+
 
   <section class="hero">
     <img src="/assets/images/logo_retro.png" alt="Huntsville Oldtimers Logo" style="width: 200px;" />
@@ -37,29 +45,5 @@
     <h1>Huntsville Oldtimers Tournament</h1>
     <h2>December 5-7th 2025</h2>
 
-    <!-- Updated messaging -->
     <p><b>Registration for the 2025 tournament is now closed.</b></p>
-    <p>Thank you to all teams who registered — we’re excited to welcome you to Huntsville!</p>
-
-    <!-- Optional: replace button with a disabled button -->
-    <!--
-    <button style="background: #777; cursor: not-allowed;" disabled>Registration Closed</button>
-    -->
-
-    <br>
-
-    <p>
-      Proudly rooted in Muskoka since 1975, the Huntsville Oldtimers are more than just a hockey team — we’re a community. 
-      Built on camaraderie, sportsmanship, and love for the game, our club brings together players of all skill levels for competitive play.
-      Whether you’re here to join, support, or stay up to date on events and tournaments, we’re glad to have you in the Oldtimers family.
-    </p>
-
-    <h3>Let’s keep the tradition alive — <b>one faceoff at a time</b>.</h3>
-  </section>
-  
-  <footer>
-    &copy; 2025 Huntsville Oldtimers All rights reserved.
-  </footer>
-
-</body>
-</html>
+    <p>Thank you to all
