@@ -18,6 +18,14 @@
       .then(response => response.text())
       .then(data => {
         document.getElementById("header-placeholder").innerHTML = data;
+
+      const hamburger = document.querySelector(".hamburger");
+      const nav = document.querySelector(".main-nav");
+
+      if (hamburger && nav) {
+        hamburger.addEventListener("click", () => {
+          nav.classList.toggle("active");
+          console.log("Hamburger clicked");
       });
   </script>
 </head>
