@@ -67,6 +67,10 @@
     window.netlifyIdentity.close();
     window.location.href = "members.html";
   });
+  window.netlifyIdentity.on("signup", () => {
+    window.netlifyIdentity.close();
+    window.location.href = "members.html";
+  });
 </script>
 <footer class="site-footer">
   <div class="wrap">
