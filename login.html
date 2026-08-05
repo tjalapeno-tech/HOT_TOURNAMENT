@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Huntsville Oldtimers Tournament</title>
-<meta name="description" content="Welcome to the Huntsville Oldtimers Hockey Tournament — register your team now." />
+<title>Member Login | Huntsville Oldtimers</title>
+<meta name="description" content="Log in to access the Huntsville Oldtimers members-only document library." />
 <link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/css/style.css" />
-
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
 <div class="utility">
@@ -33,7 +33,7 @@
       <a href="standings.html">Standings</a>
       <a href="gallery.html">Gallery</a>
       <a href="contact.html">Contact</a>
-      <a href="members.html">Members</a>
+      <a href="members.html" class="active">Members</a>
       <a href="register.html" class="cta">Register</a>
     </div>
   </nav>
@@ -44,15 +44,30 @@
   <div class="ice-texture"></div>
   <div class="faceoff"></div>
   <div class="redline"></div>
-  <h1>Huntsville Oldtimers Tournament</h1>
-  <p>Welcome to the home of the Huntsville Oldtimers Hockey Tournament! Register your team now!</p>
-  <p style="font-family:var(--font-display); text-transform:uppercase; letter-spacing:.06em; font-size:20px; color:#fff; position:relative; z-index:1;">December 4&ndash;6th, 2026</p><div style="margin-top:20px; position:relative; z-index:1;"><a href="register.html" class="btn btn-primary">Register Your Team</a></div>
+  <h1>Staff &amp; Member Login</h1>
+  <p>Access the club's private document library.</p>
+  
 </section>
 
-<main class="content">
-  <p>Proudly rooted in Muskoka since 1975, the Huntsville Oldtimers are more than just a hockey team &mdash; we're a community. Built on camaraderie, sportsmanship, and love for the game, our club brings together players of all skill levels for competitive play. Whether you're here to join, support, or stay up to date on events and tournaments, we're glad to have you in the Oldtimers family.</p>
-  <h3 style="text-align:center;">Let's keep the tradition alive &mdash; one faceoff at a time.</h3>
+<main class="form-container" style="text-align:center;">
+  <p id="loginStatus" style="color:var(--muted); font-size:16px;">Please log in to continue.</p>
+  <button id="loginBtn" class="btn btn-primary">Log In / Sign Up</button>
 </main>
+
+<script>
+  function goToMembersIfLoggedIn() {
+    const user = window.netlifyIdentity && window.netlifyIdentity.currentUser();
+    if (user) { window.location.href = "members.html"; }
+  }
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    window.netlifyIdentity.open();
+  });
+  window.netlifyIdentity.on("init", user => { if (user) goToMembersIfLoggedIn(); });
+  window.netlifyIdentity.on("login", () => {
+    window.netlifyIdentity.close();
+    window.location.href = "members.html";
+  });
+</script>
 <footer class="site-footer">
   <div class="wrap">
     <div class="foot">

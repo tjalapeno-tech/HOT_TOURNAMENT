@@ -1,0 +1,7 @@
+# Netlify configuration for the Huntsville Oldtimers site.
+# Functions live in netlify/functions/ (the default location), declared
+# explicitly here so it's unambiguous.
+
+[build]
+  functions = "netlify/functions"
+  publish = "."

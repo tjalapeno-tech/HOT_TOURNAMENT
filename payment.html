@@ -1,97 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Payment</title>
-  <link rel="stylesheet" href="style-main.css">
-  <link rel="stylesheet" href="style-header.css">
-  
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payment | Huntsville Oldtimers</title>
+<meta name="description" content="Pay your team deposit or tournament fee for the Huntsville Oldtimers tournament." />
+<link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
 
-  <style>
-    /* Optional visual feedback for disabled payment buttons */
-    .payment-button.disabled {
-      background-color: #888;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-  </style>
 </head>
 <body>
+<div class="utility">
+  <div class="row">
+    <span>Muskoka, Ontario &middot; Est. 1975</span>
+    <span><a href="schedule.html">Schedule</a><a href="standings.html">Standings</a><a href="contact.html">Contact</a></span>
+  </div>
+</div>
+<header class="site-header">
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/images/logo_esig.png" alt="Huntsville Oldtimers logo" />
+      <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Hockey Club</span></span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainnav">&#9776;</button>
+    <div class="main-nav" id="mainnav">
+      <a href="index.html#about">About</a>
+      <a href="divisions.html">Divisions</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="standings.html">Standings</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="contact.html">Contact</a>
+      <a href="members.html">Members</a>
+      <a href="register.html" class="cta">Register</a>
+    </div>
+  </nav>
+</header>
 
-<!-- Header loads here -->
-  <div id="header-placeholder"></div>
-
-  <!-- Load the shared header file + attach hamburger -->
-  <script>
-    fetch("header.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("header-placeholder").innerHTML = data;
-
-        // Attach hamburger behavior AFTER header is inserted
-        const hamburger = document.querySelector(".hamburger");
-        const nav = document.querySelector(".main-nav");
-
-        if (hamburger && nav) {
-          hamburger.addEventListener("click", () => {
-            nav.classList.toggle("active");
-            console.log("Hamburger clicked");
-          });
-        }
-      });
-  </script>
-
-<!-- Hero Section -->
-<section class="hero">
+<section class="page-hero">
+  <div class="bg"></div>
+  <div class="ice-texture"></div>
+  <div class="faceoff"></div>
+  <div class="redline"></div>
   <h1>Team Registration Payment</h1>
-  <p>Secure your spot by finalizing your registration!</p>
+  <p>Secure your spot by finalizing your registration.</p>
+  
 </section>
 
-<!-- Main Payment Section -->
-<main class="payment-page">
-  <div class="payment-container">
-
-    <div class="payment-row">
-      <!-- Deposit Option -->
-      <div class="payment-option">
-        <h2>💳 Pay Deposit Online ($650.00)</h2>
-        <p>Click the button below to pay the <b>$650 Team Deposit</b> online!</p>
-        <a href="https://square.link/u/6P90WZWu" class="payment-button external-payment">Pay <b>DEPOSIT</b> with Square</a>
-        <p class="note">* Your payment will be securely processed by Square.</p>
-      </div>
-
-      <!-- Full Fee Option -->
-      <div class="payment-option">
-        <h2>💳 Pay Team Fee Online ($1300.00)</h2>
-        <p>Click the button below to pay the <b>$1300 Team Fee</b> online!</p>
-        <a href="https://square.link/u/VoX8BiGq" class="payment-button external-payment">Pay <b>TEAM FEE</b> with Square</a>
-        <p class="note">* Your payment will be securely processed by Square.</p>
-      </div>
+<main class="payment-container">
+  <div class="payment-row">
+    <div class="payment-option">
+      <h2>&#128179; Pay Deposit Online ($650.00)</h2>
+      <p>Click the button below to pay the <b>$650 Team Deposit</b> online.</p>
+      <a href="https://square.link/u/6P90WZWu" class="payment-button external-payment">Pay Deposit with Square</a>
+      <p class="note">* Your payment will be securely processed by Square.</p>
     </div>
-
-    <!-- Optional E-Transfer Block (currently commented out) -->
-    <!--
-    <div class="etransfer-option">
-      <h2>💸 Pay by E-Transfer</h2>
-      <p>Prefer to send an Interac e-Transfer? Click below for details and instructions.</p>
-      <a href="etransfer.html" class="payment-button">E-Transfer Instructions</a>
-      <p class="note">* Please include your team name in the message field when sending e-transfer.</p>
+    <div class="payment-option">
+      <h2>&#128179; Pay Team Fee Online ($1300.00)</h2>
+      <p>Click the button below to pay the <b>$1300 Team Fee</b> online.</p>
+      <a href="https://square.link/u/VoX8BiGq" class="payment-button external-payment">Pay Team Fee with Square</a>
+      <p class="note">* Your payment will be securely processed by Square.</p>
     </div>
-    -->
+  </div>
 
-  </div>  
+  <div class="etransfer-option">
+    <h2>&#128176; Pay by E-Transfer</h2>
+    <p>Prefer to send an Interac e-Transfer? Click below for details and instructions.</p>
+    <a href="etransfer.html" class="payment-button">E-Transfer Instructions</a>
+    <p class="note">* Please include your team name in the message field when sending e-transfer.</p>
+  </div>
 </main>
 
-<!-- Prevent Multiple Charges Script -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const buttons = document.querySelectorAll(".external-payment");
-
     buttons.forEach(button => {
       button.addEventListener("click", () => {
-        // Disable button after first click to prevent repeat charges
         button.classList.add("disabled");
         button.innerText = "Processing...";
         button.style.pointerEvents = "none";
@@ -99,6 +85,34 @@
     });
   });
 </script>
-
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html" style="color:#fff;">
+        <img src="assets/images/logo_esig.png" alt="" style="height:42px;width:42px;object-fit:contain;" />
+        <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Est. 1975 &middot; Muskoka</span></span>
+      </a>
+      <div class="links">
+        <a href="index.html#about">About</a>
+        <a href="divisions.html">Divisions</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="fnote">&copy; 2026 Huntsville Oldtimers Hockey Club &mdash; a registered non-profit organization. Muskoka, Ontario. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+  const burger = document.querySelector('.hamburger');
+  const nav = document.getElementById('mainnav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); burger.setAttribute('aria-expanded','false');
+  }));
+</script>
 </body>
 </html>

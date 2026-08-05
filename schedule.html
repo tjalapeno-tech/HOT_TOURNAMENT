@@ -1,74 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tournament Schedule | Huntsville Oldtimers</title>
+<meta name="description" content="View the Huntsville Oldtimers tournament schedule by division." />
+<link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
 
-  <title>Tournament Schedule</title>
-
-  <link rel="stylesheet" href="style-main.css">
-  <link rel="stylesheet" href="style-header.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
-
-  <style>
-    /* Only styling needed for the division selector */
-    .division-select-container {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    select, button {
-      padding: 10px 14px;
-      font-size: 16px;
-      margin: 5px;
-    }
-  </style>
 </head>
-
 <body>
-<!-- Header loads here -->
-  <div id="header-placeholder"></div>
-
-  <!-- Load the shared header file + attach hamburger -->
-  <script>
-    fetch("header.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("header-placeholder").innerHTML = data;
-
-        // Attach hamburger behavior AFTER header is inserted
-        const hamburger = document.querySelector(".hamburger");
-        const nav = document.querySelector(".main-nav");
-
-        if (hamburger && nav) {
-          hamburger.addEventListener("click", () => {
-            nav.classList.toggle("active");
-            console.log("Hamburger clicked");
-          });
-        }
-      });
-  </script>
-
-<!-- HERO -->
-<section class="hero">
-  <h1>Tournament Schedule</h1>
-  <p>Select your Division below to view your schedule or visit League Lobster!</p>
-  <div class="button-container">
-  <a href="https://scheduler.leaguelobster.com/2439637/huntsville-oldtimers/2025/"
-     target="_blank"
-     class="hot-button">
-    Open Alternate Schedule & Standings
-  </a>
+<div class="utility">
+  <div class="row">
+    <span>Muskoka, Ontario &middot; Est. 1975</span>
+    <span><a href="schedule.html">Schedule</a><a href="standings.html">Standings</a><a href="contact.html">Contact</a></span>
+  </div>
 </div>
+<header class="site-header">
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/images/logo_esig.png" alt="Huntsville Oldtimers logo" />
+      <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Hockey Club</span></span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainnav">&#9776;</button>
+    <div class="main-nav" id="mainnav">
+      <a href="index.html#about">About</a>
+      <a href="divisions.html">Divisions</a>
+      <a href="schedule.html" class="active">Schedule</a>
+      <a href="standings.html">Standings</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="contact.html">Contact</a>
+      <a href="members.html">Members</a>
+      <a href="register.html" class="cta">Register</a>
+    </div>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <div class="bg"></div>
+  <div class="ice-texture"></div>
+  <div class="faceoff"></div>
+  <div class="redline"></div>
+  <h1>Tournament Schedule</h1>
+  <p>Select your division below to view your schedule, or visit League Lobster directly.</p>
+  <div style="margin-top:24px; position:relative; z-index:1;"><a href="https://scheduler.leaguelobster.com/2439637/huntsville-oldtimers/2025/" target="_blank" class="btn btn-ghost">Open Alternate Schedule &amp; Standings</a></div>
 </section>
 
-<!-- DIVISION SELECTOR -->
-<main class="content-container">
+<main class="content" style="max-width:var(--wrap);">
   <div class="division-select-container">
-    <label for="divisionSelect" style="font-size: 18px;">Select Your Division:</label><br>
-
+    <label for="divisionSelect" style="font-family:var(--font-display); font-weight:600; text-transform:uppercase; letter-spacing:.03em; font-size:16px; color:var(--navy);">Select Your Division:</label><br>
     <select id="divisionSelect">
       <option value="" selected disabled>-- Select Division --</option>
       <option value="Peppler">Peppler (35+)</option>
@@ -79,19 +62,15 @@
       <option value="Calvin">Calvin (Women)</option>
       <option value="Nickerson">Nickerson (Women)</option>
     </select>
-
     <button id="loadScheduleBtn">Show Schedule</button>
   </div>
 </main>
 
-<!-- WIDE SCHEDULE CONTAINER -->
 <div class="schedule-container" id="scheduleBox" style="display:none;">
   <iframe id="scheduleFrame"></iframe>
 </div>
 
-<!-- SCRIPT -->
 <script>
-  /* DIVISION → GOOGLE SHEETS LINK MAPPING */
   const scheduleLinks = {
     Peppler: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=353992226&single=true&output=html",
     Clarke:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=536405351&single=true&output=html",
@@ -101,35 +80,49 @@
     Calvin:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1008848308&single=true&output=html",
     Nickerson:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1746636518&single=true&output=html"
   };
-
-  /* LOAD BUTTON HANDLER */
   document.getElementById("loadScheduleBtn").addEventListener("click", () => {
     const division = document.getElementById("divisionSelect").value;
-
-    if (!division) {
-      alert("Please select a division.");
-      return;
-    }
-
+    if (!division) { alert("Please select a division."); return; }
     const url = scheduleLinks[division];
-
     if (!url) {
       alert("Schedule not available for this division yet. View schedule here: https://scheduler.leaguelobster.com/2439637/huntsville-oldtimers/2025/");
       return;
     }
-
-    // Update iframe
     document.getElementById("scheduleFrame").src = url;
-
-    // Show schedule container
     document.getElementById("scheduleBox").style.display = "block";
-
-    // Scroll into view
     document.getElementById("scheduleBox").scrollIntoView({ behavior: "smooth" });
   });
 </script>
-<div id="ll-schedule-embed" data-schedule-id="2439637" data-language-code="en">
+<div id="ll-schedule-embed" data-schedule-id="2439637" data-language-code="en"></div>
 <script type="text/javascript" src="//scheduler.leaguelobster.com/static/embed.js"></script>
-</div>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html" style="color:#fff;">
+        <img src="assets/images/logo_esig.png" alt="" style="height:42px;width:42px;object-fit:contain;" />
+        <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Est. 1975 &middot; Muskoka</span></span>
+      </a>
+      <div class="links">
+        <a href="index.html#about">About</a>
+        <a href="divisions.html">Divisions</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="fnote">&copy; 2026 Huntsville Oldtimers Hockey Club &mdash; a registered non-profit organization. Muskoka, Ontario. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+  const burger = document.querySelector('.hamburger');
+  const nav = document.getElementById('mainnav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); burger.setAttribute('aria-expanded','false');
+  }));
+</script>
 </body>
 </html>

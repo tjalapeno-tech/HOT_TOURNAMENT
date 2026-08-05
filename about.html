@@ -1,140 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" href="/favicon.png">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About | Huntsville Oldtimers Tournament</title>
+<meta name="description" content="Learn about the Huntsville Oldtimers Tournament: dates, fees, divisions, and what to expect." />
+<link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
 
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About | Huntsville Oldtimers Tournament</title>
-  <link rel="stylesheet" href="style-main.css">
-  <link rel="stylesheet" href="style-header.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
-
-  <style>
-    /* === Only fix layout bounds, not styling === */
-    body, html {
-      overflow-x: hidden; /* prevents horizontal scroll issues */
-    }
-
-    main, section {
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero, .tournament-details, main, footer {
-      max-width: 100%;
-      overflow: visible;
-    }
-
-    .tournament-details {
-      background: #f8f9fa;
-      border: 2px solid #d3d3d3;
-      border-radius: 12px;
-      padding: 25px 30px;
-      max-width: 900px;
-      margin: 40px auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      clear: both;
-    }
-
-    .tournament-details h2 {
-      text-align: center;
-      font-family: 'Roboto Slab', serif;
-      color: #1d3c6a;
-      margin-bottom: 20px;
-    }
-
-    .tournament-details ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      line-height: 1.8;
-    }
-
-    .tournament-details li {
-      font-size: 1.05em;
-      margin-bottom: 6px;
-    }
-
-    .tournament-details li strong {
-      color: #b22222;
-    }
-  </style>
 </head>
-
 <body>
+<div class="utility">
+  <div class="row">
+    <span>Muskoka, Ontario &middot; Est. 1975</span>
+    <span><a href="schedule.html">Schedule</a><a href="standings.html">Standings</a><a href="contact.html">Contact</a></span>
+  </div>
+</div>
+<header class="site-header">
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/images/logo_esig.png" alt="Huntsville Oldtimers logo" />
+      <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Hockey Club</span></span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainnav">&#9776;</button>
+    <div class="main-nav" id="mainnav">
+      <a href="index.html#about" class="active">About</a>
+      <a href="divisions.html">Divisions</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="standings.html">Standings</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="contact.html">Contact</a>
+      <a href="members.html">Members</a>
+      <a href="register.html" class="cta">Register</a>
+    </div>
+  </nav>
+</header>
 
-  <!-- Header loads here -->
-  <div id="header-placeholder"></div>
+<section class="page-hero">
+  <div class="bg"></div>
+  <div class="ice-texture"></div>
+  <div class="faceoff"></div>
+  <div class="redline"></div>
+  <h1>About the Tournament</h1>
+  <p>A celebration of community, competition, and camaraderie &mdash; hosted annually in the heart of Muskoka.</p>
+  
+</section>
 
-  <!-- Load the shared header file + attach hamburger -->
-  <script>
-    fetch("header.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("header-placeholder").innerHTML = data;
-
-        // Attach hamburger behavior AFTER header is inserted
-        const hamburger = document.querySelector(".hamburger");
-        const nav = document.querySelector(".main-nav");
-
-        if (hamburger && nav) {
-          hamburger.addEventListener("click", () => {
-            nav.classList.toggle("active");
-            console.log("Hamburger clicked");
-          });
-        }
-      });
-  </script>
-
-  <section class="hero">
-    <h1>About the Tournament</h1>
-    <p>The Huntsville Oldtimers Tournament is a celebration of community, competition, and camaraderie.</p>
-    <p>Hosted annually in the heart of Muskoka, our event welcomes teams from across the region for an unforgettable weekend of hockey.</p>
-  </section>
-
-  <section class="tournament-details">
+<main class="content">
+  <div class="info-card">
     <h2>Tournament Details</h2>
     <ul>
-      <li><strong>Dates:</strong> December 5–7th</li>
+      <li><strong>Dates:</strong> December 4&ndash;6th, 2026</li>
       <li><strong>Number of Games:</strong> 3 guaranteed per team</li>
       <li><strong>Fees:</strong> $650 Deposit / $1300 Team Fee</li>
       <li><strong>Officials:</strong> Locally Officiated</li>
-      <li><strong>Extras:</strong> Food & Drink, Skate Sharpening, Silent Auction, and Live Music on location</li>
+      <li><strong>Extras:</strong> Food &amp; Drink, Skate Sharpening, Silent Auction, and Live Music on location</li>
     </ul>
-  </section>
+  </div>
 
-  <main>
-    <h2>Our Mission</h2>
-    <p>We aim to bring together adult recreational hockey players for spirited competition and community building, all while supporting local charities and businesses in Huntsville, Ontario.</p>
+  <h2>Our Mission</h2>
+  <p>We aim to bring together adult recreational hockey players for spirited competition and community building, all while supporting local charities and businesses in Huntsville, Ontario.</p>
 
-    <h2>What to Expect</h2>
-    <ul>
-      <li>3 guaranteed games per team</li>
-      <li>Friendly, competitive atmosphere</li>
-      <li>Beer gardens, local food, and merchandise vendors</li>
-      <li>Real-time standings and results posted online</li>
-    </ul>
+  <h2>What to Expect</h2>
+  <ul>
+    <li>3 guaranteed games per team</li>
+    <li>Friendly, competitive atmosphere</li>
+    <li>Beer gardens, local food, and merchandise vendors</li>
+    <li>Real-time standings and results posted online</li>
+  </ul>
 
-    <h2>Who Can Join?</h2>
-    <p>This tournament is open to Men's and Women's hockey teams of all skill levels, divided into age-based divisions to ensure fair and fun play.</p>
-    <br>
-    <h3>Men's Divisions</h3>
-    <ul>
-      <li>35+</li>
-      <li>45+</li>
-      <li>55+</li>
-    </ul>
-    <h3>Women's Division</h3>
-    <ul>
-      <li>Open</li>
-    </ul>
-  </main>
+  <h2>Who Can Join?</h2>
+  <p>This tournament is open to Men's and Women's hockey teams of all skill levels, divided into age-based divisions to ensure fair and fun play.</p>
 
-  <footer>
-    &copy; 2025 Huntsville Oldtimers Tournament. All rights reserved.
-  </footer>
-
+  <h3>Men's Divisions</h3>
+  <ul>
+    <li>35+</li>
+    <li>45+</li>
+    <li>55+</li>
+  </ul>
+  <h3>Women's Division</h3>
+  <ul>
+    <li>Open</li>
+  </ul>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html" style="color:#fff;">
+        <img src="assets/images/logo_esig.png" alt="" style="height:42px;width:42px;object-fit:contain;" />
+        <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Est. 1975 &middot; Muskoka</span></span>
+      </a>
+      <div class="links">
+        <a href="index.html#about">About</a>
+        <a href="divisions.html">Divisions</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="fnote">&copy; 2026 Huntsville Oldtimers Hockey Club &mdash; a registered non-profit organization. Muskoka, Ontario. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+  const burger = document.querySelector('.hamburger');
+  const nav = document.getElementById('mainnav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); burger.setAttribute('aria-expanded','false');
+  }));
+</script>
 </body>
 </html>

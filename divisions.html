@@ -1,51 +1,92 @@
-ler<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Divisions</title>
-  <link rel="stylesheet" href="style-main.css">
-  <link rel="stylesheet" href="style-header.css">
-  
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Divisions | Huntsville Oldtimers Tournament</title>
+<meta name="description" content="The four divisions of the Huntsville Oldtimers Tournament: Peppler, Conlin/Clarke, McKenzie/Murr, and Calvin/Nickerson." />
+<link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+
 </head>
 <body>
-<!-- Header loads here -->
-  <div id="header-placeholder"></div>
+<div class="utility">
+  <div class="row">
+    <span>Muskoka, Ontario &middot; Est. 1975</span>
+    <span><a href="schedule.html">Schedule</a><a href="standings.html">Standings</a><a href="contact.html">Contact</a></span>
+  </div>
+</div>
+<header class="site-header">
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/images/logo_esig.png" alt="Huntsville Oldtimers logo" />
+      <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Hockey Club</span></span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainnav">&#9776;</button>
+    <div class="main-nav" id="mainnav">
+      <a href="index.html#about">About</a>
+      <a href="divisions.html" class="active">Divisions</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="standings.html">Standings</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="contact.html">Contact</a>
+      <a href="members.html">Members</a>
+      <a href="register.html" class="cta">Register</a>
+    </div>
+  </nav>
+</header>
 
-  <!-- Load the shared header file + attach hamburger -->
-  <script>
-    fetch("header.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("header-placeholder").innerHTML = data;
-
-        // Attach hamburger behavior AFTER header is inserted
-        const hamburger = document.querySelector(".hamburger");
-        const nav = document.querySelector(".main-nav");
-
-        if (hamburger && nav) {
-          hamburger.addEventListener("click", () => {
-            nav.classList.toggle("active");
-            console.log("Hamburger clicked");
-          });
-        }
-      });
-  </script>
-
-<section class="hero">
+<section class="page-hero">
+  <div class="bg"></div>
+  <div class="ice-texture"></div>
+  <div class="faceoff"></div>
+  <div class="redline"></div>
   <h1>Divisions</h1>
   <p>Explore the available divisions and their age groups.</p>
+  
 </section>
 
-<main class="content-container">
-  <ul>
-    <li><strong>Peppler: Men’s 35+ Division</strong></li>
-    <li><strong>Conlin/Clarke: Men’s 45+ Division</strong></li>
-    <li><strong>McKenzie/Murr: Men’s 55+ Division</strong></li>
-    <li><strong>Calvin/Nickerson: Women’s Open Division</strong></li>
-  </ul>
-</main>
-
+<section class="divisions on-light">
+  <div class="wrap">
+    <div class="div-grid">
+      <div class="div-card"><div class="tag">35</div><div class="name">Peppler</div><div class="who">Men's 35 &amp; Over Division</div></div>
+      <div class="div-card"><div class="tag">45</div><div class="name">Conlin / Clarke</div><div class="who">Men's 45 &amp; Over Division</div></div>
+      <div class="div-card"><div class="tag">55</div><div class="name">McKenzie / Murr</div><div class="who">Men's 55 &amp; Over Division</div></div>
+      <div class="div-card"><div class="tag">W</div><div class="name">Calvin / Nickerson</div><div class="who">Women's Open Division</div></div>
+    </div>
+  </div>
+</section>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html" style="color:#fff;">
+        <img src="assets/images/logo_esig.png" alt="" style="height:42px;width:42px;object-fit:contain;" />
+        <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Est. 1975 &middot; Muskoka</span></span>
+      </a>
+      <div class="links">
+        <a href="index.html#about">About</a>
+        <a href="divisions.html">Divisions</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="fnote">&copy; 2026 Huntsville Oldtimers Hockey Club &mdash; a registered non-profit organization. Muskoka, Ontario. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+  const burger = document.querySelector('.hamburger');
+  const nav = document.getElementById('mainnav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); burger.setAttribute('aria-expanded','false');
+  }));
+</script>
 </body>
 </html>

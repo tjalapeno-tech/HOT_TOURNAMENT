@@ -1,45 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gallery</title>
-  <link rel="stylesheet" href="style-main.css">
-  <link rel="stylesheet" href="style-header.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gallery | Huntsville Oldtimers</title>
+<meta name="description" content="Photos from Huntsville Oldtimers tournaments and events." />
+<link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+
 </head>
 <body>
-<!-- Header loads here -->
-  <div id="header-placeholder"></div>
+<div class="utility">
+  <div class="row">
+    <span>Muskoka, Ontario &middot; Est. 1975</span>
+    <span><a href="schedule.html">Schedule</a><a href="standings.html">Standings</a><a href="contact.html">Contact</a></span>
+  </div>
+</div>
+<header class="site-header">
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/images/logo_esig.png" alt="Huntsville Oldtimers logo" />
+      <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Hockey Club</span></span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainnav">&#9776;</button>
+    <div class="main-nav" id="mainnav">
+      <a href="index.html#about">About</a>
+      <a href="divisions.html">Divisions</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="standings.html">Standings</a>
+      <a href="gallery.html" class="active">Gallery</a>
+      <a href="contact.html">Contact</a>
+      <a href="members.html">Members</a>
+      <a href="register.html" class="cta">Register</a>
+    </div>
+  </nav>
+</header>
 
-  <!-- Load the shared header file + attach hamburger -->
-  <script>
-    fetch("header.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("header-placeholder").innerHTML = data;
-
-        // Attach hamburger behavior AFTER header is inserted
-        const hamburger = document.querySelector(".hamburger");
-        const nav = document.querySelector(".main-nav");
-
-        if (hamburger && nav) {
-          hamburger.addEventListener("click", () => {
-            nav.classList.toggle("active");
-            console.log("Hamburger clicked");
-          });
-        }
-      });
-  </script>
-
-<section class="hero">
+<section class="page-hero">
+  <div class="bg"></div>
+  <div class="ice-texture"></div>
+  <div class="faceoff"></div>
+  <div class="redline"></div>
   <h1>Photo Gallery</h1>
   <p>Moments from games, events, and tournaments.</p>
+  
 </section>
 
-<main class="content-container">
-  <p>Photos will be uploaded soon! Check back for updates.</p>
-</main>
-
+<div class="gallery-grid">
+  <img src="assets/images/winners.jpg" alt="Tournament winners celebrating on the ice">
+  <img src="assets/images/team_2023_niagara.jpg" alt="Team photo on the ice">
+  <img src="assets/images/HTO_games.jpg" alt="Huntsville Oldtimers game action">
+</div>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html" style="color:#fff;">
+        <img src="assets/images/logo_esig.png" alt="" style="height:42px;width:42px;object-fit:contain;" />
+        <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Est. 1975 &middot; Muskoka</span></span>
+      </a>
+      <div class="links">
+        <a href="index.html#about">About</a>
+        <a href="divisions.html">Divisions</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="fnote">&copy; 2026 Huntsville Oldtimers Hockey Club &mdash; a registered non-profit organization. Muskoka, Ontario. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+  const burger = document.querySelector('.hamburger');
+  const nav = document.getElementById('mainnav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); burger.setAttribute('aria-expanded','false');
+  }));
+</script>
 </body>
 </html>

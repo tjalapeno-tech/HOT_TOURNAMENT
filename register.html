@@ -1,106 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register Your Team</title>
-  <link rel="stylesheet" href="style-main.css">
-  <link rel="stylesheet" href="style-header.css">
-  
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
-  <style>
-    .form-group { margin-bottom: 20px; }
-    select option:disabled { color: gray; }
-    button[disabled] { opacity: 0.6; cursor: not-allowed; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Register Your Team | Huntsville Oldtimers</title>
+<meta name="description" content="Register your team for the Huntsville Oldtimers tournament." />
+<link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+
 </head>
 <body>
+<div class="utility">
+  <div class="row">
+    <span>Muskoka, Ontario &middot; Est. 1975</span>
+    <span><a href="schedule.html">Schedule</a><a href="standings.html">Standings</a><a href="contact.html">Contact</a></span>
+  </div>
+</div>
+<header class="site-header">
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/images/logo_esig.png" alt="Huntsville Oldtimers logo" />
+      <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Hockey Club</span></span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainnav">&#9776;</button>
+    <div class="main-nav" id="mainnav">
+      <a href="index.html#about">About</a>
+      <a href="divisions.html">Divisions</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="standings.html">Standings</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="contact.html">Contact</a>
+      <a href="members.html">Members</a>
+      <a href="register.html" class="cta">Register</a>
+    </div>
+  </nav>
+</header>
 
-<!-- Header loads here -->
-  <div id="header-placeholder"></div>
-
-  <!-- Load the shared header file + attach hamburger -->
-  <script>
-    fetch("header.html")
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById("header-placeholder").innerHTML = data;
-
-        // Attach hamburger behavior AFTER header is inserted
-        const hamburger = document.querySelector(".hamburger");
-        const nav = document.querySelector(".main-nav");
-
-        if (hamburger && nav) {
-          hamburger.addEventListener("click", () => {
-            nav.classList.toggle("active");
-            console.log("Hamburger clicked");
-          });
-        }
-      });
-  </script>
-
-<section class="hero">
+<section class="page-hero">
+  <div class="bg"></div>
+  <div class="ice-texture"></div>
+  <div class="faceoff"></div>
+  <div class="redline"></div>
   <h1>Team Registration</h1>
-  <p>Register your team below</p>
+  <p>Register your team below.</p>
+  
 </section>
 
 <main class="form-container">
-  <h2 style="text-align: center; color: #0e1a40;">Team Information</h2>
+  <h2>Team Information</h2>
   <form id="registrationForm">
     <div class="form-group">
-      <label for="team">Team Name*: </label>
+      <label for="team">Team Name*</label>
       <input type="text" id="team" name="team" required>
     </div>
-
     <div class="form-group">
-      <label for="repName">Team Rep*: </label>
+      <label for="repName">Team Rep*</label>
       <input type="text" id="repName" name="repName" required>
     </div>
-
     <div class="form-group">
-      <label for="repEmail">Contact Email*: </label>
+      <label for="repEmail">Contact Email*</label>
       <input type="email" id="repEmail" name="repEmail" required>
     </div>
-
     <div class="form-group">
-      <label for="repPhone">Contact Phone*: </label>
+      <label for="repPhone">Contact Phone*</label>
       <input type="text" id="repPhone" name="repPhone" required>
     </div>
-
     <div class="form-group">
-      <label for="division">Division*: </label>
+      <label for="division">Division*</label>
       <select id="division" name="division" required>
         <option value="">--Select Division--</option>
       </select>
     </div>
-
     <div class="form-group">
-      <label for="skill">Skill Level*: </label>
+      <label for="skill">Skill Level*</label>
       <select id="skill" name="skill" required>
         <option value="">--Select--</option>
-        <option>A</option>
-        <option>B</option>
-        <option>C</option>
-        <option>D</option>
-        <option>E</option>
+        <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
       </select>
     </div>
-
-    <button type="submit" id="submitBtn">Register</button>
+    <button type="submit" id="submitBtn" class="btn btn-primary">Register</button>
   </form>
 </main>
 
 <script>
-const scriptUrl = "https://script.google.com/macros/s/AKfycbz_ERw-W6qmz-dMMsYBglMS5ly1ILLnGM6cFHu4x9KDQn3t-QFMj_0BJpgAoP3RepbRoA/exec"; // <-- replace with your Apps Script Web App URL
+const scriptUrl = "https://script.google.com/macros/s/AKfycbz_ERw-W6qmz-dMMsYBglMS5ly1ILLnGM6cFHu4x9KDQn3t-QFMj_0BJpgAoP3RepbRoA/exec";
 
-// Load division availability
 async function populateDivisions() {
   try {
     const res = await fetch(scriptUrl);
     const data = await res.json();
     const select = document.getElementById('division');
     select.innerHTML = '<option value="">--Select Division--</option>';
-
     for (const division in data) {
       const { count, limit } = data[division];
       const remaining = limit - count;
@@ -117,14 +110,12 @@ async function populateDivisions() {
 }
 document.addEventListener("DOMContentLoaded", populateDivisions);
 
-// Handle form submission
 document.getElementById('registrationForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.textContent = "Submitting...";
 
-  // Build URL encoded params
   const params = new URLSearchParams();
   params.append("team", document.getElementById('team').value.trim());
   params.append("repName", document.getElementById('repName').value.trim());
@@ -155,6 +146,34 @@ document.getElementById('registrationForm').addEventListener('submit', function(
   });
 });
 </script>
-
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html" style="color:#fff;">
+        <img src="assets/images/logo_esig.png" alt="" style="height:42px;width:42px;object-fit:contain;" />
+        <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Est. 1975 &middot; Muskoka</span></span>
+      </a>
+      <div class="links">
+        <a href="index.html#about">About</a>
+        <a href="divisions.html">Divisions</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="fnote">&copy; 2026 Huntsville Oldtimers Hockey Club &mdash; a registered non-profit organization. Muskoka, Ontario. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+  const burger = document.querySelector('.hamburger');
+  const nav = document.getElementById('mainnav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); burger.setAttribute('aria-expanded','false');
+  }));
+</script>
 </body>
 </html>
