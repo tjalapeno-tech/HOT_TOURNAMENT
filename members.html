@@ -144,6 +144,11 @@ document.addEventListener("DOMContentLoaded", function () {
       statusEl.style.color = "var(--red)";
     });
   });
+
+  // Defensive check: the widget's "init" event can fire before this listener
+  // is even attached, which means it can be missed entirely. Checking
+  // currentUser() directly here has no such timing risk.
+  renderMembers(window.netlifyIdentity.currentUser());
 });
 </script>
 <footer class="site-footer">
