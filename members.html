@@ -102,6 +102,7 @@
 </main>
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
   function renderMembers(user) {
     if (user) {
       document.getElementById("membersContent").style.display = "block";
@@ -143,6 +144,7 @@
       statusEl.style.color = "var(--red)";
     });
   });
+});
 </script>
 <footer class="site-footer">
   <div class="wrap">

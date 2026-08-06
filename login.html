@@ -55,6 +55,7 @@
 </main>
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
   function goToMembersIfLoggedIn() {
     const user = window.netlifyIdentity && window.netlifyIdentity.currentUser();
     if (user) { window.location.href = "members.html"; }
@@ -71,6 +72,7 @@
     window.netlifyIdentity.close();
     window.location.href = "members.html";
   });
+});
 </script>
 <footer class="site-footer">
   <div class="wrap">
