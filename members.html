@@ -4,21 +4,100 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Members Area | Huntsville Oldtimers</title>
-<meta name="description" content="Members-only document library for Huntsville Oldtimers staff and volunteers." />
+<meta name="description" content="Members-only area for Huntsville Oldtimers staff and volunteers." />
 <link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/css/style.css" />
 <script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+<style>
+  /* ============ Members app layout (scoped to this page) ============ */
+  .app-topbar {
+    background: var(--navy); color: #fff; padding: 26px 24px;
+    border-bottom: 3px solid var(--red);
+  }
+  .app-topbar .wrap { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  .app-topbar h1 { font-size: clamp(24px, 4vw, 32px); margin:0; }
+  .app-topbar .who { font-size: 13.5px; color:#8ea3b6; }
+  .app-topbar .who strong { color:#fff; }
+
+  .members-app {
+    max-width: var(--wrap); margin-inline:auto; padding: 32px 24px 96px;
+    display:grid; grid-template-columns: 220px 1fr; gap: 28px; align-items:start;
+  }
+  .members-sidebar {
+    background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    position:sticky; top:90px;
+  }
+  .members-sidebar button {
+    display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+    padding:14px 18px; background:none; border:0; border-bottom:1px solid var(--line);
+    font-family:var(--font-display); font-weight:600; letter-spacing:.02em; text-transform:uppercase;
+    font-size:14.5px; color:var(--muted); cursor:pointer; transition:background .15s, color .15s;
+  }
+  .members-sidebar button:last-child { border-bottom:0; }
+  .members-sidebar button:hover { background:var(--ice); color:var(--navy); }
+  .members-sidebar button.active { background:var(--navy); color:#fff; }
+  .members-sidebar button .dot {
+    width:7px; height:7px; border-radius:50%; background:var(--red); flex:none; opacity:0;
+  }
+  .members-sidebar button.active .dot { opacity:1; }
+  .members-sidebar .logout-row { padding: 14px; }
+  .members-sidebar .logout-row button {
+    background:var(--red); color:#fff; text-align:center; justify-content:center;
+    border-radius:6px; border:0; font-size:13.5px; padding:11px;
+  }
+  .members-sidebar .logout-row button:hover { background:var(--red-dk); }
+
+  .members-main { min-width:0; }
+  .panel { display:none; }
+  .panel.active { display:block; }
+  .panel h2 { font-size:24px; color:var(--navy); margin-top:0; }
+  .panel .sub { color:var(--muted); font-size:15px; margin-top:-6px; margin-bottom:24px; }
+
+  .field-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:640px){ .field-row{ grid-template-columns:1fr; } }
+
+  .readonly-field {
+    padding:12px 14px; border:1.5px solid var(--line); border-radius:6px;
+    background:var(--ice); color:var(--muted); font-size:15.5px;
+  }
+
+  .job-list { display:flex; flex-direction:column; gap:12px; margin-top:8px; }
+  .job-card {
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    border:1px solid var(--line); border-radius:8px; padding:16px 18px; background:#fff;
+  }
+  .job-card .info .job-name { font-family:var(--font-display); font-weight:700; font-size:17px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
+  .job-card .info .job-time { font-size:14px; color:var(--muted); margin-top:2px; }
+  .job-card .info .job-assigned { font-size:13.5px; margin-top:6px; }
+  .job-card .info .job-assigned.mine { color:#2f9e46; font-weight:600; }
+  .job-card .info .job-assigned.other { color:var(--muted); }
+  .job-card .info .job-assigned.open { color:var(--red); font-weight:600; }
+  .job-card button {
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    font-size:13.5px; padding:10px 18px; border-radius:5px; border:0; cursor:pointer; flex:none;
+  }
+  .job-card button.claim { background:var(--red); color:#fff; }
+  .job-card button.claim:hover { background:var(--red-dk); }
+  .job-card button.release { background:var(--navy); color:#fff; }
+  .job-card button.release:hover { background:var(--navy2); }
+  .job-card button:disabled { background:#ccc; color:#888; cursor:not-allowed; }
+
+  #jobsStatus, #profileSaveStatus2 { font-size:14px; margin-top:10px; }
+</style>
 </head>
 <body>
+
 <div class="utility">
   <div class="row">
     <span>Muskoka &middot; Est. 1975</span>
     <span><a href="schedule.html">Schedule</a><a href="standings.html">Standings</a><a href="contact.html">Contact</a></span>
   </div>
 </div>
+
 <header class="site-header">
   <nav class="nav">
     <a class="brand" href="index.html">
@@ -39,118 +118,83 @@
   </nav>
 </header>
 
-<section class="page-hero">
-  <div class="bg"></div>
-  <div class="ice-texture"></div>
-  <div class="faceoff"></div>
-  <div class="redline"></div>
-  <h1>Members Area</h1>
-  <p>Club documents, forms, and staff resources.</p>
-  
-</section>
+<div id="notLoggedIn" style="max-width:640px; margin:64px auto 96px; padding:0 24px; text-align:center;">
+  <p style="color:var(--muted); font-size:16px;">You need to be logged in to view this page.</p>
+  <a href="login.html" class="btn btn-primary">Go to Login</a>
+</div>
 
-<main class="content" id="membersContent" style="display:none;">
-  <div style="text-align:right; margin-bottom:12px;">
-    <span id="userGreeting" style="color:var(--muted); font-size:14.5px; margin-right:14px;"></span>
-    <button id="logoutBtn" class="btn btn-dark" style="padding:8px 18px; font-size:13.5px;">Log Out</button>
+<div id="membersApp" style="display:none;">
+  <div class="app-topbar">
+    <div class="wrap">
+      <h1>Members Area</h1>
+      <div class="who">Logged in as <strong id="topbarEmail"></strong></div>
+    </div>
   </div>
 
-  <div class="info-card">
-    <h2>My Profile</h2>
-    <form id="profileForm">
-      <div class="form-group">
-        <label for="profileName">Full Name</label>
-        <input type="text" id="profileName" name="profileName">
-      </div>
-      <div class="form-group">
-        <label for="profilePhone">Phone Number</label>
-        <input type="text" id="profilePhone" name="profilePhone">
-      </div>
-      <div class="form-group">
-        <label for="profileRole">Role / Position</label>
-        <input type="text" id="profileRole" name="profileRole" placeholder="e.g. Board Member, Volunteer, Coach">
-      </div>
-      <div style="text-align:center;">
-        <button type="submit" class="btn btn-primary">Save Profile</button>
-        <span id="profileSaveStatus" style="display:block; margin-top:10px; font-size:14px; color:#2f9e46;"></span>
-      </div>
-    </form>
+  <div class="members-app">
+    <aside class="members-sidebar">
+      <button class="tab-btn active" data-tab="profile"><span class="dot"></span>Profile</button>
+      <button class="tab-btn" data-tab="documents"><span class="dot"></span>Document Centre</button>
+      <button class="tab-btn" data-tab="jobs"><span class="dot"></span>Job Schedule</button>
+      <div class="logout-row"><button id="logoutBtn">Log Out</button></div>
+    </aside>
+
+    <main class="members-main">
+
+      <!-- PROFILE -->
+      <section class="panel active" data-panel="profile">
+        <h2>My Profile</h2>
+        <p class="sub">This information is visible to other logged-in members and club admins.</p>
+        <form id="profileForm">
+          <div class="field-row">
+            <div class="form-group">
+              <label for="profileName">Full Name</label>
+              <input type="text" id="profileName" name="profileName">
+            </div>
+            <div class="form-group">
+              <label for="profileNickname">Nickname</label>
+              <input type="text" id="profileNickname" name="profileNickname">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="form-group">
+              <label for="profilePhone">Phone Number</label>
+              <input type="text" id="profilePhone" name="profilePhone">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <div class="readonly-field" id="profileEmailDisplay"></div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Profile</button>
+          <span id="profileSaveStatus2"></span>
+        </form>
+      </section>
+
+      <!-- DOCUMENT CENTRE -->
+      <section class="panel" data-panel="documents">
+        <h2>Document Centre</h2>
+        <p class="sub">Club documents, forms, and staff resources, stored in Google Drive.</p>
+        <div class="info-card">
+          <p style="text-align:center; color:var(--muted);">All club documents are stored in our shared Google Drive folder.</p>
+          <p style="text-align:center;">
+            <a class="btn btn-primary" href="https://drive.google.com/drive/folders/1Kr4dgKrWw7Em9dbFcE-MUWRVwXruY-xU?usp=sharing" target="_blank">Open Document Library</a>
+          </p>
+        </div>
+      </section>
+
+      <!-- JOB SCHEDULE -->
+      <section class="panel" data-panel="jobs">
+        <h2>Job Schedule</h2>
+        <p class="sub">Sign up for open shifts, or release a shift you can no longer make.</p>
+        <div id="jobsStatus">Loading shifts...</div>
+        <div class="job-list" id="jobsList"></div>
+      </section>
+
+    </main>
   </div>
+</div>
 
-  <div class="info-card">
-    <h2>Document Library</h2>
-    <p style="text-align:center; color:var(--muted);">
-      All club documents are stored in our shared Google Drive folder.
-    </p>
-    <p style="text-align:center;">
-      <a class="btn btn-primary" href="https://drive.google.com/drive/folders/1Kr4dgKrWw7Em9dbFcE-MUWRVwXruY-xU?usp=sharing" target="_blank">Open Document Library</a>
-    </p>
-  </div>
-
-  <h3>Quick Links</h3>
-  <p style="color:var(--muted);">These currently all point to the same shared folder &mdash; once things are organized into subfolders, update each link below to point directly to its subfolder.</p>
-  <ul>
-    <li><a href="https://drive.google.com/drive/folders/1Kr4dgKrWw7Em9dbFcE-MUWRVwXruY-xU?usp=sharing" target="_blank">Board Meeting Minutes</a></li>
-    <li><a href="https://drive.google.com/drive/folders/1Kr4dgKrWw7Em9dbFcE-MUWRVwXruY-xU?usp=sharing" target="_blank">Volunteer Schedules</a></li>
-    <li><a href="https://drive.google.com/drive/folders/1Kr4dgKrWw7Em9dbFcE-MUWRVwXruY-xU?usp=sharing" target="_blank">Financial Reports</a></li>
-  </ul>
-</main>
-
-<main class="content" id="notLoggedIn">
-  <p style="text-align:center;">You need to be logged in to view this page.</p>
-  <p style="text-align:center;"><a href="login.html" class="btn btn-primary">Go to Login</a></p>
-</main>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  function renderMembers(user) {
-    if (user) {
-      document.getElementById("membersContent").style.display = "block";
-      document.getElementById("notLoggedIn").style.display = "none";
-      document.getElementById("userGreeting").textContent = "Logged in as " + (user.email || "member");
-
-      const meta = user.user_metadata || {};
-      document.getElementById("profileName").value = meta.full_name || "";
-      document.getElementById("profilePhone").value = meta.phone || "";
-      document.getElementById("profileRole").value = meta.role || "";
-    } else {
-      document.getElementById("membersContent").style.display = "none";
-      document.getElementById("notLoggedIn").style.display = "block";
-    }
-  }
-  window.netlifyIdentity.on("init", renderMembers);
-  window.netlifyIdentity.on("logout", () => { window.location.href = "login.html"; });
-  document.getElementById("logoutBtn").addEventListener("click", () => window.netlifyIdentity.logout());
-
-  document.getElementById("profileForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    const user = window.netlifyIdentity.currentUser();
-    if (!user) return;
-    const statusEl = document.getElementById("profileSaveStatus");
-    statusEl.textContent = "Saving...";
-    statusEl.style.color = "var(--muted)";
-
-    user.update({
-      data: {
-        full_name: document.getElementById("profileName").value.trim(),
-        phone: document.getElementById("profilePhone").value.trim(),
-        role: document.getElementById("profileRole").value.trim()
-      }
-    }).then(() => {
-      statusEl.textContent = "Profile saved.";
-      statusEl.style.color = "#2f9e46";
-    }).catch(err => {
-      statusEl.textContent = "Error saving profile: " + err.message;
-      statusEl.style.color = "var(--red)";
-    });
-  });
-
-  // Defensive check: the widget's "init" event can fire before this listener
-  // is even attached, which means it can be missed entirely. Checking
-  // currentUser() directly here has no such timing risk.
-  renderMembers(window.netlifyIdentity.currentUser());
-});
-</script>
 <footer class="site-footer">
   <div class="wrap">
     <div class="foot">
@@ -169,7 +213,198 @@ document.addEventListener("DOMContentLoaded", function () {
     <div class="fnote">&copy; 2026 Huntsville Oldtimers Hockey Tournament &mdash; entirely volunteer-run, proudly supporting local charities, businesses, and community causes. Muskoka, Ontario. All rights reserved.</div>
   </div>
 </footer>
+
 <script>
+  // Same Apps Script backend as registration — now also handles Job Schedule.
+  const scriptUrl = "https://script.google.com/macros/s/AKfycbxYDvsI7rxbCNxc3lh65MwpkkdaOlAmOtd4QiQl2JkRVrC-ZW8hYWmbCmAJFwWxEbNn/exec";
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    // ---------- Sidebar tab switching ----------
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelector(`.panel[data-panel="${btn.dataset.tab}"]`).classList.add("active");
+        if (btn.dataset.tab === "jobs") loadJobs();
+      });
+    });
+
+    // ---------- Identity / profile ----------
+    function renderMembers(user) {
+      if (user) {
+        document.getElementById("membersApp").style.display = "block";
+        document.getElementById("notLoggedIn").style.display = "none";
+        document.getElementById("topbarEmail").textContent = user.email || "member";
+
+        const meta = user.user_metadata || {};
+        document.getElementById("profileName").value = meta.full_name || "";
+        document.getElementById("profileNickname").value = meta.nickname || "";
+        document.getElementById("profilePhone").value = meta.phone || "";
+        document.getElementById("profileEmailDisplay").textContent = user.email || "";
+      } else {
+        document.getElementById("membersApp").style.display = "none";
+        document.getElementById("notLoggedIn").style.display = "block";
+      }
+    }
+
+    window.netlifyIdentity.on("init", renderMembers);
+    window.netlifyIdentity.on("logout", () => { window.location.href = "login.html"; });
+    document.getElementById("logoutBtn").addEventListener("click", () => window.netlifyIdentity.logout());
+
+    document.getElementById("profileForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const user = window.netlifyIdentity.currentUser();
+      if (!user) return;
+      const statusEl = document.getElementById("profileSaveStatus2");
+      statusEl.textContent = "Saving...";
+      statusEl.style.color = "var(--muted)";
+
+      user.update({
+        data: {
+          full_name: document.getElementById("profileName").value.trim(),
+          nickname: document.getElementById("profileNickname").value.trim(),
+          phone: document.getElementById("profilePhone").value.trim()
+        }
+      }).then(() => {
+        statusEl.textContent = "Profile saved.";
+        statusEl.style.color = "#2f9e46";
+      }).catch(err => {
+        statusEl.textContent = "Error saving profile: " + err.message;
+        statusEl.style.color = "var(--red)";
+      });
+    });
+
+    // Defensive direct check — the "init" event can fire before the
+    // listener above is attached, so also check the current state directly.
+    renderMembers(window.netlifyIdentity.currentUser());
+
+    // ---------- Job Schedule ----------
+    window.loadJobs = async function loadJobs() {
+      const statusEl = document.getElementById("jobsStatus");
+      const listEl = document.getElementById("jobsList");
+      statusEl.textContent = "Loading shifts...";
+      listEl.innerHTML = "";
+
+      try {
+        const res = await fetch(scriptUrl + "?action=jobs");
+        const data = await res.json();
+        statusEl.textContent = "";
+
+        const user = window.netlifyIdentity.currentUser();
+        const myEmail = (user && user.email || "").toLowerCase();
+
+        if (!data.jobs || data.jobs.length === 0) {
+          statusEl.textContent = "No shifts have been posted yet.";
+          return;
+        }
+
+        data.jobs.forEach(job => {
+          const card = document.createElement("div");
+          card.className = "job-card";
+
+          const isMine = job.assignedEmail && job.assignedEmail.toLowerCase() === myEmail;
+          const isOpen = !job.assignedEmail;
+
+          let assignedHtml;
+          if (isOpen) {
+            assignedHtml = `<div class="job-assigned open">Open &mdash; needs a volunteer</div>`;
+          } else if (isMine) {
+            assignedHtml = `<div class="job-assigned mine">You're covering this shift</div>`;
+          } else {
+            assignedHtml = `<div class="job-assigned other">Covered by ${job.assignedName || "another member"}</div>`;
+          }
+
+          card.innerHTML = `
+            <div class="info">
+              <div class="job-name">${job.job}</div>
+              <div class="job-time">${job.time}</div>
+              ${assignedHtml}
+            </div>
+          `;
+
+          const btn = document.createElement("button");
+          if (isOpen) {
+            btn.textContent = "Claim Shift";
+            btn.className = "claim";
+            btn.addEventListener("click", () => claimShift(job.id, btn));
+          } else if (isMine) {
+            btn.textContent = "Release Shift";
+            btn.className = "release";
+            btn.addEventListener("click", () => releaseShift(job.id, btn));
+          } else {
+            btn.textContent = "Taken";
+            btn.disabled = true;
+          }
+
+          card.appendChild(btn);
+          listEl.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Could not load the job schedule. Please try again shortly.";
+      }
+    };
+
+    async function claimShift(shiftId, btn) {
+      const user = window.netlifyIdentity.currentUser();
+      if (!user) return;
+      btn.disabled = true;
+      btn.textContent = "Claiming...";
+
+      const meta = user.user_metadata || {};
+      const displayName = meta.full_name || user.email;
+
+      const params = new URLSearchParams();
+      params.append("action", "claimShift");
+      params.append("shiftId", shiftId);
+      params.append("name", displayName);
+      params.append("email", user.email);
+
+      try {
+        const res = await fetch(scriptUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: params.toString()
+        });
+        const result = await res.json();
+        if (!result.success) alert(result.message || "Could not claim that shift.");
+        loadJobs();
+      } catch (err) {
+        alert("Error claiming shift: " + err.message);
+        loadJobs();
+      }
+    }
+
+    async function releaseShift(shiftId, btn) {
+      const user = window.netlifyIdentity.currentUser();
+      if (!user) return;
+      btn.disabled = true;
+      btn.textContent = "Releasing...";
+
+      const params = new URLSearchParams();
+      params.append("action", "releaseShift");
+      params.append("shiftId", shiftId);
+      params.append("email", user.email);
+
+      try {
+        const res = await fetch(scriptUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: params.toString()
+        });
+        const result = await res.json();
+        if (!result.success) alert(result.message || "Could not release that shift.");
+        loadJobs();
+      } catch (err) {
+        alert("Error releasing shift: " + err.message);
+        loadJobs();
+      }
+    }
+  });
+
+  // ---------- Mobile nav (unchanged) ----------
   const burger = document.querySelector('.hamburger');
   const nav = document.getElementById('mainnav');
   burger.addEventListener('click', () => {
