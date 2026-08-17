@@ -65,17 +65,32 @@
     background:var(--ice); color:var(--muted); font-size:15.5px;
   }
 
-  .job-list { display:flex; flex-direction:column; gap:12px; margin-top:8px; }
+  .job-list { display:flex; flex-direction:column; gap:28px; margin-top:8px; }
+  .job-day-heading {
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+    font-size:15px; color:var(--navy); border-bottom:2px solid var(--line); padding-bottom:8px; margin-bottom:4px;
+  }
+  .job-day-group { display:flex; flex-direction:column; gap:12px; }
   .job-card {
-    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
     border:1px solid var(--line); border-radius:8px; padding:16px 18px; background:#fff;
   }
+  .job-card .job-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   .job-card .info .job-name { font-family:var(--font-display); font-weight:700; font-size:17px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
   .job-card .info .job-time { font-size:14px; color:var(--muted); margin-top:2px; }
-  .job-card .info .job-assigned { font-size:13.5px; margin-top:6px; }
-  .job-card .info .job-assigned.mine { color:#2f9e46; font-weight:600; }
-  .job-card .info .job-assigned.other { color:var(--muted); }
-  .job-card .info .job-assigned.open { color:var(--red); font-weight:600; }
+  .job-card .info .job-desc { font-size:13.5px; color:var(--muted); margin-top:6px; max-width:520px; }
+  .job-card .capacity-badge {
+    font-family:var(--font-display); font-weight:700; font-size:13px; letter-spacing:.03em;
+    padding:6px 12px; border-radius:20px; flex:none; white-space:nowrap;
+  }
+  .job-card .capacity-badge.full { background:#f3d6d6; color:var(--red-dk); }
+  .job-card .capacity-badge.open { background:#fde8e8; color:var(--red); }
+  .job-card .capacity-badge.mine { background:#d9f2df; color:#1c7a37; }
+  .job-card .who-list { font-size:13px; color:var(--muted); margin-top:10px; }
+  .job-card .who-list .name-chip {
+    display:inline-block; background:var(--ice); border-radius:20px; padding:3px 10px; margin:2px 3px 0 0; font-size:12.5px;
+  }
+  .job-card .who-list .name-chip.mine { background:#d9f2df; color:#1c7a37; font-weight:600; }
+  .job-card .actions { margin-top:12px; }
   .job-card button {
     font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.03em;
     font-size:13.5px; padding:10px 18px; border-radius:5px; border:0; cursor:pointer; flex:none;
@@ -87,6 +102,22 @@
   .job-card button:disabled { background:#ccc; color:#888; cursor:not-allowed; }
 
   #jobsStatus, #profileSaveStatus2 { font-size:14px; margin-top:10px; }
+
+  .admin-row {
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    border:1px solid var(--line); border-radius:8px; padding:14px 18px; background:#fff;
+  }
+  .admin-row .info .job-name { font-family:var(--font-display); font-weight:700; font-size:15.5px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
+  .admin-row .info .job-time { font-size:13px; color:var(--muted); margin-top:2px; }
+  .admin-row .cap-control { display:flex; align-items:center; gap:10px; }
+  .admin-row .cap-control label { font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; font-family:var(--font-display); font-weight:600; }
+  .admin-row .cap-control input { width:64px; padding:8px 10px; border:1.5px solid var(--line); border-radius:6px; font-size:15px; text-align:center; }
+  .admin-row .cap-control button {
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    font-size:13px; padding:9px 16px; border-radius:5px; border:0; cursor:pointer; background:var(--navy); color:#fff;
+  }
+  .admin-row .cap-control button:hover { background:var(--navy2); }
+  .admin-row .cap-control .saved-note { font-size:12.5px; color:#2f9e46; }
 </style>
 </head>
 <body>
@@ -136,6 +167,7 @@
       <button class="tab-btn active" data-tab="profile"><span class="dot"></span>Profile</button>
       <button class="tab-btn" data-tab="documents"><span class="dot"></span>Document Centre</button>
       <button class="tab-btn" data-tab="jobs"><span class="dot"></span>Job Schedule</button>
+      <button class="tab-btn" data-tab="admin" id="adminTabBtn" style="display:none;"><span class="dot"></span>Shift Admin</button>
       <div class="logout-row"><button id="logoutBtn">Log Out</button></div>
     </aside>
 
@@ -191,6 +223,14 @@
         <div class="job-list" id="jobsList"></div>
       </section>
 
+      <!-- SHIFT ADMIN (Executives only) -->
+      <section class="panel" data-panel="admin">
+        <h2>Shift Admin</h2>
+        <p class="sub">Set how many volunteers each shift needs. Changes apply immediately on the Job Schedule tab.</p>
+        <div id="adminStatus">Loading shifts...</div>
+        <div id="adminList" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </section>
+
     </main>
   </div>
 </div>
@@ -228,6 +268,7 @@
         btn.classList.add("active");
         document.querySelector(`.panel[data-panel="${btn.dataset.tab}"]`).classList.add("active");
         if (btn.dataset.tab === "jobs") loadJobs();
+        if (btn.dataset.tab === "admin") loadAdminPanel();
       });
     });
 
@@ -243,6 +284,13 @@
         document.getElementById("profileNickname").value = meta.nickname || "";
         document.getElementById("profilePhone").value = meta.phone || "";
         document.getElementById("profileEmailDisplay").textContent = user.email || "";
+
+        // Roles come from app_metadata, which members can't edit themselves —
+        // only an admin can set this (Netlify dashboard or admin API), so it's
+        // safe to trust for showing/hiding the admin UI.
+        const roles = (user.app_metadata && user.app_metadata.roles) || [];
+        const isExecutive = roles.includes("executive");
+        document.getElementById("adminTabBtn").style.display = isExecutive ? "flex" : "none";
       } else {
         document.getElementById("membersApp").style.display = "none";
         document.getElementById("notLoggedIn").style.display = "block";
@@ -300,46 +348,74 @@
           return;
         }
 
+        // Group jobs by date, preserving the sheet's row order within each day.
+        const byDate = {};
+        const dateOrder = [];
         data.jobs.forEach(job => {
-          const card = document.createElement("div");
-          card.className = "job-card";
+          const key = job.date || "Date TBD";
+          if (!byDate[key]) { byDate[key] = []; dateOrder.push(key); }
+          byDate[key].push(job);
+        });
 
-          const isMine = job.assignedEmail && job.assignedEmail.toLowerCase() === myEmail;
-          const isOpen = !job.assignedEmail;
+        dateOrder.forEach(dateKey => {
+          const heading = document.createElement("div");
+          heading.className = "job-day-heading";
+          heading.textContent = dateKey;
+          listEl.appendChild(heading);
 
-          let assignedHtml;
-          if (isOpen) {
-            assignedHtml = `<div class="job-assigned open">Open &mdash; needs a volunteer</div>`;
-          } else if (isMine) {
-            assignedHtml = `<div class="job-assigned mine">You're covering this shift</div>`;
-          } else {
-            assignedHtml = `<div class="job-assigned other">Covered by ${job.assignedName || "another member"}</div>`;
-          }
+          const group = document.createElement("div");
+          group.className = "job-day-group";
 
-          card.innerHTML = `
-            <div class="info">
-              <div class="job-name">${job.job}</div>
-              <div class="job-time">${job.time}</div>
-              ${assignedHtml}
-            </div>
-          `;
+          byDate[dateKey].forEach(job => {
+            const isFull = job.filled >= job.capacity;
+            const iAmSignedUp = job.signups.some(s => (s.email || "").toLowerCase() === myEmail);
 
-          const btn = document.createElement("button");
-          if (isOpen) {
-            btn.textContent = "Claim Shift";
-            btn.className = "claim";
-            btn.addEventListener("click", () => claimShift(job.id, btn));
-          } else if (isMine) {
-            btn.textContent = "Release Shift";
-            btn.className = "release";
-            btn.addEventListener("click", () => releaseShift(job.id, btn));
-          } else {
-            btn.textContent = "Taken";
-            btn.disabled = true;
-          }
+            const card = document.createElement("div");
+            card.className = "job-card";
 
-          card.appendChild(btn);
-          listEl.appendChild(card);
+            let badgeClass = "open", badgeText = `${job.filled}/${job.capacity} filled`;
+            if (iAmSignedUp) { badgeClass = "mine"; badgeText = "You're in"; }
+            else if (isFull) { badgeClass = "full"; badgeText = "Full"; }
+
+            const namesHtml = job.signups.length
+              ? job.signups.map(s => {
+                  const mine = (s.email || "").toLowerCase() === myEmail;
+                  return `<span class="name-chip${mine ? ' mine' : ''}">${s.name || s.email}</span>`;
+                }).join("")
+              : `<span style="color:var(--muted);">Nobody signed up yet</span>`;
+
+            card.innerHTML = `
+              <div class="job-top">
+                <div class="info">
+                  <div class="job-name">${(job.id || "").split("_")[0] || job.id}</div>
+                  <div class="job-time">${job.time}</div>
+                  <div class="job-desc">${job.description || ""}</div>
+                </div>
+                <div class="capacity-badge ${badgeClass}">${badgeText}</div>
+              </div>
+              <div class="who-list">${namesHtml}</div>
+              <div class="actions"></div>
+            `;
+
+            const actions = card.querySelector(".actions");
+            const btn = document.createElement("button");
+            if (iAmSignedUp) {
+              btn.textContent = "Release My Spot";
+              btn.className = "release";
+              btn.addEventListener("click", () => claimOrRelease("release", job.id, btn));
+            } else if (isFull) {
+              btn.textContent = "Full";
+              btn.disabled = true;
+            } else {
+              btn.textContent = "Sign Up for This Shift";
+              btn.className = "claim";
+              btn.addEventListener("click", () => claimOrRelease("claim", job.id, btn));
+            }
+            actions.appendChild(btn);
+            group.appendChild(card);
+          });
+
+          listEl.appendChild(group);
         });
       } catch (err) {
         console.error(err);
@@ -347,20 +423,20 @@
       }
     };
 
-    async function claimShift(shiftId, btn) {
+    async function claimOrRelease(kind, jobId, btn) {
       const user = window.netlifyIdentity.currentUser();
       if (!user) return;
       btn.disabled = true;
-      btn.textContent = "Claiming...";
+      btn.textContent = kind === "claim" ? "Signing up..." : "Releasing...";
 
       const meta = user.user_metadata || {};
       const displayName = meta.full_name || user.email;
 
       const params = new URLSearchParams();
-      params.append("action", "claimShift");
-      params.append("shiftId", shiftId);
-      params.append("name", displayName);
+      params.append("action", kind === "claim" ? "claimShift" : "releaseShift");
+      params.append("jobId", jobId);
       params.append("email", user.email);
+      if (kind === "claim") params.append("name", displayName);
 
       try {
         const res = await fetch(scriptUrl, {
@@ -369,39 +445,86 @@
           body: params.toString()
         });
         const result = await res.json();
-        if (!result.success) alert(result.message || "Could not claim that shift.");
+        if (!result.success) alert(result.message || "That didn't go through. Please try again.");
         loadJobs();
       } catch (err) {
-        alert("Error claiming shift: " + err.message);
+        alert("Error: " + err.message);
         loadJobs();
       }
     }
 
-    async function releaseShift(shiftId, btn) {
-      const user = window.netlifyIdentity.currentUser();
-      if (!user) return;
-      btn.disabled = true;
-      btn.textContent = "Releasing...";
-
-      const params = new URLSearchParams();
-      params.append("action", "releaseShift");
-      params.append("shiftId", shiftId);
-      params.append("email", user.email);
+    // ---------- Shift Admin (Executives only) ----------
+    window.loadAdminPanel = async function loadAdminPanel() {
+      const statusEl = document.getElementById("adminStatus");
+      const listEl = document.getElementById("adminList");
+      statusEl.textContent = "Loading shifts...";
+      listEl.innerHTML = "";
 
       try {
-        const res = await fetch(scriptUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: params.toString()
+        const res = await fetch(scriptUrl + "?action=jobs");
+        const data = await res.json();
+        statusEl.textContent = "";
+
+        if (!data.jobs || data.jobs.length === 0) {
+          statusEl.textContent = "No shifts found.";
+          return;
+        }
+
+        data.jobs.forEach(job => {
+          const row = document.createElement("div");
+          row.className = "admin-row";
+          row.innerHTML = `
+            <div class="info">
+              <div class="job-name">${(job.id || "").split("_")[0] || job.id}</div>
+              <div class="job-time">${job.date} &middot; ${job.time} &mdash; currently ${job.filled} signed up</div>
+            </div>
+            <div class="cap-control">
+              <label for="cap-${job.id}">Capacity</label>
+              <input type="number" min="0" id="cap-${job.id}" value="${job.capacity}">
+              <button type="button">Save</button>
+              <span class="saved-note" style="display:none;">Saved</span>
+            </div>
+          `;
+          const input = row.querySelector("input");
+          const saveBtn = row.querySelector("button");
+          const savedNote = row.querySelector(".saved-note");
+
+          saveBtn.addEventListener("click", async () => {
+            savedNote.style.display = "none";
+            saveBtn.textContent = "Saving...";
+            saveBtn.disabled = true;
+
+            const params = new URLSearchParams();
+            params.append("action", "updateCapacity");
+            params.append("jobId", job.id);
+            params.append("capacity", input.value);
+
+            try {
+              const res2 = await fetch(scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+              });
+              const result = await res2.json();
+              if (result.success) {
+                savedNote.style.display = "inline";
+              } else {
+                alert(result.message || "Could not save that change.");
+              }
+            } catch (err) {
+              alert("Error: " + err.message);
+            }
+            saveBtn.textContent = "Save";
+            saveBtn.disabled = false;
+          });
+
+          listEl.appendChild(row);
         });
-        const result = await res.json();
-        if (!result.success) alert(result.message || "Could not release that shift.");
-        loadJobs();
       } catch (err) {
-        alert("Error releasing shift: " + err.message);
-        loadJobs();
+        console.error(err);
+        statusEl.textContent = "Could not load shifts. Please try again shortly.";
       }
-    }
+    };
   });
 
   // ---------- Mobile nav (unchanged) ----------
