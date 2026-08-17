@@ -103,6 +103,32 @@
 
   #jobsStatus, #profileSaveStatus2 { font-size:14px; margin-top:10px; }
 
+  .print-only-heading { display:none; }
+
+  @media print {
+    .utility, .site-header, .app-topbar, .members-sidebar,
+    footer.site-footer, .jobs-toolbar, .job-card button,
+    .panel:not([data-panel="jobs"]) { display:none !important; }
+
+    body { background:#fff; }
+    .members-app { grid-template-columns: 1fr !important; padding:0 !important; max-width:none !important; }
+    .members-main { min-width:0; }
+
+    .print-only-heading {
+      display:flex !important; align-items:center; gap:14px; margin-bottom:20px;
+      border-bottom:2px solid #000; padding-bottom:12px;
+    }
+    .print-only-heading img { height:52px; width:52px; object-fit:contain; }
+    .print-only-heading .print-title { font-family:var(--font-display); font-weight:700; font-size:22px; }
+    .print-only-heading .print-subtitle { font-size:12px; color:#555; margin-top:2px; }
+
+    .job-day-heading { break-after:avoid; }
+    .job-card { break-inside:avoid; border:1px solid #999 !important; }
+    .capacity-badge.full { background:#eee !important; color:#000 !important; }
+    .capacity-badge.open { background:#fff !important; color:#000 !important; border:1px solid #000; }
+    .capacity-badge.mine { background:#fff !important; color:#000 !important; border:1px solid #000; }
+  }
+
   .admin-row {
     display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
     border:1px solid var(--line); border-radius:8px; padding:14px 18px; background:#fff;
@@ -217,8 +243,23 @@
 
       <!-- JOB SCHEDULE -->
       <section class="panel" data-panel="jobs">
-        <h2>Job Schedule</h2>
-        <p class="sub">Sign up for open shifts, or release a shift you can no longer make.</p>
+        <div class="jobs-toolbar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h2 style="margin-bottom:0;">Job Schedule</h2>
+            <p class="sub" style="margin-bottom:0;">Sign up for open shifts, or release a shift you can no longer make.</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button type="button" id="printJobsBtn" class="btn btn-dark" style="padding:10px 18px; font-size:13.5px;">Print Schedule</button>
+            <button type="button" id="exportJobsBtn" class="btn btn-dark" style="padding:10px 18px; font-size:13.5px;">Export CSV</button>
+          </div>
+        </div>
+        <div class="print-only-heading">
+          <img src="assets/images/logo_esig.png" alt="" />
+          <div>
+            <div class="print-title">Huntsville Oldtimers &mdash; Job Schedule</div>
+            <div class="print-subtitle">Printed <span id="printDate"></span></div>
+          </div>
+        </div>
         <div id="jobsStatus">Loading shifts...</div>
         <div class="job-list" id="jobsList"></div>
       </section>
@@ -227,6 +268,39 @@
       <section class="panel" data-panel="admin">
         <h2>Shift Admin</h2>
         <p class="sub">Set how many volunteers each shift needs. Changes apply immediately on the Job Schedule tab.</p>
+
+        <div class="info-card" style="margin-bottom:32px;">
+          <h2 style="font-size:19px;">Create a New Shift</h2>
+          <form id="createJobForm">
+            <div class="field-row">
+              <div class="form-group">
+                <label for="newJobName">Job Name</label>
+                <input type="text" id="newJobName" placeholder="e.g. Bar, Rover, Setup" required>
+              </div>
+              <div class="form-group">
+                <label for="newJobCapacity">Capacity</label>
+                <input type="number" id="newJobCapacity" min="0" value="1" required>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="form-group">
+                <label for="newJobDate">Date</label>
+                <input type="text" id="newJobDate" placeholder="e.g. 12/4/2026" required>
+              </div>
+              <div class="form-group">
+                <label for="newJobTime">Time</label>
+                <input type="text" id="newJobTime" placeholder="e.g. 3:00PM - 6:00PM" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="newJobDescription">Description</label>
+              <input type="text" id="newJobDescription" placeholder="What does this shift involve?">
+            </div>
+            <button type="submit" class="btn btn-primary">Create Shift</button>
+            <span id="createJobStatus" style="margin-left:12px; font-size:14px;"></span>
+          </form>
+        </div>
+
         <div id="adminStatus">Loading shifts...</div>
         <div id="adminList" style="display:flex; flex-direction:column; gap:10px;"></div>
       </section>
@@ -272,6 +346,42 @@
       });
     });
 
+    // ---------- Print / Export ----------
+    document.getElementById("printJobsBtn").addEventListener("click", () => {
+      document.getElementById("printDate").textContent = new Date().toLocaleDateString();
+      window.print();
+    });
+
+    document.getElementById("exportJobsBtn").addEventListener("click", () => {
+      if (!lastLoadedJobs.length) { alert("Nothing to export yet — the schedule hasn't loaded."); return; }
+
+      const escapeCsv = (val) => {
+        const s = String(val == null ? "" : val);
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      };
+
+      const header = ["Date", "Job", "Time", "Capacity", "Filled", "Signed Up"];
+      const lines = [header.map(escapeCsv).join(",")];
+
+      lastLoadedJobs.forEach(job => {
+        const names = (job.signups || []).map(s => s.name || s.email).join("; ");
+        lines.push([
+          job.date, job.job || job.id, job.time, job.capacity, job.filled, names
+        ].map(escapeCsv).join(","));
+      });
+
+      const csvContent = lines.join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "job-schedule.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
     // ---------- Identity / profile ----------
     function renderMembers(user) {
       if (user) {
@@ -298,8 +408,24 @@
     }
 
     window.netlifyIdentity.on("init", renderMembers);
-    window.netlifyIdentity.on("logout", () => { window.location.href = "login.html"; });
-    document.getElementById("logoutBtn").addEventListener("click", () => window.netlifyIdentity.logout());
+    let didRedirectOnLogout = false;
+    function goToLoginOnce() {
+      if (!didRedirectOnLogout) { didRedirectOnLogout = true; window.location.href = "login.html"; }
+    }
+    window.netlifyIdentity.on("logout", goToLoginOnce);
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      const btn = document.getElementById("logoutBtn");
+      btn.disabled = true;
+      btn.textContent = "Logging out...";
+
+      // Netlify's logout() call can be slow to resolve depending on network
+      // conditions. Give it a few seconds to redirect naturally via the
+      // "logout" event above, but don't leave the user stuck staring at an
+      // unresponsive button if it takes longer than that.
+      setTimeout(goToLoginOnce, 4000);
+      window.netlifyIdentity.logout();
+    });
 
     document.getElementById("profileForm").addEventListener("submit", function (e) {
       e.preventDefault();
@@ -329,6 +455,8 @@
     renderMembers(window.netlifyIdentity.currentUser());
 
     // ---------- Job Schedule ----------
+    let lastLoadedJobs = [];
+
     window.loadJobs = async function loadJobs() {
       const statusEl = document.getElementById("jobsStatus");
       const listEl = document.getElementById("jobsList");
@@ -339,6 +467,7 @@
         const res = await fetch(scriptUrl + "?action=jobs");
         const data = await res.json();
         statusEl.textContent = "";
+        lastLoadedJobs = data.jobs || [];
 
         const user = window.netlifyIdentity.currentUser();
         const myEmail = (user && user.email || "").toLowerCase();
@@ -387,7 +516,7 @@
             card.innerHTML = `
               <div class="job-top">
                 <div class="info">
-                  <div class="job-name">${(job.id || "").split("_")[0] || job.id}</div>
+                  <div class="job-name">${job.job || job.id}</div>
                   <div class="job-time">${job.time}</div>
                   <div class="job-desc">${job.description || ""}</div>
                 </div>
@@ -475,7 +604,7 @@
           row.className = "admin-row";
           row.innerHTML = `
             <div class="info">
-              <div class="job-name">${(job.id || "").split("_")[0] || job.id}</div>
+              <div class="job-name">${job.job || job.id}</div>
               <div class="job-time">${job.date} &middot; ${job.time} &mdash; currently ${job.filled} signed up</div>
             </div>
             <div class="cap-control">
@@ -525,6 +654,46 @@
         statusEl.textContent = "Could not load shifts. Please try again shortly.";
       }
     };
+
+    document.getElementById("createJobForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const statusEl = document.getElementById("createJobStatus");
+      const submitBtn = e.target.querySelector("button[type=submit]");
+      submitBtn.disabled = true;
+      statusEl.textContent = "Creating...";
+      statusEl.style.color = "var(--muted)";
+
+      const params = new URLSearchParams();
+      params.append("action", "createJob");
+      params.append("job", document.getElementById("newJobName").value.trim());
+      params.append("description", document.getElementById("newJobDescription").value.trim());
+      params.append("date", document.getElementById("newJobDate").value.trim());
+      params.append("time", document.getElementById("newJobTime").value.trim());
+      params.append("capacity", document.getElementById("newJobCapacity").value);
+
+      try {
+        const res = await fetch(scriptUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: params.toString()
+        });
+        const result = await res.json();
+        if (result.success) {
+          statusEl.textContent = "Shift created.";
+          statusEl.style.color = "#2f9e46";
+          e.target.reset();
+          document.getElementById("newJobCapacity").value = 1;
+          loadAdminPanel();
+        } else {
+          statusEl.textContent = result.message || "Could not create that shift.";
+          statusEl.style.color = "var(--red)";
+        }
+      } catch (err) {
+        statusEl.textContent = "Error: " + err.message;
+        statusEl.style.color = "var(--red)";
+      }
+      submitBtn.disabled = false;
+    });
   });
 
   // ---------- Mobile nav (unchanged) ----------
