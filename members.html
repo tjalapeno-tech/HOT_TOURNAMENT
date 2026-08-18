@@ -549,6 +549,20 @@
         document.getElementById("notLoggedIn").style.display = "none";
         document.getElementById("topbarEmail").textContent = user.email || "member";
 
+        // Drive access is granted here, client-side, AFTER login is
+        // already confirmed — not inside the login flow itself. Calling
+        // Google's Drive API is too slow to safely run inside GoTrue's
+        // blocking identity webhook (that's what was breaking Google
+        // logins before). This call is fire-and-forget from the page's
+        // perspective — nothing here depends on it finishing.
+        if (user.email) {
+          fetch("/.netlify/functions/grant-drive-access", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: user.email })
+          }).catch(err => console.error("Drive grant request failed:", err));
+        }
+
         const meta = user.user_metadata || {};
         document.getElementById("profileName").value = meta.full_name || "";
         document.getElementById("profileNickname").value = meta.nickname || "";

@@ -2,15 +2,13 @@
 //
 // Two handlers:
 //
-// 1. userValidate — THIS is the approved-email check you're asking about.
-//    Fires BEFORE a new account is created (on signup, not on later logins).
-//    It fetches your Approved Members Google Sheet (published as plain
-//    CSV) and rejects the signup outright if the email isn't on the list.
+// 1. userValidate — approved-email check at signup time.
+// 2. userLogin — approved-email check again at every login (covers
+//    Google logins reliably, per testing). Deliberately fast — see
+//    the comment on userLogin below for why.
 //
-// 2. userLogin — fires on every successful login. Grants Google Drive
-//    access automatically.
-
-import { google } from "googleapis";
+// Drive access is granted by a SEPARATE function (grant-drive-access.mjs),
+// called by the browser after login succeeds — not from here.
 
 async function isEmailApproved(email) {
   const csvUrl = process.env.APPROVED_EMAILS_CSV_URL;
@@ -37,43 +35,6 @@ async function isEmailApproved(email) {
   }
 }
 
-async function grantDriveAccess(email) {
-  if (!email) return;
-
-  const rawKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-  const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-
-  if (!rawKey || !folderId) {
-    console.error(
-      "identity.mjs: missing GOOGLE_SERVICE_ACCOUNT_KEY or GOOGLE_DRIVE_FOLDER_ID env vars — skipping Drive grant."
-    );
-    return;
-  }
-
-  const credentials = JSON.parse(rawKey);
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
-
-  const drive = google.drive({ version: "v3", auth });
-
-  try {
-    await drive.permissions.create({
-      fileId: folderId,
-      sendNotificationEmail: false,
-      requestBody: {
-        type: "user",
-        role: "reader",
-        emailAddress: email,
-      },
-    });
-    console.log(`Drive access granted to ${email}`);
-  } catch (err) {
-    console.error(`Drive grant for ${email} failed (likely already has access):`, err.message);
-  }
-}
-
 export default {
   // Gate #1: fires on new account creation (signup). Confirmed reliable
   // for plain email/password signups. Uncertain whether this fires
@@ -91,11 +52,20 @@ export default {
   },
 
   // Gate #2: fires on every successful login, confirmed reliable for
-  // BOTH email/password and Google logins (this is literally how the
-  // Drive-access grant has been working all along). Re-checking the
-  // approved list here closes the gap in case Gate #1 doesn't apply
-  // uniformly to every login method — anyone not on the list gets
-  // denied here even if they somehow got an account created.
+  // BOTH email/password and Google logins. Re-checking the approved
+  // list here closes the gap in case Gate #1 doesn't apply uniformly
+  // to every login method.
+  //
+  // IMPORTANT: this must stay FAST. Identity trigger webhooks like this
+  // one are on a strict clock — GoTrue is waiting synchronously for a
+  // response before it'll issue a session to the browser. Doing slow
+  // work here (like calling Google's Drive API, which itself needs an
+  // OAuth token exchange plus a separate API call) can push past that
+  // limit and cause GoTrue to report "Failed to handle signup webhook,"
+  // which silently kills the whole login — even though our code never
+  // threw an error. The Drive grant now happens in a separate function
+  // (grant-drive-access.mjs), called by the browser AFTER login
+  // succeeds, with no timeout pressure at all.
   async userLogin(event) {
     const email = event?.user?.email;
 
@@ -104,11 +74,6 @@ export default {
       console.log(`Denied login for non-approved email: ${email}`);
       return event.deny();
     }
-
-    try {
-      await grantDriveAccess(email);
-    } catch (err) {
-      console.error("identity.mjs userLogin handler error:", err);
-    }
+    // That's it — no Drive call here anymore. See grant-drive-access.mjs.
   },
 };
