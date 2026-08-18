@@ -50,12 +50,16 @@
 </section>
 
 <main class="payment-container">
+  <div id="teamGreeting" style="text-align:center; margin-bottom:20px; display:none;">
+    <p style="color:var(--muted);">Paying for: <strong id="teamNameDisplay"></strong></p>
+  </div>
   <div class="payment-row" style="grid-template-columns:1fr; max-width:520px; margin-inline:auto;">
     <div class="payment-option">
       <h2>&#128179; Pay Registration Fee Online ($1,500.00)</h2>
       <p>Click the button below to pay the <b>$1,500 Team Registration Fee</b> online, in full.</p>
-      <a href="https://square.link/u/VoX8BiGq" class="payment-button external-payment">Pay Registration Fee with Square</a>
+      <a href="https://square.link/u/VoX8BiGq" id="squarePayButton" class="payment-button external-payment">Pay Registration Fee with Square</a>
       <p class="note">* Your payment will be securely processed by Square.</p>
+      <p class="note" id="genericLinkNote" style="display:none; color:var(--red);">We couldn't find your personal payment link, so this is our general payment link &mdash; please make sure to include your team name in Square's payment note field if asked, or use e-transfer instead so we can match your payment correctly.</p>
     </div>
   </div>
 
@@ -69,6 +73,23 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    const qs = new URLSearchParams(window.location.search);
+    const team = qs.get("team");
+    const link = qs.get("link");
+
+    if (team) {
+      document.getElementById("teamGreeting").style.display = "block";
+      document.getElementById("teamNameDisplay").textContent = team;
+    }
+
+    if (link) {
+      document.getElementById("squarePayButton").href = link;
+    } else if (team) {
+      // They registered, but no personal link came back — flag it rather
+      // than silently sending them to the generic shared link.
+      document.getElementById("genericLinkNote").style.display = "block";
+    }
+
     const buttons = document.querySelectorAll(".external-payment");
     buttons.forEach(button => {
       button.addEventListener("click", () => {

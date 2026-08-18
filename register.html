@@ -151,13 +151,16 @@ document.getElementById('registrationForm').addEventListener('submit', function(
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: params.toString()
   })
-  .then(r => r.text())
-  .then(txt => {
-    if (txt.includes("Success")) {
-      alert("Team successfully registered!");
-      window.location.href = "payment.html";
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert("Team successfully registered! We've also emailed you a confirmation with your payment link.");
+      const q = new URLSearchParams();
+      q.append("team", data.team || "");
+      if (data.squareLink) q.append("link", data.squareLink);
+      window.location.href = "payment.html?" + q.toString();
     } else {
-      throw new Error(txt);
+      throw new Error(data.message || "Something went wrong.");
     }
   })
   .catch(err => {

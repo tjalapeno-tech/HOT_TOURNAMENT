@@ -233,6 +233,7 @@
       <button class="tab-btn" data-tab="jobs"><span class="dot"></span>Job Schedule</button>
       <button class="tab-btn" data-tab="auction"><span class="dot"></span>Auction Items</button>
       <button class="tab-btn" data-tab="admin" id="adminTabBtn" style="display:none;"><span class="dot"></span>Shift Admin</button>
+      <button class="tab-btn" data-tab="payments" id="paymentsTabBtn" style="display:none;"><span class="dot"></span>Payments</button>
       <div class="logout-row"><button id="logoutBtn">Log Out</button></div>
     </aside>
 
@@ -440,6 +441,14 @@
         <div id="adminList" style="display:flex; flex-direction:column; gap:10px;"></div>
       </section>
 
+      <!-- PAYMENTS (Executives only) -->
+      <section class="panel" data-panel="payments">
+        <h2>Payments</h2>
+        <p class="sub">Square payments are recorded automatically. E-transfer claims need manual verification against your bank/email.</p>
+        <div id="paymentsStatus">Loading payments...</div>
+        <div id="paymentsList" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </section>
+
     </main>
   </div>
 </div>
@@ -478,6 +487,7 @@
         document.querySelector(`.panel[data-panel="${btn.dataset.tab}"]`).classList.add("active");
         if (btn.dataset.tab === "jobs") loadJobs();
         if (btn.dataset.tab === "admin") { loadAdminPanel(); loadJobTypesDropdown(); }
+        if (btn.dataset.tab === "payments") loadPayments();
         if (btn.dataset.tab === "auction") loadAuctionItems();
       });
     });
@@ -542,6 +552,7 @@
         const roles = (user.app_metadata && user.app_metadata.roles) || [];
         const isExecutive = roles.includes("executive");
         document.getElementById("adminTabBtn").style.display = isExecutive ? "flex" : "none";
+        document.getElementById("paymentsTabBtn").style.display = isExecutive ? "flex" : "none";
       } else {
         document.getElementById("membersApp").style.display = "none";
         document.getElementById("notLoggedIn").style.display = "block";
@@ -961,6 +972,76 @@
       }
       submitBtn.disabled = false;
     });
+
+    // ---------- Payments (Executives only) ----------
+    window.loadPayments = async function loadPayments() {
+      const statusEl = document.getElementById("paymentsStatus");
+      const listEl = document.getElementById("paymentsList");
+      statusEl.textContent = "Loading payments...";
+      listEl.innerHTML = "";
+
+      try {
+        const res = await fetch(scriptUrl + "?action=payments");
+        const data = await res.json();
+        const payments = data.payments || [];
+
+        if (payments.length === 0) {
+          statusEl.textContent = "No payments recorded yet.";
+          return;
+        }
+        statusEl.textContent = "";
+
+        payments.slice().reverse().forEach(p => {
+          const row = document.createElement("div");
+          row.className = "admin-row";
+
+          let statusColor = "var(--muted)";
+          if (p.status === "Paid" || p.status === "Verified") statusColor = "#2f9e46";
+          else if (String(p.status).startsWith("Needs Review")) statusColor = "var(--red)";
+          else if (p.status === "Claimed - Pending Verification") statusColor = "#b8860b";
+
+          const canVerify = p.status === "Claimed - Pending Verification";
+
+          row.innerHTML = `
+            <div class="info">
+              <div class="job-name">${p.team || "Unknown"} &mdash; $${Number(p.amount).toFixed(2)}</div>
+              <div class="job-time">${p.method} &middot; <span style="color:${statusColor}; font-weight:600;">${p.status}</span> &middot; ${p.email || ""}</div>
+            </div>
+            <div class="cap-control"></div>
+          `;
+
+          if (canVerify) {
+            const btn = document.createElement("button");
+            btn.textContent = "Mark Verified";
+            btn.addEventListener("click", async () => {
+              btn.disabled = true;
+              btn.textContent = "Saving...";
+              try {
+                const params = new URLSearchParams();
+                params.append("action", "markPaymentVerified");
+                params.append("paymentId", p.paymentId);
+                const r = await fetch(scriptUrl, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                  body: params.toString()
+                });
+                const result = await r.json();
+                if (!result.success) alert(result.message || "Could not verify payment.");
+                loadPayments();
+              } catch (err) {
+                alert("Error: " + err.message);
+              }
+            });
+            row.querySelector(".cap-control").appendChild(btn);
+          }
+
+          listEl.appendChild(row);
+        });
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Could not load payments. Please try again shortly.";
+      }
+    };
 
     // ---------- Auction Items ----------
     let lastLoadedAuctionItems = [];
