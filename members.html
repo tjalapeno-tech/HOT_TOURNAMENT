@@ -577,6 +577,7 @@
     }
 
     window.netlifyIdentity.on("init", renderMembers);
+    window.netlifyIdentity.on("login", renderMembers);
     let didRedirectOnLogout = false;
     function goToLoginOnce() {
       if (!didRedirectOnLogout) { didRedirectOnLogout = true; window.location.href = "login.html"; }
