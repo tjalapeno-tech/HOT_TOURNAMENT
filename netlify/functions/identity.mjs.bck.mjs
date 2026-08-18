@@ -1,14 +1,37 @@
 // netlify/functions/identity.mjs
 //
+// Fires automatically on Netlify Identity lifecycle events for this site.
+//
 // Two handlers:
 //
-// 1. userValidate — THIS is the approved-email check you're asking about.
-//    Fires BEFORE a new account is created (on signup, not on later logins).
-//    It fetches your Approved Members Google Sheet (published as plain
-//    CSV) and rejects the signup outright if the email isn't on the list.
+// 1. userValidate — fires BEFORE a new account is created. We check the
+//    signup email against a list of approved emails (a Google Sheet
+//    published to the web as plain CSV) and reject the signup outright
+//    if it's not on the list. This is what lets us run Identity in "Open"
+//    registration mode (free up to 1,000 users) instead of "Invite only"
+//    (free for only 5 users) while still keeping randoms out.
 //
-// 2. userLogin — fires on every successful login. Grants Google Drive
-//    access automatically.
+//    To approve a new member: add their email as a new row in the
+//    "Approved Members" Google Sheet. No redeploy needed — the function
+//    fetches the live sheet on every signup attempt.
+//
+// 2. userLogin — fires every time someone successfully logs in. Grants
+//    them Drive access automatically (see README-drive-setup.md).
+//
+// Setup required for the approved-email check:
+//   1. Create a Google Sheet with one column of approved emails
+//      (header row + one email per row below it).
+//   2. File → Share → Publish to web → select the relevant sheet/tab →
+//      format: CSV → Publish. Copy the resulting URL.
+//   3. Add that URL as the Netlify env var APPROVED_EMAILS_CSV_URL.
+//
+// Setup required for the Drive auto-grant (see README-drive-setup.md):
+//   1. A Google Cloud service account with the Drive API enabled
+//   2. That service account's JSON key pasted into the Netlify env var
+//      GOOGLE_SERVICE_ACCOUNT_KEY
+//   3. The target Drive folder shared with the service account's email
+//      (found as "client_email" inside that JSON key) as an Editor
+//   4. The folder's ID in the Netlify env var GOOGLE_DRIVE_FOLDER_ID
 
 import { google } from "googleapis";
 
@@ -64,22 +87,19 @@ async function grantDriveAccess(email) {
       sendNotificationEmail: false,
       requestBody: {
         type: "user",
-        role: "reader",
+        role: "reader", // change to "writer" if members should be able to edit/upload
         emailAddress: email,
       },
     });
     console.log(`Drive access granted to ${email}`);
   } catch (err) {
+    // If they already have access, Google may return a 400/409-style error.
+    // We don't want that to ever block someone's login, so just log it.
     console.error(`Drive grant for ${email} failed (likely already has access):`, err.message);
   }
 }
 
 export default {
-  // Gate #1: fires on new account creation (signup). Confirmed reliable
-  // for plain email/password signups. Uncertain whether this fires
-  // identically for external-provider (Google) signups — some
-  // inconsistencies have been reported historically — so we don't rely
-  // on this alone. See Gate #2 below.
   async userValidate(event) {
     const email = event?.user?.email;
     const approved = await isEmailApproved(email);
@@ -90,24 +110,12 @@ export default {
     console.log(`Approved signup for ${email}`);
   },
 
-  // Gate #2: fires on every successful login, confirmed reliable for
-  // BOTH email/password and Google logins (this is literally how the
-  // Drive-access grant has been working all along). Re-checking the
-  // approved list here closes the gap in case Gate #1 doesn't apply
-  // uniformly to every login method — anyone not on the list gets
-  // denied here even if they somehow got an account created.
   async userLogin(event) {
     const email = event?.user?.email;
-
-    const approved = await isEmailApproved(email);
-    if (!approved) {
-      console.log(`Denied login for non-approved email: ${email}`);
-      return event.deny();
-    }
-
     try {
       await grantDriveAccess(email);
     } catch (err) {
+      // Never throw from here — a Drive/API hiccup must not block real logins.
       console.error("identity.mjs userLogin handler error:", err);
     }
   },
