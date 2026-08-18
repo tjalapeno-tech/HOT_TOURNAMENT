@@ -51,7 +51,10 @@
 
 <main class="form-container" style="text-align:center;">
   <p id="loginStatus" style="color:var(--muted); font-size:16px;">Please log in to continue.</p>
-  <button id="loginBtn" class="btn btn-primary">Log In / Sign Up</button>
+  <button id="loginBtn" class="btn btn-primary">Log In</button>
+  <div style="margin-top:12px;">
+    <button id="signupBtn" class="btn btn-ghost" style="color:var(--navy); border-color:var(--line);">New Here? Sign Up</button>
+  </div>
 </main>
 
 <script>
@@ -61,7 +64,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (user) { window.location.href = "members.html"; }
   }
   document.getElementById("loginBtn").addEventListener("click", () => {
-    window.netlifyIdentity.open();
+    window.netlifyIdentity.open("login");
+  });
+  document.getElementById("signupBtn").addEventListener("click", () => {
+    window.netlifyIdentity.open("signup");
   });
   window.netlifyIdentity.on("init", user => { if (user) goToMembersIfLoggedIn(); });
   window.netlifyIdentity.on("login", () => {
