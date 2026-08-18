@@ -10,6 +10,45 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/css/style.css" />
+<style>
+  .payment-options-grid {
+    display:grid; grid-template-columns:1fr auto 1fr; gap:28px; align-items:stretch;
+    max-width:820px; margin:0 auto;
+  }
+  .payment-divider {
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-weight:700; letter-spacing:.08em;
+    color:var(--muted); font-size:14px; text-transform:uppercase;
+  }
+  .payment-option-card {
+    background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:32px 28px; text-align:center; display:flex; flex-direction:column;
+    transition:transform .18s, box-shadow .18s;
+  }
+  .payment-option-card:hover { transform:translateY(-3px); box-shadow:var(--shadow); }
+  .payment-option-card .icon {
+    width:52px; height:52px; border-radius:50%; background:var(--navy);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:24px; margin:0 auto 16px;
+  }
+  .payment-option-card h2 {
+    font-size:20px; margin-bottom:10px; color:var(--navy);
+  }
+  .payment-option-card p { color:var(--muted); font-size:15px; flex-grow:1; }
+  .payment-option-card .price-tag {
+    font-family:var(--font-display); font-weight:700; font-size:28px;
+    color:var(--red); margin:6px 0 14px;
+  }
+  .payment-followup {
+    background:var(--ice); border:1px dashed var(--line); border-radius:8px;
+    padding:14px 16px; margin-top:16px; font-size:13.5px; color:var(--muted); text-align:left;
+  }
+  .payment-followup strong { color:var(--navy); }
+  @media (max-width:720px) {
+    .payment-options-grid { grid-template-columns:1fr; }
+    .payment-divider { padding:4px 0; }
+  }
+</style>
 
 </head>
 <body>
@@ -50,24 +89,33 @@
 </section>
 
 <main class="payment-container">
-  <div id="teamGreeting" style="text-align:center; margin-bottom:20px; display:none;">
-    <p style="color:var(--muted);">Paying for: <strong id="teamNameDisplay"></strong></p>
-  </div>
-  <div class="payment-row" style="grid-template-columns:1fr; max-width:520px; margin-inline:auto;">
-    <div class="payment-option">
-      <h2>&#128179; Pay Registration Fee Online ($1,500.00)</h2>
-      <p>Click the button below to pay the <b>$1,500 Team Registration Fee</b> online, in full.</p>
-      <a href="https://square.link/u/VoX8BiGq" id="squarePayButton" class="payment-button external-payment">Pay Registration Fee with Square</a>
-      <p class="note">* Your payment will be securely processed by Square.</p>
-      <p class="note" id="genericLinkNote" style="display:none; color:var(--red);">We couldn't find your personal payment link, so this is our general payment link &mdash; please make sure to include your team name in Square's payment note field if asked, or use e-transfer instead so we can match your payment correctly.</p>
-    </div>
+  <div id="teamGreeting" style="text-align:center; margin-bottom:32px; display:none;">
+    <p style="color:var(--muted); font-size:16px;">Paying for: <strong id="teamNameDisplay" style="color:var(--navy);"></strong></p>
   </div>
 
-  <div class="etransfer-option">
-    <h2>&#128176; Pay by E-Transfer</h2>
-    <p>Prefer to send an Interac e-Transfer? Click below for details and instructions.</p>
-    <a href="etransfer.html" class="payment-button">E-Transfer Instructions</a>
-    <p class="note">* Please include your team name in the message field when sending e-transfer.</p>
+  <div class="payment-options-grid">
+    <div class="payment-option-card">
+      <div class="icon">&#128179;</div>
+      <h2>Pay Online with Square</h2>
+      <div class="price-tag">$1,500.00</div>
+      <p>Pay your team's full registration fee securely online, right now, by card.</p>
+      <a href="https://square.link/u/VoX8BiGq" id="squarePayButton" class="payment-button external-payment" style="margin-top:16px;">Pay with Square</a>
+      <p class="note" style="margin-top:12px;">* Processed securely by Square.</p>
+      <p class="note" id="genericLinkNote" style="display:none; color:var(--red); margin-top:10px;">We couldn't find your personal payment link, so this is our general link &mdash; please use e-transfer instead so we can match your payment correctly, or contact us.</p>
+    </div>
+
+    <div class="payment-divider">OR</div>
+
+    <div class="payment-option-card">
+      <div class="icon">&#128176;</div>
+      <h2>Pay by E-Transfer</h2>
+      <div class="price-tag">$1,500.00</div>
+      <p>Send an Interac e-Transfer directly &mdash; no card fees, just your bank.</p>
+      <a href="etransfer.html" class="payment-button" style="margin-top:16px;">E-Transfer Instructions</a>
+      <div class="payment-followup">
+        <strong>After sending:</strong> fill out the short confirmation form at the bottom of the E-Transfer page so we can match your payment to your team quickly &mdash; e-transfers don't tell us who sent them otherwise.
+      </div>
+    </div>
   </div>
 </main>
 
