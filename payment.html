@@ -26,15 +26,14 @@
     transition:transform .18s, box-shadow .18s;
   }
   .payment-option-card:hover { transform:translateY(-3px); box-shadow:var(--shadow); }
-  .payment-option-card .icon {
-    width:52px; height:52px; border-radius:50%; background:var(--navy);
-    color:#fff; display:flex; align-items:center; justify-content:center;
-    font-size:24px; margin:0 auto 16px;
-  }
   .payment-option-card h2 {
     font-size:20px; margin-bottom:10px; color:var(--navy);
   }
   .payment-option-card p { color:var(--muted); font-size:15px; flex-grow:1; }
+  .payment-option-card .payment-button {
+    display:flex; align-items:center; justify-content:center;
+    min-height:50px; width:100%; max-width:260px; margin:16px auto 0; box-sizing:border-box;
+  }
   .payment-option-card .price-tag {
     font-family:var(--font-display); font-weight:700; font-size:28px;
     color:var(--red); margin:6px 0 14px;
@@ -95,11 +94,10 @@
 
   <div class="payment-options-grid">
     <div class="payment-option-card">
-      <div class="icon">&#128179;</div>
-      <h2>Pay Online with Square</h2>
+      <h2>Pay Online</h2>
       <div class="price-tag">$1,500.00</div>
       <p>Pay your team's full registration fee securely online, right now, by card.</p>
-      <a href="https://square.link/u/VoX8BiGq" id="squarePayButton" class="payment-button external-payment" style="margin-top:16px;">Pay with Square</a>
+      <a href="https://square.link/u/VoX8BiGq" id="squarePayButton" class="payment-button external-payment">Pay with Square</a>
       <p class="note" style="margin-top:12px;">* Processed securely by Square.</p>
       <p class="note" id="genericLinkNote" style="display:none; color:var(--red); margin-top:10px;">We couldn't find your personal payment link, so this is our general link &mdash; please use e-transfer instead so we can match your payment correctly, or contact us.</p>
     </div>
@@ -107,11 +105,10 @@
     <div class="payment-divider">OR</div>
 
     <div class="payment-option-card">
-      <div class="icon">&#128176;</div>
       <h2>Pay by E-Transfer</h2>
       <div class="price-tag">$1,500.00</div>
       <p>Send an Interac e-Transfer directly &mdash; no card fees, just your bank.</p>
-      <a href="etransfer.html" class="payment-button" style="margin-top:16px;">E-Transfer Instructions</a>
+      <a href="etransfer.html" class="payment-button">E-Transfer Instructions</a>
       <div class="payment-followup">
         <strong>After sending:</strong> fill out the short confirmation form at the bottom of the E-Transfer page so we can match your payment to your team quickly &mdash; e-transfers don't tell us who sent them otherwise.
       </div>
