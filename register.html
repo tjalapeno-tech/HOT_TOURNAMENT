@@ -113,16 +113,27 @@ async function loadStatus() {
 
     document.getElementById("openForm").style.display = "block";
 
+    const divisionGroups = {
+      Peppler: "Men's 35+",
+      Conlin: "Men's 45+",
+      Clarke: "Men's 45+",
+      McKenzie: "Men's 55+",
+      Murr: "Men's 55+",
+      Calvin: "Women's Open",
+      Nickerson: "Women's Open"
+    };
+
     const select = document.getElementById('division');
     select.innerHTML = '<option value="">--Select Division--</option>';
     for (const division in data.divisions) {
       const { count, limit } = data.divisions[division];
       const remaining = limit - count;
+      const group = divisionGroups[division] ? ` (${divisionGroups[division]})` : "";
       const option = document.createElement("option");
       option.value = division;
       option.innerText = remaining > 0
-        ? `${division} (${remaining} spot${remaining !== 1 ? 's' : ''} left)`
-        : `${division} (Full — join waitlist)`;
+        ? `${division}${group} — ${remaining} spot${remaining !== 1 ? 's' : ''} left`
+        : `${division}${group} — Full, join waitlist`;
       // Full divisions stay selectable — choosing one joins the waitlist
       // instead of being turned away.
       select.appendChild(option);
