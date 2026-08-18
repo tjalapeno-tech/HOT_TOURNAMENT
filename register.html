@@ -120,8 +120,11 @@ async function loadStatus() {
       const remaining = limit - count;
       const option = document.createElement("option");
       option.value = division;
-      option.innerText = `${division} (${remaining} spot${remaining !== 1 ? 's' : ''} left)`;
-      if (remaining <= 0) option.disabled = true;
+      option.innerText = remaining > 0
+        ? `${division} (${remaining} spot${remaining !== 1 ? 's' : ''} left)`
+        : `${division} (Full — join waitlist)`;
+      // Full divisions stay selectable — choosing one joins the waitlist
+      // instead of being turned away.
       select.appendChild(option);
     }
   } catch (err) {
@@ -153,8 +156,11 @@ document.getElementById('registrationForm').addEventListener('submit', function(
   })
   .then(r => r.json())
   .then(data => {
-    if (data.success) {
-      alert("Team successfully registered! We've also emailed you a confirmation with your payment link.");
+    if (data.success && data.status === "Waitlisted") {
+      alert(`${data.team} has been added to the waitlist for the ${data.division} division — it's currently full. We'll reach out if a spot opens up.`);
+      window.location.href = "index.html";
+    } else if (data.success) {
+      alert("Team successfully registered! Taking you to your payment page now.");
       const q = new URLSearchParams();
       q.append("team", data.team || "");
       if (data.squareLink) q.append("link", data.squareLink);

@@ -234,6 +234,7 @@
       <button class="tab-btn" data-tab="auction"><span class="dot"></span>Auction Items</button>
       <button class="tab-btn" data-tab="admin" id="adminTabBtn" style="display:none;"><span class="dot"></span>Shift Admin</button>
       <button class="tab-btn" data-tab="payments" id="paymentsTabBtn" style="display:none;"><span class="dot"></span>Payments</button>
+      <button class="tab-btn" data-tab="waitlist" id="waitlistTabBtn" style="display:none;"><span class="dot"></span>Waitlist</button>
       <div class="logout-row"><button id="logoutBtn">Log Out</button></div>
     </aside>
 
@@ -449,6 +450,14 @@
         <div id="paymentsList" style="display:flex; flex-direction:column; gap:10px;"></div>
       </section>
 
+      <!-- WAITLIST (Executives only) -->
+      <section class="panel" data-panel="waitlist">
+        <h2>Waitlist</h2>
+        <p class="sub">Teams that registered after their division filled up, in the order they signed up. Promoting a team generates their payment link — you'll need to send it to them yourself.</p>
+        <div id="waitlistStatus">Loading waitlist...</div>
+        <div id="waitlistList" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </section>
+
     </main>
   </div>
 </div>
@@ -488,6 +497,7 @@
         if (btn.dataset.tab === "jobs") loadJobs();
         if (btn.dataset.tab === "admin") { loadAdminPanel(); loadJobTypesDropdown(); }
         if (btn.dataset.tab === "payments") loadPayments();
+        if (btn.dataset.tab === "waitlist") loadWaitlist();
         if (btn.dataset.tab === "auction") loadAuctionItems();
       });
     });
@@ -553,6 +563,7 @@
         const isExecutive = roles.includes("executive");
         document.getElementById("adminTabBtn").style.display = isExecutive ? "flex" : "none";
         document.getElementById("paymentsTabBtn").style.display = isExecutive ? "flex" : "none";
+        document.getElementById("waitlistTabBtn").style.display = isExecutive ? "flex" : "none";
       } else {
         document.getElementById("membersApp").style.display = "none";
         document.getElementById("notLoggedIn").style.display = "block";
@@ -1040,6 +1051,77 @@
       } catch (err) {
         console.error(err);
         statusEl.textContent = "Could not load payments. Please try again shortly.";
+      }
+    };
+
+    // ---------- Waitlist (Executives only) ----------
+    window.loadWaitlist = async function loadWaitlist() {
+      const statusEl = document.getElementById("waitlistStatus");
+      const listEl = document.getElementById("waitlistList");
+      statusEl.textContent = "Loading waitlist...";
+      listEl.innerHTML = "";
+
+      try {
+        const res = await fetch(scriptUrl + "?action=waitlist");
+        const data = await res.json();
+        const waitlist = data.waitlist || [];
+
+        if (waitlist.length === 0) {
+          statusEl.textContent = "Nobody's on the waitlist right now.";
+          return;
+        }
+        statusEl.textContent = "";
+
+        waitlist.forEach((w, idx) => {
+          const row = document.createElement("div");
+          row.className = "admin-row";
+          row.innerHTML = `
+            <div class="info">
+              <div class="job-name">#${idx + 1} &mdash; ${w.team}</div>
+              <div class="job-time">${w.division} &middot; ${w.repName} &middot; ${w.repEmail}${w.repPhone ? " &middot; " + w.repPhone : ""}</div>
+              <div id="promoteResult-${idx}" style="margin-top:6px; font-size:13px;"></div>
+            </div>
+            <div class="cap-control"></div>
+          `;
+
+          const btn = document.createElement("button");
+          btn.textContent = "Promote to Confirmed";
+          btn.addEventListener("click", async () => {
+            btn.disabled = true;
+            btn.textContent = "Promoting...";
+            const resultEl = document.getElementById(`promoteResult-${idx}`);
+            try {
+              const params = new URLSearchParams();
+              params.append("action", "promoteFromWaitlist");
+              params.append("team", w.team);
+              const r = await fetch(scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+              });
+              const result = await r.json();
+              if (result.success) {
+                resultEl.innerHTML = result.squareLink
+                  ? `<strong style="color:#2f9e46;">Promoted!</strong> Send this link to ${result.repName} (${result.repEmail}):<br><code style="word-break:break-all;">${result.squareLink}</code>`
+                  : `<strong style="color:#2f9e46;">Promoted!</strong> Could not auto-generate a Square link — send them the payment page manually.`;
+                btn.remove();
+              } else {
+                alert(result.message || "Could not promote this team.");
+                btn.disabled = false;
+                btn.textContent = "Promote to Confirmed";
+              }
+            } catch (err) {
+              alert("Error: " + err.message);
+              btn.disabled = false;
+              btn.textContent = "Promote to Confirmed";
+            }
+          });
+          row.querySelector(".cap-control").appendChild(btn);
+          listEl.appendChild(row);
+        });
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Could not load the waitlist. Please try again shortly.";
       }
     };
 
