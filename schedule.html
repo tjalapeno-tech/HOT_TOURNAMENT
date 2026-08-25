@@ -45,56 +45,16 @@
   <div class="faceoff"></div>
   <div class="redline"></div>
   <h1>Tournament Schedule</h1>
-  <p>Select your division below to view your schedule, or visit League Lobster directly.</p>
-  <div style="margin-top:24px; position:relative; z-index:1;"><a href="https://scheduler.leaguelobster.com/2439637/huntsville-oldtimers/2025/" target="_blank" class="btn btn-ghost">Open Alternate Schedule &amp; Standings</a></div>
+  <p>Our new live schedule system is on its way.</p>
 </section>
 
-<main class="content" style="max-width:var(--wrap);">
-  <div class="division-select-container">
-    <label for="divisionSelect" style="font-family:var(--font-display); font-weight:600; text-transform:uppercase; letter-spacing:.03em; font-size:16px; color:var(--navy);">Select Your Division:</label><br>
-    <select id="divisionSelect">
-      <option value="" selected disabled>-- Select Division --</option>
-      <option value="Peppler">Peppler (35+)</option>
-      <option value="Clarke">Clarke (45+)</option>
-      <option value="Conlin">Conlin (45+)</option>
-      <option value="McKenzie">McKenzie (55+)</option>
-      <option value="Murr">Murr (55+)</option>
-      <option value="Calvin">Calvin (Women)</option>
-      <option value="Nickerson">Nickerson (Women)</option>
-    </select>
-    <button id="loadScheduleBtn">Show Schedule</button>
+<main class="content" style="max-width:720px;">
+  <div class="info-card" style="text-align:center;">
+    <h2>Coming Soon</h2>
+    <p>We're building a brand-new live scheduling and stats system for the 2026 tournament, run right from our own site. Game times, matchups, and results will all update here automatically once it's ready.</p>
+    <p style="color:var(--muted); font-size:14px;">Check back closer to game day &mdash; or <a href="contact.html">contact us</a> if you have a question in the meantime.</p>
   </div>
 </main>
-
-<div class="schedule-container" id="scheduleBox" style="display:none;">
-  <iframe id="scheduleFrame"></iframe>
-</div>
-
-<script>
-  const scheduleLinks = {
-    Peppler: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=353992226&single=true&output=html",
-    Clarke:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=536405351&single=true&output=html",
-    Conlin:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1479756402&single=true&output=html",
-    McKenzie:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1934019366&single=true&output=html",
-    Murr:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=2064820182&single=true&output=html",
-    Calvin:  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1008848308&single=true&output=html",
-    Nickerson:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQCrWyIVn5EczLrC0axjAeVz2u6yBxJr35KnTn7gCwMHp-8qGC_9EwcQPUvb4JhSpw0Xm2Z7geaMES3/pub?gid=1746636518&single=true&output=html"
-  };
-  document.getElementById("loadScheduleBtn").addEventListener("click", () => {
-    const division = document.getElementById("divisionSelect").value;
-    if (!division) { alert("Please select a division."); return; }
-    const url = scheduleLinks[division];
-    if (!url) {
-      alert("Schedule not available for this division yet. View schedule here: https://scheduler.leaguelobster.com/2439637/huntsville-oldtimers/2025/");
-      return;
-    }
-    document.getElementById("scheduleFrame").src = url;
-    document.getElementById("scheduleBox").style.display = "block";
-    document.getElementById("scheduleBox").scrollIntoView({ behavior: "smooth" });
-  });
-</script>
-<div id="ll-schedule-embed" data-schedule-id="2439637" data-language-code="en"></div>
-<script type="text/javascript" src="//scheduler.leaguelobster.com/static/embed.js"></script>
 <footer class="site-footer">
   <div class="wrap">
     <div class="foot">
