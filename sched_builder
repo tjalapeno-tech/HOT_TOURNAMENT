@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOT Tournament Schedule Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ice:#eef4f8;
+    --panel:#ffffff;
+    --rink-blue:#1c5f8a;
+    --rink-blue-dark:#0f3d5c;
+    --line-red:#c23b3b;
+    --board-bg:#0b1f2b;
+    --board-amber:#ffb238;
+    --board-dim:#4a6472;
+    --text:#132430;
+    --text-mute:#5b7182;
+    --border:#d3e0e8;
+    --home-tag:#1c5f8a;
+    --away-tag:#6b5b95;
+    --warn-bg:#fdf3e6;
+    --warn-text:#8a5a1a;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ice);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:48px;
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px;}
+
+  header.top{
+    background:var(--rink-blue-dark);
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 26px);
+    padding:22px 16px 26px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute; left:50%; top:100%;
+    width:220px; height:220px;
+    border:2px solid rgba(255,255,255,0.12);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+  header.top .eyebrow{
+    font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.14em;
+    text-transform:uppercase; font-size:12px; color:#8fb7ce;
+  }
+  header.top h1{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:28px;
+    letter-spacing:.01em; color:#fff; margin:4px 0 2px;
+  }
+  header.top p{ margin:0; color:#a9c4d6; font-size:14px; }
+
+  main{margin-top:-14px;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:16px;
+  }
+
+  h2.section-h{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:16px;
+    letter-spacing:.02em; margin:0 0 12px; color:var(--rink-blue-dark);
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  h2.section-h .hint{ font-size:11.5px; font-weight:500; color:var(--text-mute); font-family:'Inter',sans-serif; text-transform:none; letter-spacing:0; }
+
+  label.field-label{
+    display:block; font-family:'Rajdhani',sans-serif; font-weight:600; font-size:11px;
+    letter-spacing:.07em; text-transform:uppercase; color:var(--text-mute); margin-bottom:4px;
+  }
+  input[type=text], input[type=number], input[type=time]{
+    width:100%; font-size:15px; font-family:'Inter',system-ui,sans-serif;
+    padding:9px 10px; border-radius:8px; border:1.5px solid var(--border);
+    background:#fff; color:var(--text);
+  }
+  input:focus-visible, select:focus-visible, button:focus-visible{
+    outline:3px solid var(--rink-blue); outline-offset:1px;
+  }
+
+  .row-card{
+    border:1px solid var(--border); border-radius:10px; padding:10px;
+    margin-bottom:8px; background:#fafcfd; position:relative;
+  }
+  .row-card .grid3{ display:grid; grid-template-columns: 2fr 1.3fr .8fr; gap:8px; }
+  .row-card .grid-rink{ display:grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; gap:8px; }
+  .row-remove{
+    background:none; border:none; color:var(--line-red); font-size:12.5px;
+    font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.03em;
+    padding:6px 0 0; cursor:pointer;
+  }
+  .add-btn{
+    width:100%; padding:10px; border-radius:8px; border:1.5px dashed var(--rink-blue);
+    background:#fff; color:var(--rink-blue); font-family:'Rajdhani',sans-serif;
+    font-weight:600; font-size:13.5px; letter-spacing:.03em; cursor:pointer; text-transform:uppercase;
+  }
+  .add-btn:hover{ background:#f2f8fb; }
+
+  .opts-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .opts-grid .full{ grid-column:1 / -1; }
+  .checkline{
+    display:flex; align-items:center; gap:8px; font-size:14px; padding-top:4px;
+  }
+  .checkline input{ width:auto; }
+
+  .generate-btn{
+    width:100%; padding:15px; border-radius:12px; border:none;
+    background:var(--rink-blue); color:#fff; font-family:'Rajdhani',sans-serif;
+    font-weight:700; font-size:16px; letter-spacing:.03em; cursor:pointer;
+    text-transform:uppercase; margin-top:4px;
+  }
+  .generate-btn:hover{ background:var(--rink-blue-dark); }
+
+  .warn-banner{
+    background:var(--warn-bg); color:var(--warn-text); border-radius:10px;
+    padding:12px 14px; font-size:13.5px; margin-bottom:14px; line-height:1.4;
+  }
+  .warn-banner b{ display:block; font-family:'Rajdhani',sans-serif; font-size:12px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:3px; }
+
+  .tabs{ display:flex; gap:6px; margin-bottom:14px; overflow-x:auto; padding-bottom:2px; }
+  .tab-btn{
+    flex:1; padding:10px 8px; border-radius:9px; border:1.5px solid var(--border);
+    background:#fff; color:var(--text-mute); font-family:'Rajdhani',sans-serif;
+    font-weight:600; font-size:13px; letter-spacing:.03em; text-transform:uppercase;
+    cursor:pointer; white-space:nowrap;
+  }
+  .tab-btn.active{ background:var(--rink-blue); color:#fff; border-color:var(--rink-blue); }
+
+  .edit-setup-link{
+    display:inline-block; margin-bottom:14px; font-size:13px; color:var(--rink-blue);
+    text-decoration:none; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:.02em;
+    cursor:pointer;
+  }
+
+  .rink-group-title{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px;
+    color:var(--rink-blue-dark); margin:18px 2px 8px; display:flex; align-items:baseline; gap:8px;
+  }
+  .rink-group-title .end-note{ font-size:11.5px; font-weight:500; color:var(--text-mute); }
+
+  .game-row{
+    display:flex; align-items:center; gap:10px; padding:10px 12px;
+    background:var(--panel); border:1px solid var(--border); border-radius:11px; margin-bottom:7px;
+  }
+  .game-time{
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px;
+    color:var(--rink-blue-dark); min-width:72px; font-variant-numeric:tabular-nums;
+  }
+  .game-mid{ flex:1; min-width:0; }
+  .game-opp{ font-size:14.5px; font-weight:500; color:var(--text); }
+  .game-sub{ font-size:12px; color:var(--text-mute); margin-top:1px; }
+  .game-ctrls{ display:flex; align-items:center; gap:4px; }
+  .icon-btn{
+    width:26px; height:26px; border-radius:6px; border:1px solid var(--border);
+    background:#fff; color:var(--text-mute); font-size:13px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .icon-btn:hover{ background:var(--ice); }
+  select.move-select{
+    font-size:12px; padding:5px 6px; border-radius:6px; border:1px solid var(--border);
+    background:#fff; color:var(--text); max-width:108px;
+  }
+
+  .empty-note{ font-size:14px; color:var(--text-mute); padding:16px 4px; text-align:center; }
+
+  .scoreboard{
+    background:var(--board-bg); border-radius:14px; padding:18px 16px 16px;
+    margin-bottom:16px; color:#fff;
+  }
+  .scoreboard .sb-row{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .scoreboard .sb-team{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:20px; }
+  .scoreboard .sb-div{ font-size:12px; color:#8fb7ce; font-family:'Rajdhani',sans-serif; letter-spacing:.06em; text-transform:uppercase; font-weight:600; }
+  .sb-divider{ height:1px; background:rgba(255,255,255,0.12); margin:12px 0; }
+  .sb-counts{ display:flex; gap:18px; }
+  .sb-count .n{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:19px; color:#fff; }
+  .sb-count .lbl{ font-size:10.5px; color:var(--board-dim); letter-spacing:.06em; text-transform:uppercase; }
+
+  .sunday-card{
+    border-left:4px solid var(--line-red); border-radius:0 12px 12px 0;
+    padding:12px 14px 12px 12px; background:#fdf3f0;
+    border-top:1px solid var(--border); border-right:1px solid var(--border); border-bottom:1px solid var(--border);
+  }
+  .sunday-card .t{ font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; color:#7a2a2a; }
+  .sunday-card .s{ font-size:12.5px; color:#8a5a52; margin-top:2px; }
+
+  footer.note{ text-align:center; font-size:12px; color:var(--text-mute); margin-top:22px; padding:0 16px; }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Schedule builder</div>
+    <h1 id="pageTitle">Build a tournament schedule</h1>
+    <p>Set your divisions and rinks, generate a round robin, then fine-tune it.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- SETUP VIEW -->
+  <div id="setupView">
+
+    <div class="card">
+      <h2 class="section-h">Divisions <span class="hint">4-team round robins</span></h2>
+      <div id="divisionsList"></div>
+      <button class="add-btn" id="addDivisionBtn" type="button">+ Add division</button>
+    </div>
+
+    <div class="card">
+      <h2 class="section-h">Rinks <span class="hint">leave a time blank if a rink isn't used that day</span></h2>
+      <div class="row-card" style="background:none;border:none;padding:0 0 4px;">
+        <div class="grid-rink">
+          <div></div>
+          <label class="field-label">Fri start</label>
+          <label class="field-label">Sat start</label>
+          <label class="field-label">Sun start</label>
+        </div>
+      </div>
+      <div id="rinksList"></div>
+      <button class="add-btn" id="addRinkBtn" type="button">+ Add rink</button>
+    </div>
+
+    <div class="card">
+      <h2 class="section-h">Options</h2>
+      <div class="opts-grid">
+        <div>
+          <label class="field-label" for="durationInput">Game length (min)</label>
+          <input type="number" id="durationInput" min="15" step="5" value="60">
+        </div>
+        <div>
+          <label class="field-label" for="fridayGamesInput">Games per team on Friday</label>
+          <input type="number" id="fridayGamesInput" min="0" max="10" value="1">
+        </div>
+        <div class="full checkline">
+          <input type="checkbox" id="sundayToggle" checked>
+          <label for="sundayToggle" style="font-size:14px;">Add a Sunday championship game per division (1st vs 2nd place, TBD)</label>
+        </div>
+      </div>
+    </div>
+
+    <div id="warnBanner"></div>
+
+    <button class="generate-btn" id="generateBtn" type="button">Generate schedule</button>
+  </div>
+
+  <!-- SCHEDULE VIEW -->
+  <div id="scheduleView" class="hidden">
+    <span class="edit-setup-link" id="editSetupLink">&larr; Edit divisions, rinks &amp; options</span>
+    <div id="warnBanner2"></div>
+    <div class="tabs">
+      <button class="tab-btn" data-tab="Friday">Friday</button>
+      <button class="tab-btn" data-tab="Saturday">Saturday</button>
+      <button class="tab-btn" data-tab="Sunday">Sunday</button>
+      <button class="tab-btn" data-tab="Team">By team</button>
+    </div>
+    <div id="tabContent"></div>
+  </div>
+
+  <footer class="note">
+    Round robins use the standard circle method: every team in a division plays every other team once. Move games between rinks/days with the controls on each row.
+  </footer>
+</main>
+
+<script>
+// ---------------------------------------------------------------
+// State
+// ---------------------------------------------------------------
+const state = {
+  divisions: [
+    {name:'Peppler', ageGroup:'35+', teams:4},
+    {name:'TBD', ageGroup:'35+', teams:4},
+    {name:'Conlin', ageGroup:'45+', teams:4},
+    {name:'Clarke', ageGroup:'45+', teams:4},
+    {name:'McKenzie', ageGroup:'55+', teams:4},
+    {name:'Murr', ageGroup:'55+', teams:4},
+    {name:'Calvin', ageGroup:"Women's", teams:4},
+    {name:'Nickerson', ageGroup:"Women's", teams:4},
+  ],
+  rinks: [
+    {name:'Don', times:{Friday:'12:00', Saturday:'08:00', Sunday:'09:00'}},
+    {name:'Jack', times:{Friday:'13:30', Saturday:'08:30', Sunday:'09:30'}},
+  ],
+  duration: 60,
+  fridayGamesPerTeam: 1,
+  sundayChampionship: true,
+  games: [],
+  divs: [],
+  teams: [],
+  nextSeq: 0,
+  warnings: [],
+  activeTab: 'Friday',
+};
+
+// ---------------------------------------------------------------
+// Setup form rendering
+// ---------------------------------------------------------------
+const divisionsList = document.getElementById('divisionsList');
+const rinksList = document.getElementById('rinksList');
+
+function renderDivisionsForm(){
+  divisionsList.innerHTML = '';
+  state.divisions.forEach((d, idx) => {
+    const row = document.createElement('div');
+    row.className = 'row-card';
+    row.innerHTML = `
+      <div class="grid3">
+        <div>
+          <label class="field-label">Division name</label>
+          <input type="text" data-idx="${idx}" data-field="name" value="${escapeAttr(d.name)}">
+        </div>
+        <div>
+          <label class="field-label">Age group / label</label>
+          <input type="text" data-idx="${idx}" data-field="ageGroup" value="${escapeAttr(d.ageGroup)}">
+        </div>
+        <div>
+          <label class="field-label">Teams</label>
+          <input type="number" min="2" max="16" data-idx="${idx}" data-field="teams" value="${d.teams}">
+        </div>
+      </div>
+      <button class="row-remove" data-remove="${idx}" type="button">Remove division</button>
+    `;
+    divisionsList.appendChild(row);
+  });
+  divisionsList.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', onDivisionFieldChange);
+  });
+  divisionsList.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.divisions.splice(Number(btn.dataset.remove), 1);
+      renderDivisionsForm();
+    });
+  });
+}
+
+function onDivisionFieldChange(e){
+  const idx = Number(e.target.dataset.idx);
+  const field = e.target.dataset.field;
+  if (field === 'teams') state.divisions[idx][field] = Math.max(2, Number(e.target.value) || 2);
+  else state.divisions[idx][field] = e.target.value;
+}
+
+function renderRinksForm(){
+  rinksList.innerHTML = '';
+  state.rinks.forEach((r, idx) => {
+    const row = document.createElement('div');
+    row.className = 'row-card';
+    row.innerHTML = `
+      <div class="grid-rink">
+        <div><input type="text" data-idx="${idx}" data-field="name" value="${escapeAttr(r.name)}"></div>
+        <div><input type="time" data-idx="${idx}" data-day="Friday" value="${r.times.Friday||''}"></div>
+        <div><input type="time" data-idx="${idx}" data-day="Saturday" value="${r.times.Saturday||''}"></div>
+        <div><input type="time" data-idx="${idx}" data-day="Sunday" value="${r.times.Sunday||''}"></div>
+      </div>
+      <button class="row-remove" data-remove="${idx}" type="button">Remove rink</button>
+    `;
+    rinksList.appendChild(row);
+  });
+  rinksList.querySelectorAll('input[data-field="name"]').forEach(inp => {
+    inp.addEventListener('input', e => { state.rinks[Number(e.target.dataset.idx)].name = e.target.value; });
+  });
+  rinksList.querySelectorAll('input[data-day]').forEach(inp => {
+    inp.addEventListener('input', e => {
+      state.rinks[Number(e.target.dataset.idx)].times[e.target.dataset.day] = e.target.value;
+    });
+  });
+  rinksList.querySelectorAll('[data-remove]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.rinks.splice(Number(btn.dataset.remove), 1);
+      renderRinksForm();
+    });
+  });
+}
+
+document.getElementById('addDivisionBtn').addEventListener('click', () => {
+  state.divisions.push({name:'New division', ageGroup:'', teams:4});
+  renderDivisionsForm();
+});
+document.getElementById('addRinkBtn').addEventListener('click', () => {
+  state.rinks.push({name:'Rink ' + (state.rinks.length+1), times:{Friday:'', Saturday:'', Sunday:''}});
+  renderRinksForm();
+});
+document.getElementById('durationInput').addEventListener('input', e => { state.duration = Math.max(15, Number(e.target.value) || 60); });
+document.getElementById('fridayGamesInput').addEventListener('input', e => { state.fridayGamesPerTeam = Math.max(0, Number(e.target.value) || 0); });
+document.getElementById('sundayToggle').addEventListener('change', e => { state.sundayChampionship = e.target.checked; });
+
+function escapeAttr(s){ return String(s || '').replace(/"/g, '&quot;'); }
+
+// ---------------------------------------------------------------
+// Scheduling engine
+// ---------------------------------------------------------------
+function parseTimeToMinutes(t){
+  if (!t) return null;
+  const parts = t.split(':').map(Number);
+  if (parts.length < 2 || Number.isNaN(parts[0])) return null;
+  return parts[0]*60 + parts[1];
+}
+
+function fmtTime(totalMinutes){
+  let dayOffset = Math.floor(totalMinutes / (24*60));
+  let minsInDay = totalMinutes - dayOffset*24*60;
+  let h = Math.floor(minsInDay/60), m = minsInDay%60;
+  const period = h < 12 ? 'AM' : 'PM';
+  let h12 = h % 12; if (h12 === 0) h12 = 12;
+  let label = h12 + ':' + String(m).padStart(2,'0') + ' ' + period;
+  if (dayOffset > 0) label += ' (past midnight)';
+  return label;
+}
+
+function shortCode(name, existing){
+  let base = (String(name||'DIV').replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,3)) || 'DIV';
+  let code = base, n = 1;
+  while (existing.has(code)) { code = base.slice(0,2) + n; n++; }
+  existing.add(code);
+  return code;
+}
+
+function roundRobinRounds(teamIds){
+  let arr = teamIds.slice();
+  if (arr.length % 2 !== 0) arr.push(null);
+  const n = arr.length, half = n/2, numRounds = n-1;
+  let rounds = [];
+  let cur = arr.slice();
+  for (let r=0; r<numRounds; r++){
+    let pairs = [];
+    for (let i=0; i<half; i++){
+      const a = cur[i], b = cur[n-1-i];
+      if (a !== null && b !== null) pairs.push([a,b]);
+    }
+    rounds.push(pairs);
+    const last = cur.pop();
+    cur.splice(1, 0, last);
+  }
+  return rounds;
+}
+
+function generate(){
+  const warnings = [];
+  const existingCodes = new Set();
+  const divs = state.divisions.map(d => {
+    const code = shortCode(d.name, existingCodes);
+    const label = (d.ageGroup ? d.ageGroup + ' ' : '') + d.name;
+    return { name: d.name, ageGroup: d.ageGroup, teams: d.teams, code, label };
+  });
+
+  divs.forEach(d => {
+    const teamIds = Array.from({length: d.teams}, (_, i) => `${d.code}-${i+1}`);
+    const rounds = roundRobinRounds(teamIds);
+    const R = rounds.length;
+    const fri = Math.min(state.fridayGamesPerTeam, R);
+    d.fridayPairs = rounds.slice(0, fri).flat();
+    d.saturdayPairs = rounds.slice(fri).flat();
+    d.totalRounds = R;
+  });
+
+  const games = [];
+  let seq = 0;
+
+  ['Friday', 'Saturday'].forEach(day => {
+    const availRinks = state.rinks.filter(r => parseTimeToMinutes(r.times[day]) !== null);
+    const divCounts = divs
+      .map(d => ({ d, count: day === 'Friday' ? d.fridayPairs.length : d.saturdayPairs.length }))
+      .filter(x => x.count > 0);
+    if (divCounts.length > 0 && availRinks.length === 0) {
+      warnings.push(`No rink has a ${day} start time, but ${divCounts.length} division(s) have ${day} games. Add a ${day} time to at least one rink.`);
+      return;
+    }
+    const loads = availRinks.map(r => ({ rink: r, total: 0, divs: [] }));
+    divCounts.sort((a,b) => b.count - a.count).forEach(({d, count}) => {
+      loads.sort((a,b) => a.total - b.total);
+      loads[0].divs.push(d);
+      loads[0].total += count;
+    });
+    loads.forEach(load => {
+      load.divs.forEach(d => {
+        const pairs = day === 'Friday' ? d.fridayPairs : d.saturdayPairs;
+        pairs.forEach(([a,b]) => {
+          games.push({ id: 'g'+seq, day, rink: load.rink.name, divCode: d.code, division: d.label, home: a, away: b, seq });
+          seq++;
+        });
+      });
+    });
+  });
+
+  if (state.sundayChampionship) {
+    const availRinks = state.rinks.filter(r => parseTimeToMinutes(r.times.Sunday) !== null);
+    if (divs.length > 0 && availRinks.length === 0) {
+      warnings.push('Sunday championships are on, but no rink has a Sunday start time.');
+    } else if (availRinks.length > 0) {
+      divs.forEach((d, i) => {
+        const rink = availRinks[i % availRinks.length];
+        games.push({ id: 'g'+seq, day: 'Sunday', rink: rink.name, divCode: d.code, division: d.label, home: '1st place', away: '2nd place', seq });
+        seq++;
+      });
+    }
+  }
+
+  const teams = [];
+  divs.forEach(d => {
+    for (let i = 1; i <= d.teams; i++) {
+      teams.push({ id: `${d.code}-${i}`, division: d.label, divCode: d.code, slot: i });
+    }
+  });
+
+  state.divs = divs;
+  state.games = games;
+  state.teams = teams;
+  state.nextSeq = seq;
+  state.warnings = warnings;
+}
+
+// ---------------------------------------------------------------
+// Computed schedule (times) — recomputed on every render
+// ---------------------------------------------------------------
+function computeAll(){
+  const enriched = [];
+  const dayList = ['Friday', 'Saturday', 'Sunday'];
+  dayList.forEach(day => {
+    const rinksForDay = state.rinks.filter(r => parseTimeToMinutes(r.times[day]) !== null);
+    rinksForDay.forEach(rink => {
+      const startMin = parseTimeToMinutes(rink.times[day]);
+      const group = state.games
+        .filter(g => g.day === day && g.rink === rink.name)
+        .sort((a,b) => a.seq - b.seq);
+      group.forEach((g, idx) => {
+        const minutes = startMin + idx * state.duration;
+        enriched.push(Object.assign({}, g, { minutes, timeLabel: fmtTime(minutes) }));
+      });
+    });
+  });
+  return enriched;
+}
+
+// ---------------------------------------------------------------
+// Schedule view rendering
+// ---------------------------------------------------------------
+const setupView = document.getElementById('setupView');
+const scheduleView = document.getElementById('scheduleView');
+const tabContent = document.getElementById('tabContent');
+
+function renderWarnings(targetId){
+  const el = document.getElementById(targetId);
+  if (state.warnings.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = state.warnings.map(w => `<div class="warn-banner"><b>Heads up</b>${w}</div>`).join('');
+}
+
+document.getElementById('generateBtn').addEventListener('click', () => {
+  generate();
+  renderWarnings('warnBanner');
+  if (state.games.length === 0) return; // keep them on setup if nothing could be built
+  setupView.classList.add('hidden');
+  scheduleView.classList.remove('hidden');
+  renderWarnings('warnBanner2');
+  setActiveTab('Friday');
+});
+
+document.getElementById('editSetupLink').addEventListener('click', () => {
+  scheduleView.classList.add('hidden');
+  setupView.classList.remove('hidden');
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
+});
+
+function setActiveTab(tab){
+  state.activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  renderTab();
+}
+
+function moveGame(id, newDay, newRink){
+  const g = state.games.find(x => x.id === id);
+  if (!g) return;
+  g.day = newDay;
+  g.rink = newRink;
+  g.seq = state.nextSeq++;
+  renderTab();
+}
+
+function reorderGame(id, dir){
+  const g = state.games.find(x => x.id === id);
+  if (!g) return;
+  const siblings = state.games
+    .filter(x => x.day === g.day && x.rink === g.rink)
+    .sort((a,b) => a.seq - b.seq);
+  const idx = siblings.findIndex(x => x.id === id);
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= siblings.length) return;
+  const tmp = siblings[swapIdx].seq;
+  siblings[swapIdx].seq = g.seq;
+  g.seq = tmp;
+  renderTab();
+}
+
+function moveOptionsHtml(g){
+  const opts = [];
+  ['Friday','Saturday'].forEach(day => {
+    state.rinks.forEach(r => {
+      if (parseTimeToMinutes(r.times[day]) === null) return;
+      const sel = (day === g.day && r.name === g.rink) ? 'selected' : '';
+      opts.push(`<option value="${day}|${r.name}" ${sel}>${day} – ${escapeAttr(r.name)}</option>`);
+    });
+  });
+  return opts.join('');
+}
+
+function renderDayTab(day){
+  const enriched = computeAll().filter(g => g.day === day);
+  const rinksForDay = state.rinks.filter(r => parseTimeToMinutes(r.times[day]) !== null);
+  const container = document.createElement('div');
+
+  if (rinksForDay.length === 0) {
+    container.innerHTML = `<div class="empty-note">No rink has a ${day} start time.</div>`;
+    return container;
+  }
+
+  rinksForDay.forEach(rink => {
+    const rows = enriched.filter(g => g.rink === rink.name);
+    const endLabel = rows.length ? fmtTime(rows[rows.length-1].minutes + state.duration) : rink.times[day];
+    const title = document.createElement('div');
+    title.className = 'rink-group-title';
+    title.innerHTML = `${escapeAttr(rink.name)} rink <span class="end-note">${rows.length} game${rows.length===1?'':'s'} &middot; wraps up ${rows.length ? endLabel : ''}</span>`;
+    container.appendChild(title);
+
+    if (rows.length === 0) {
+      const p = document.createElement('div');
+      p.className = 'empty-note';
+      p.textContent = 'No games assigned here yet.';
+      container.appendChild(p);
+      return;
+    }
+
+    rows.forEach(g => {
+      const row = document.createElement('div');
+      row.className = 'game-row';
+      row.innerHTML = `
+        <div class="game-time">${g.timeLabel}</div>
+        <div class="game-mid">
+          <div class="game-opp">${g.home} vs ${g.away}</div>
+          <div class="game-sub">${g.division}</div>
+        </div>
+        <div class="game-ctrls">
+          <button class="icon-btn" data-up="${g.id}" title="Move earlier">&uarr;</button>
+          <button class="icon-btn" data-down="${g.id}" title="Move later">&darr;</button>
+          <select class="move-select" data-move="${g.id}">${moveOptionsHtml(g)}</select>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+  });
+
+  container.querySelectorAll('[data-up]').forEach(b => b.addEventListener('click', () => reorderGame(b.dataset.up, -1)));
+  container.querySelectorAll('[data-down]').forEach(b => b.addEventListener('click', () => reorderGame(b.dataset.down, 1)));
+  container.querySelectorAll('[data-move]').forEach(sel => sel.addEventListener('change', () => {
+    const [newDay, newRink] = sel.value.split('|');
+    moveGame(sel.dataset.move, newDay, newRink);
+  }));
+
+  return container;
+}
+
+function renderSundayTab(){
+  const enriched = computeAll().filter(g => g.day === 'Sunday');
+  const rinksForDay = state.rinks.filter(r => parseTimeToMinutes(r.times.Sunday) !== null);
+  const container = document.createElement('div');
+  if (!state.sundayChampionship) {
+    container.innerHTML = `<div class="empty-note">Sunday championships are turned off.</div>`;
+    return container;
+  }
+  if (rinksForDay.length === 0 || enriched.length === 0) {
+    container.innerHTML = `<div class="empty-note">No Sunday games scheduled.</div>`;
+    return container;
+  }
+  rinksForDay.forEach(rink => {
+    const rows = enriched.filter(g => g.rink === rink.name);
+    if (rows.length === 0) return;
+    const title = document.createElement('div');
+    title.className = 'rink-group-title';
+    title.textContent = rink.name + ' rink';
+    container.appendChild(title);
+    rows.forEach(g => {
+      const row = document.createElement('div');
+      row.className = 'game-row';
+      row.innerHTML = `
+        <div class="game-time">${g.timeLabel}</div>
+        <div class="game-mid">
+          <div class="game-opp">${g.division} championship</div>
+          <div class="game-sub">1st place vs 2nd place &mdash; seeds set by standings</div>
+        </div>
+        <div class="game-ctrls">
+          <select class="move-select" data-move="${g.id}">${rinksForDay.map(r => {
+            const sel = r.name === g.rink ? 'selected' : '';
+            return `<option value="Sunday|${escapeAttr(r.name)}" ${sel}>${escapeAttr(r.name)}</option>`;
+          }).join('')}</select>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+  });
+  container.querySelectorAll('[data-move]').forEach(sel => sel.addEventListener('change', () => {
+    const [newDay, newRink] = sel.value.split('|');
+    moveGame(sel.dataset.move, newDay, newRink);
+  }));
+  return container;
+}
+
+function renderTeamTab(){
+  const container = document.createElement('div');
+  const card = document.createElement('div');
+  card.className = 'card';
+  const divisionOptions = state.divs.map(d => `<option value="${d.code}">${escapeAttr(d.label)}</option>`).join('');
+  card.innerHTML = `
+    <label class="field-label" for="teamDivSelect">Division</label>
+    <select id="teamDivSelect" style="margin-bottom:12px;width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--border);">${divisionOptions}</select>
+    <label class="field-label" for="teamPickSelect">Team</label>
+    <select id="teamPickSelect" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--border);"></select>
+  `;
+  container.appendChild(card);
+
+  const scoreboard = document.createElement('div');
+  scoreboard.className = 'scoreboard';
+  scoreboard.innerHTML = `
+    <div class="sb-row"><div class="sb-team" id="sbTeam">—</div><div class="sb-div" id="sbDiv">—</div></div>
+    <div class="sb-divider"></div>
+    <div class="sb-counts">
+      <div class="sb-count"><div class="n" id="cFri">0</div><div class="lbl">Friday</div></div>
+      <div class="sb-count"><div class="n" id="cSat">0</div><div class="lbl">Saturday</div></div>
+    </div>
+  `;
+  container.appendChild(scoreboard);
+
+  const gamesArea = document.createElement('div');
+  container.appendChild(gamesArea);
+
+  const teamDivSelect = card.querySelector('#teamDivSelect');
+  const teamPickSelect = card.querySelector('#teamPickSelect');
+
+  function populateTeamPicks(){
+    const divCode = teamDivSelect.value;
+    const teamsInDiv = state.teams.filter(t => t.divCode === divCode);
+    teamPickSelect.innerHTML = teamsInDiv.map(t => `<option value="${t.id}">Team ${t.slot} (${t.id})</option>`).join('');
+  }
+
+  function updateTeamView(){
+    const teamId = teamPickSelect.value;
+    if (!teamId) return;
+    const team = state.teams.find(t => t.id === teamId);
+    const enriched = computeAll();
+    const games = enriched
+      .filter(g => g.home === teamId || g.away === teamId)
+      .map(g => Object.assign({}, g, { isHome: g.home === teamId, opponent: g.home === teamId ? g.away : g.home }))
+      .sort((a,b) => (a.day===b.day ? a.minutes-b.minutes : ['Friday','Saturday','Sunday'].indexOf(a.day)-['Friday','Saturday','Sunday'].indexOf(b.day)));
+
+    scoreboard.querySelector('#sbTeam').textContent = `Team ${team.slot} (${team.id})`;
+    scoreboard.querySelector('#sbDiv').textContent = team.division;
+    scoreboard.querySelector('#cFri').textContent = games.filter(g => g.day === 'Friday').length;
+    scoreboard.querySelector('#cSat').textContent = games.filter(g => g.day === 'Saturday').length;
+
+    gamesArea.innerHTML = '';
+    ['Friday','Saturday'].forEach(day => {
+      const dayGames = games.filter(g => g.day === day);
+      const h = document.createElement('div');
+      h.className = 'rink-group-title';
+      h.textContent = day;
+      gamesArea.appendChild(h);
+      if (dayGames.length === 0) {
+        const p = document.createElement('div');
+        p.className = 'empty-note';
+        p.textContent = 'No games scheduled.';
+        gamesArea.appendChild(p);
+      } else {
+        dayGames.forEach(g => {
+          const row = document.createElement('div');
+          row.className = 'game-row';
+          row.innerHTML = `
+            <div class="game-time">${g.timeLabel}</div>
+            <div class="game-mid">
+              <div class="game-opp">vs ${g.opponent}</div>
+              <div class="game-sub">${g.rink} rink</div>
+            </div>
+            <div class="tag" style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:${g.isHome?'#e4eef5':'#ece7f5'};color:${g.isHome?'var(--home-tag)':'var(--away-tag)'};">${g.isHome?'Home':'Away'}</div>
+          `;
+          gamesArea.appendChild(row);
+        });
+      }
+    });
+
+    const sunGame = enriched.find(g => g.day === 'Sunday' && g.divCode === team.divCode);
+    const sh = document.createElement('div');
+    sh.className = 'rink-group-title';
+    sh.textContent = 'Sunday';
+    gamesArea.appendChild(sh);
+    if (sunGame) {
+      const card2 = document.createElement('div');
+      card2.className = 'sunday-card';
+      card2.innerHTML = `<div class="t">${sunGame.timeLabel} &middot; ${sunGame.rink} rink</div><div class="s">Championship game for ${team.division} &mdash; plays if this team finishes 1st or 2nd on Saturday.</div>`;
+      gamesArea.appendChild(card2);
+    } else {
+      const p = document.createElement('div');
+      p.className = 'empty-note';
+      p.textContent = 'No Sunday championship scheduled for this division.';
+      gamesArea.appendChild(p);
+    }
+  }
+
+  teamDivSelect.addEventListener('change', () => { populateTeamPicks(); updateTeamView(); });
+  teamPickSelect.addEventListener('change', updateTeamView);
+
+  populateTeamPicks();
+  updateTeamView();
+
+  return container;
+}
+
+function renderTab(){
+  tabContent.innerHTML = '';
+  if (state.activeTab === 'Team') {
+    tabContent.appendChild(renderTeamTab());
+  } else if (state.activeTab === 'Sunday') {
+    tabContent.appendChild(renderSundayTab());
+  } else {
+    tabContent.appendChild(renderDayTab(state.activeTab));
+  }
+}
+
+// ---------------------------------------------------------------
+// Init
+// ---------------------------------------------------------------
+renderDivisionsForm();
+renderRinksForm();
+</script>
+
+</body>
+</html>
