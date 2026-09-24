@@ -31,6 +31,7 @@
       <a href="divisions.html">Divisions</a>
       <a href="schedule.html">Schedule</a>
       <a href="standings.html">Standings</a>
+      <a href="accommodations.html">Accommodations</a>
       <a href="gallery.html">Gallery</a>
       <a href="contact.html">Contact</a>
       <a href="members.html">Members</a>
@@ -81,33 +82,41 @@
     .countdown-grid .cell { min-width:68px; padding:10px 12px; }
     .countdown-grid .n { font-size:26px; }
   }
-
-  /* --- Registered Teams section --- */
-  .teams-section { padding:56px 24px; text-align:center; }
-  .teams-section h2 { margin-bottom:6px; }
-  .teams-section .teams-sub {
-    color:#c3d0dc; opacity:.7; margin-bottom:32px; font-size:15px;
-  }
-  .teams-grid {
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-    gap:20px; max-width:var(--wrap); margin-inline:auto; text-align:left;
-  }
-  .division-card {
-    background:var(--navy); border:1px solid rgba(255,255,255,.08); border-radius:10px;
-    padding:18px 20px;
-  }
-  .division-card h3 {
-    font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em;
-    font-size:15px; color:var(--red); margin:0 0 12px; padding-bottom:10px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
-  .division-card ul { list-style:none; margin:0; padding:0; }
-  .division-card li {
-    font-family:var(--font-body, Inter, sans-serif); font-size:14.5px; color:#e6ecf1;
-    padding:6px 0; border-bottom:1px dashed rgba(255,255,255,.06);
-  }
-  .division-card li:last-child { border-bottom:none; }
 </style>
+
+<script>
+  // September 11, 2026, 9:00 AM Eastern. Written with an explicit -04:00
+  // offset (EDT, not EST) since that date falls during Daylight Saving
+  // Time in the Eastern timezone — using -05:00 would land the countdown
+  // an hour off from the real moment clocks read 9:00 AM Eastern that day.
+  const countdownTarget = new Date("2026-09-11T09:00:00-04:00").getTime();
+  let countdownInterval;
+
+  function updateCountdown() {
+    const now = Date.now();
+    const diff = countdownTarget - now;
+
+    if (diff <= 0) {
+      document.getElementById("countdownLabel").textContent = "Registration Is Open!";
+      document.getElementById("countdownGrid").style.display = "none";
+      clearInterval(countdownInterval);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById("cdDays").textContent = days;
+    document.getElementById("cdHours").textContent = String(hours).padStart(2, "0");
+    document.getElementById("cdMinutes").textContent = String(minutes).padStart(2, "0");
+    document.getElementById("cdSeconds").textContent = String(seconds).padStart(2, "0");
+  }
+
+  updateCountdown();
+  countdownInterval = setInterval(updateCountdown, 1000);
+</script>
 
 <main class="content" id="statusChecking" style="text-align:center;">
   <p>Checking registration status...</p>
@@ -157,16 +166,77 @@
 </main>
 
 <!-- Registered Teams (public list) -->
-<section class="teams-section" id="registeredTeamsSection" style="display:none;">
-  <h2>Registered Teams</h2>
-  <p class="teams-sub" id="registeredTeamsCount"></p>
-  <div class="teams-grid" id="registeredTeamsGrid"></div>
+<section class="teams-section" id="registeredTeamsSection" style="display:none; max-width:var(--wrap); margin:0 auto; padding:24px 24px 72px;">
+  <h2 style="text-align:center; color:var(--navy);">Registered Teams</h2>
+  <p class="teams-sub" id="registeredTeamsCount" style="text-align:center; color:var(--muted); margin-bottom:28px;"></p>
+  <div class="teams-grid" id="registeredTeamsGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:24px;"></div>
 </section>
 
+<style>
+  .teams-division-group h3 {
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    font-size:16px; color:var(--navy); border-bottom:2px solid var(--line); padding-bottom:8px; margin-bottom:12px;
+  }
+  .teams-division-group ul { list-style:none; margin:0; padding:0; }
+  .teams-division-group li {
+    background:var(--ice); border-radius:6px; padding:10px 14px; margin-bottom:8px;
+    font-size:14.5px; color:var(--ink);
+  }
+</style>
+
 <script>
+  // Escapes user-submitted text (team names) before inserting into innerHTML,
+  // since these strings originate from the public registration form.
+  function escapeHtml(str) {
+    const d = document.createElement("div");
+    d.textContent = str == null ? "" : str;
+    return d.innerHTML;
+  }
+
+  async function loadRegisteredTeams() {
+    try {
+      const res = await fetch(scriptUrl + "?action=registeredTeams");
+      const data = await res.json();
+      const teams = data.teams || [];
+
+      if (teams.length === 0) return; // stays hidden — nothing confirmed yet
+
+      const byDivision = {};
+      teams.forEach(t => {
+        if (!byDivision[t.division]) byDivision[t.division] = [];
+        byDivision[t.division].push(t.team);
+      });
+
+      const grid = document.getElementById("registeredTeamsGrid");
+      grid.innerHTML = "";
+      Object.keys(byDivision).sort().forEach(division => {
+        const group = byDivision[division];
+        const groupLabel = divisionGroups[division] ? ` (${divisionGroups[division]})` : "";
+        const div = document.createElement("div");
+        div.className = "teams-division-group";
+        div.innerHTML = `
+          <h3>${escapeHtml(division)}${escapeHtml(groupLabel)}</h3>
+          <ul>${group.map(t => `<li>${escapeHtml(t)}</li>`).join("")}</ul>
+        `;
+        grid.appendChild(div);
+      });
+
+      document.getElementById("registeredTeamsCount").textContent =
+        `${teams.length} team${teams.length !== 1 ? "s" : ""} registered so far`;
+      document.getElementById("registeredTeamsSection").style.display = "block";
+    } catch (err) {
+      console.error("Error loading registered teams:", err);
+      // Stays hidden on failure rather than showing a broken section.
+    }
+  }
+</script>
+
+<script>
+const scriptUrl = "https://script.google.com/macros/s/AKfycbxYDvsI7rxbCNxc3lh65MwpkkdaOlAmOtd4QiQl2JkRVrC-ZW8hYWmbCmAJFwWxEbNn/exec";
+
 // Shared division -> friendly group label mapping, used for both the
-// registration dropdown and the registered-teams display below.
-const DIVISION_GROUPS = {
+// registration dropdown and the registered-teams display above.
+const divisionGroups = {
   Peppler: "Men's 35+",
   Conlin: "Men's 45+",
   Clarke: "Men's 45+",
@@ -175,18 +245,6 @@ const DIVISION_GROUPS = {
   Calvin: "Women's Open",
   Nickerson: "Women's Open"
 };
-
-// Escapes user-submitted text (team names) before inserting into innerHTML,
-// since these strings originate from the public registration form.
-function escapeHtml(str) {
-  const d = document.createElement("div");
-  d.textContent = str == null ? "" : String(str);
-  return d.innerHTML;
-}
-</script>
-
-<script>
-const scriptUrl = "https://script.google.com/macros/s/AKfycbxYDvsI7rxbCNxc3lh65MwpkkdaOlAmOtd4QiQl2JkRVrC-ZW8hYWmbCmAJFwWxEbNn/exec";
 
 async function loadStatus() {
   try {
@@ -207,7 +265,7 @@ async function loadStatus() {
     for (const division in data.divisions) {
       const { count, limit } = data.divisions[division];
       const remaining = limit - count;
-      const group = DIVISION_GROUPS[division] ? ` (${DIVISION_GROUPS[division]})` : "";
+      const group = divisionGroups[division] ? ` (${divisionGroups[division]})` : "";
       const option = document.createElement("option");
       option.value = division;
       option.innerText = remaining > 0
@@ -224,50 +282,6 @@ async function loadStatus() {
   }
 }
 document.addEventListener("DOMContentLoaded", loadStatus);
-
-// Loads the public list of confirmed teams, grouped by division. Runs
-// independently of loadStatus so it still shows even if registration is
-// closed — people who already signed up should still see themselves listed.
-async function loadRegisteredTeams() {
-  const section = document.getElementById("registeredTeamsSection");
-  const grid = document.getElementById("registeredTeamsGrid");
-  const countLabel = document.getElementById("registeredTeamsCount");
-
-  try {
-    const res = await fetch(scriptUrl + "?action=registeredTeams");
-    const data = await res.json();
-    const teams = Array.isArray(data.teams) ? data.teams : [];
-
-    if (teams.length === 0) {
-      section.style.display = "none";
-      return;
-    }
-
-    const grouped = {};
-    teams.forEach(t => {
-      const div = t.division || "Other";
-      if (!grouped[div]) grouped[div] = [];
-      grouped[div].push(t.team);
-    });
-
-    let html = "";
-    for (const div in grouped) {
-      const groupLabel = DIVISION_GROUPS[div] ? ` <span style="opacity:.6;font-weight:500;">(${escapeHtml(DIVISION_GROUPS[div])})</span>` : "";
-      html += `<div class="division-card"><h3>${escapeHtml(div)}${groupLabel}</h3><ul>`;
-      grouped[div].forEach(team => {
-        html += `<li>${escapeHtml(team)}</li>`;
-      });
-      html += `</ul></div>`;
-    }
-
-    grid.innerHTML = html;
-    countLabel.textContent = `${teams.length} team${teams.length !== 1 ? "s" : ""} registered so far`;
-    section.style.display = "block";
-  } catch (err) {
-    console.error("Error loading registered teams", err);
-    section.style.display = "none";
-  }
-}
 document.addEventListener("DOMContentLoaded", loadRegisteredTeams);
 
 document.getElementById('registrationForm').addEventListener('submit', function(e) {
@@ -323,6 +337,7 @@ document.getElementById('registrationForm').addEventListener('submit', function(
         <a href="about.html">About</a>
         <a href="divisions.html">Divisions</a>
         <a href="schedule.html">Schedule</a>
+        <a href="accommodations.html">Accommodations</a>
         <a href="gallery.html">Gallery</a>
         <a href="contact.html">Contact</a>
       </div>
