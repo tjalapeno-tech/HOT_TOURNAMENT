@@ -46,7 +46,7 @@
   <div class="faceoff"></div>
   <div class="redline"></div>
   <h1>Team Registration</h1>
-  <p>Register your team below.</p>
+  <p id="heroLine">Register your team below.</p>
   
 </section>
 
@@ -58,6 +58,7 @@
     <div class="cell"><div class="n" id="cdMinutes">--</div><div class="l">Minutes</div></div>
     <div class="cell"><div class="n" id="cdSeconds">--</div><div class="l">Seconds</div></div>
   </div>
+  <div class="countdown-deadline" id="countdownDeadline" style="display:none;"></div>
 </div>
 
 <style>
@@ -78,31 +79,70 @@
     font-family:var(--font-display); font-weight:600; text-transform:uppercase; letter-spacing:.05em;
     font-size:12px; color:#c3d0dc; margin-top:6px;
   }
+  .countdown-deadline { margin-top:16px; font-size:13.5px; color:#8ea3b6; }
   @media (max-width:480px) {
-    .countdown-grid .cell { min-width:68px; padding:10px 12px; }
+    .countdown-band { padding:22px 14px 26px; }
+    .countdown-grid { gap:8px; flex-wrap:nowrap; }
+    .countdown-grid .cell { min-width:0; flex:1 1 0; padding:10px 4px; }
     .countdown-grid .n { font-size:26px; }
+    .countdown-grid .l { font-size:11px; letter-spacing:.03em; }
   }
 </style>
 
 <script>
-  // September 11, 2026, 9:00 AM Eastern. Written with an explicit -04:00
-  // offset (EDT, not EST) since that date falls during Daylight Saving
-  // Time in the Eastern timezone — using -05:00 would land the countdown
-  // an hour off from the real moment clocks read 9:00 AM Eastern that day.
-  const countdownTarget = new Date("2026-09-11T09:00:00-04:00").getTime();
+  // ---- Registration window ----
+  // Both moments are Eastern DAYLIGHT time (-04:00): Sept 11 and Oct 16, 2026
+  // fall inside Daylight Saving Time, which runs until Nov 1. Using -05:00 (EST)
+  // would put the countdown an hour off from what clocks in Ontario really read.
+  //
+  // TO CHANGE THE DEADLINE, edit REG_CLOSES (format YYYY-MM-DDTHH:MM:SS-04:00).
+  const REG_OPENS  = new Date("2026-09-11T09:00:00-04:00").getTime();   // Fri Sept 11, 9:00 AM
+  const REG_CLOSES = new Date("2026-10-16T23:59:59-04:00").getTime();   // Fri Oct 16, 11:59 PM
   let countdownInterval;
+
+  function registrationPhase(now) {
+    if (now < REG_OPENS) return "before";
+    if (now < REG_CLOSES) return "open";
+    return "closed";
+  }
+
+  // The deadline spelled out in Eastern time, so it reads the same for
+  // visitors in any timezone.
+  function closingText() {
+    const tz = "America/Toronto";
+    const day = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(REG_CLOSES);
+    const time = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "numeric", minute: "2-digit", hour12: true }).format(REG_CLOSES);
+    return `Registration closes ${day} at ${time.replace(/\s/g, "\u00a0")}\u00a0ET`;   // non-breaking: wraps as a unit
+  }
 
   function updateCountdown() {
     const now = Date.now();
-    const diff = countdownTarget - now;
+    const phase = registrationPhase(now);
+    const labelEl = document.getElementById("countdownLabel");
+    const gridEl = document.getElementById("countdownGrid");
+    const deadlineEl = document.getElementById("countdownDeadline");
 
-    if (diff <= 0) {
-      document.getElementById("countdownLabel").textContent = "Registration Is Open!";
-      document.getElementById("countdownGrid").style.display = "none";
+    if (phase === "closed") {
+      labelEl.textContent = "Registration Is Closed";
+      gridEl.style.display = "none";
+      deadlineEl.style.display = "none";
       clearInterval(countdownInterval);
+      // If the page was left open past the deadline, close the form as well.
+      if (typeof enforceRegistrationClosed === "function") enforceRegistrationClosed();
       return;
     }
 
+    gridEl.style.display = "";
+    const target = phase === "before" ? REG_OPENS : REG_CLOSES;
+    labelEl.textContent = phase === "before" ? "Registration Opens In" : "Registration Closes In";
+    if (phase === "open") {
+      deadlineEl.textContent = closingText();
+      deadlineEl.style.display = "block";
+    } else {
+      deadlineEl.style.display = "none";
+    }
+
+    const diff = target - now;
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -124,8 +164,8 @@
 
 <main class="content" id="closedMessage" style="display:none; text-align:center;">
   <div class="info-card">
-    <h2>Registration Is Currently Closed</h2>
-    <p>Thanks for your interest! Registration for this season isn't open yet &mdash; check back soon, or reach out via our <a href="contact.html">contact page</a> to be notified when it opens.</p>
+    <h2 id="closedTitle">Registration Is Currently Closed</h2>
+    <p id="closedText">Thanks for your interest! Registration for this season isn't open yet &mdash; check back soon, or reach out via our <a href="contact.html">contact page</a> to be notified when it opens.</p>
   </div>
 </main>
 
@@ -246,6 +286,29 @@ const divisionGroups = {
   Nickerson: "Women's Open"
 };
 
+// What visitors see when the page isn't taking registrations. Before the
+// deadline the standard "isn't open yet" text from the markup is kept; after
+// it, that text would be wrong, so it's replaced with what happens next.
+function showClosedMessage() {
+  if (registrationPhase(Date.now()) === "closed") {
+    document.getElementById("heroLine").textContent = "Online registration has closed.";
+    document.getElementById("closedTitle").textContent = "Online Registration Is Now Closed";
+    document.getElementById("closedText").innerHTML =
+      "Thank you to everyone who registered! Teams on the waitlist will be added where spots are available, " +
+      "and any remaining spots will be filled through manual registration. " +
+      'If you have a question, please <a href="contact.html">contact us</a>.';
+  }
+  document.getElementById("statusChecking").style.display = "none";
+  document.getElementById("openForm").style.display = "none";
+  document.getElementById("closedMessage").style.display = "block";
+}
+
+// Called by the countdown if the deadline passes while someone has the page open.
+function enforceRegistrationClosed() {
+  if (document.readyState === "loading") return;   // loadStatus() handles the first load
+  showClosedMessage();
+}
+
 async function loadStatus() {
   try {
     const res = await fetch(scriptUrl);
@@ -253,8 +316,10 @@ async function loadStatus() {
 
     document.getElementById("statusChecking").style.display = "none";
 
-    if (data.status !== "OPEN") {
-      document.getElementById("closedMessage").style.display = "block";
+    // Past the deadline the form stays closed no matter what the Sheet says,
+    // as a safety net in case the status cell hasn't been flipped yet.
+    if (data.status !== "OPEN" || registrationPhase(Date.now()) === "closed") {
+      showClosedMessage();
       return;
     }
 
@@ -277,6 +342,7 @@ async function loadStatus() {
     }
   } catch (err) {
     console.error("Error loading registration status", err);
+    if (registrationPhase(Date.now()) === "closed") { showClosedMessage(); return; }
     document.getElementById("statusChecking").innerHTML =
       "<p>Could not load registration status. Please try again shortly, or contact us if this persists.</p>";
   }
