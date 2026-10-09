@@ -69,8 +69,8 @@
     .info-card { padding: 20px 18px; }
     .job-card, .admin-row { padding: 14px; }
     .jobs-toolbar, .auction-toolbar { flex-direction:column; align-items:stretch !important; }
-    .jobs-toolbar > div:last-child, .auction-toolbar > div:last-child { display:flex; }
-    .jobs-toolbar button, .auction-toolbar button { flex:1; }
+    .jobs-toolbar > div:last-child, .auction-toolbar > div:last-child { display:flex; flex-wrap:wrap; }
+    .jobs-toolbar button, .auction-toolbar button { flex:1 1 auto; }
 
     /* Wide tables (auction catalog) scroll horizontally instead of
        breaking the page layout on narrow screens. */
@@ -173,7 +173,7 @@
   }
   .admin-row .info .job-name { font-family:var(--font-display); font-weight:700; font-size:15.5px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
   .admin-row .info .job-time { font-size:13px; color:var(--muted); margin-top:2px; }
-  .admin-row .cap-control { display:flex; align-items:center; gap:10px; }
+  .admin-row .cap-control { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .admin-row .cap-control label { font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; font-family:var(--font-display); font-weight:600; }
   .admin-row .cap-control input { width:64px; padding:8px 10px; border:1.5px solid var(--line); border-radius:6px; font-size:15px; text-align:center; }
   .admin-row .cap-control button {
@@ -182,6 +182,90 @@
   }
   .admin-row .cap-control button:hover { background:var(--navy2); }
   .admin-row .cap-control .saved-note { font-size:12.5px; color:#2f9e46; }
+
+  /* ---- Edit a shift (Shift Admin) ---- */
+  .admin-row .cap-control button.edit-btn { background:#fff; color:var(--navy); border:1.5px solid var(--navy); }
+  .admin-row .cap-control button.edit-btn:hover { background:var(--ice); }
+  .admin-row .edit-panel { flex-basis:100%; width:100%; margin-top:6px; padding-top:18px; border-top:1px dashed var(--line); }
+  .admin-row .edit-panel .form-group { margin-bottom:14px; }
+  .admin-row .edit-panel .time-pair { display:flex; align-items:center; gap:8px; }
+  .admin-row .edit-panel .edit-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .admin-row .edit-panel .edit-actions button {
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    font-size:13px; padding:10px 18px; border-radius:5px; border:0; cursor:pointer; background:var(--red); color:#fff;
+  }
+  .admin-row .edit-panel .edit-actions button:hover { background:var(--red-dk); }
+  .admin-row .edit-panel .edit-actions button.ef-cancel { background:#fff; color:var(--navy); border:1.5px solid var(--line); }
+  .admin-row .edit-panel .edit-actions button.ef-cancel:hover { background:var(--ice); }
+  .admin-row .edit-panel .edit-actions button:disabled { opacity:.6; cursor:not-allowed; }
+  .admin-row .edit-panel .edit-status { font-size:13.5px; }
+  .admin-row .edit-panel .edit-note { font-size:12.5px; color:var(--muted); margin:12px 0 0; }
+
+  /* ---- Job search ---- */
+  .jobs-search { margin:18px 0 6px; }
+  .jobs-search .search-field { position:relative; }
+  .jobs-search input[type="search"] {
+    width:100%; padding:12px 42px 12px 14px; border:1.5px solid var(--line); border-radius:6px;
+    font-size:16px; font-family:var(--font-body); background:#fff; -webkit-appearance:none; appearance:none;
+  }
+  .jobs-search input[type="search"]:focus { outline:none; border-color:var(--navy); }
+  .jobs-search input[type="search"]::-webkit-search-cancel-button { -webkit-appearance:none; display:none; }
+  .jobs-search .search-clear {
+    position:absolute; right:6px; top:50%; transform:translateY(-50%);
+    width:32px; height:32px; border:0; border-radius:50%; background:transparent;
+    font-size:22px; line-height:1; color:var(--muted); cursor:pointer;
+  }
+  .jobs-search .search-clear:hover { background:var(--ice); color:var(--navy); }
+  .jobs-search .search-info { font-size:13.5px; color:var(--muted); min-height:18px; margin-top:6px; }
+  .jobs-search .search-info.none { color:var(--red); }
+
+  /* ---- Condensed schedule summary (timeline) ---- */
+  .jobs-toolbar > div:last-child { flex-wrap:wrap; }
+  .jobs-summary { background:var(--ice); border:1px solid var(--line); border-radius:10px; padding:20px 22px 6px; margin:20px 0 4px; }
+  .jobs-summary .sum-head { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:4px 18px; margin-bottom:10px; }
+  .jobs-summary .sum-title { font-family:var(--font-display); font-weight:700; font-size:18px; color:var(--navy); text-transform:uppercase; letter-spacing:.03em; }
+  .jobs-summary .sum-totals { font-size:13.5px; color:var(--muted); }
+  .jobs-summary .sum-legend { display:flex; gap:16px; flex-wrap:wrap; font-size:12.5px; color:var(--muted); margin-bottom:18px; }
+  .jobs-summary .sum-legend span::before {
+    content:""; display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; background:var(--dot);
+  }
+  .jobs-summary .sum-day { margin-bottom:22px; }
+  .jobs-summary .sum-day-heading {
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+    font-size:14.5px; color:var(--navy); margin-bottom:4px;
+  }
+  .jobs-summary .sum-row { display:grid; grid-template-columns:120px 1fr; column-gap:16px; }
+  .jobs-summary .sum-time {
+    text-align:right; padding:10px 0; font-family:var(--font-display); font-weight:600;
+    font-size:14.5px; color:var(--navy); line-height:1.25;
+  }
+  .jobs-summary .sum-body { position:relative; border-left:2px solid #cdd8e1; padding:9px 0 12px 20px; --dot:var(--red); }
+  .jobs-summary .sum-row:last-child .sum-body { border-left-color:transparent; }
+  .jobs-summary .sum-body::before {
+    content:""; position:absolute; left:-9px; top:13px; width:12px; height:12px; border-radius:50%;
+    background:var(--dot); border:2px solid var(--ice); box-sizing:content-box;
+  }
+  .jobs-summary .sum-body.full    { --dot:#2f9e46; }
+  .jobs-summary .sum-body.partial { --dot:#e0a100; }
+  .jobs-summary .sum-body.empty   { --dot:var(--red); }
+  .jobs-summary .sum-job-line { display:flex; align-items:baseline; flex-wrap:wrap; gap:2px 12px; }
+  .jobs-summary .sum-job { font-family:var(--font-display); font-weight:700; font-size:16px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
+  .jobs-summary .sum-count { font-size:12.5px; font-weight:600; color:var(--muted); }
+  .jobs-summary .sum-people { display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .jobs-summary .sum-chip { background:#fff; border:1px solid var(--line); border-radius:20px; padding:2px 10px; font-size:12.5px; color:var(--ink); max-width:100%; overflow-wrap:anywhere; }
+  .jobs-summary .sum-chip.mine { background:#d9f2df; border-color:#bfe6c9; color:#1c7a37; font-weight:600; }
+  .jobs-summary .sum-chip.open { background:transparent; border:1px dashed #d98a96; color:var(--red); }
+  @media (max-width:640px) {
+    .jobs-summary { padding:16px 14px 4px; }
+    .jobs-summary .sum-row { grid-template-columns:92px 1fr; column-gap:12px; }
+    .jobs-summary .sum-time { font-size:13px; }
+  }
+  @media print {
+    .jobs-summary { background:#fff; border:1px solid #999; }
+    .jobs-summary .sum-day { break-inside:avoid; }
+    .jobs-summary .sum-chip.mine { background:#fff; border-color:#000; color:#000; }
+    .jobs-summary .sum-chip.open { border-color:#000; color:#000; }
+  }
 </style>
 </head>
 <body>
@@ -291,6 +375,7 @@
             <p class="sub" style="margin-bottom:0;">Sign up for open shifts, or release a shift you can no longer make.</p>
           </div>
           <div style="display:flex; gap:10px;">
+            <button type="button" id="summaryJobsBtn" class="btn btn-dark" style="padding:10px 18px; font-size:13.5px;" aria-expanded="false" aria-controls="jobsSummary">Show Summary</button>
             <button type="button" id="printJobsBtn" class="btn btn-dark" style="padding:10px 18px; font-size:13.5px;">Print Schedule</button>
             <button type="button" id="exportJobsBtn" class="btn btn-dark" style="padding:10px 18px; font-size:13.5px;">Export CSV</button>
           </div>
@@ -302,6 +387,16 @@
             <div class="print-subtitle">Printed <span id="printDate"></span></div>
           </div>
         </div>
+        <div id="jobsSummary" class="jobs-summary" style="display:none;"></div>
+
+        <div class="jobs-search no-print">
+          <div class="search-field">
+            <input type="search" id="jobsSearch" placeholder="Search by job, person, day, or time&hellip;" autocomplete="off" aria-label="Search jobs">
+            <button type="button" id="jobsSearchClear" class="search-clear" aria-label="Clear search" style="display:none;">&times;</button>
+          </div>
+          <div id="jobsSearchInfo" class="search-info" aria-live="polite"></div>
+        </div>
+
         <div id="jobsStatus">Loading shifts...</div>
         <div class="job-list" id="jobsList"></div>
       </section>
@@ -379,7 +474,8 @@
       <!-- SHIFT ADMIN (Executives only) -->
       <section class="panel" data-panel="admin">
         <h2>Shift Admin</h2>
-        <p class="sub">Set how many volunteers each shift needs. Changes apply immediately on the Job Schedule tab.</p>
+        <p class="sub">Create shifts, set how many volunteers each one needs, or edit a shift's details. Changes apply immediately on the Job Schedule tab.</p>
+        <datalist id="jobTypeOptions"></datalist>
 
         <div class="info-card" style="margin-bottom:32px;">
           <h2 style="font-size:19px;">Create a New Shift</h2>
@@ -642,6 +738,7 @@
 
     // ---------- Job Schedule ----------
     let lastLoadedJobs = [];
+    let jobsSummaryOpen = false;
 
     window.loadJobs = async function loadJobs() {
       const statusEl = document.getElementById("jobsStatus");
@@ -654,12 +751,14 @@
         const data = await res.json();
         statusEl.textContent = "";
         lastLoadedJobs = data.jobs || [];
+        renderJobsSummary();
 
         const user = window.netlifyIdentity.currentUser();
         const myEmail = (user && user.email || "").toLowerCase();
 
         if (!data.jobs || data.jobs.length === 0) {
           statusEl.textContent = "No shifts have been posted yet.";
+          applyJobSearch();
           return;
         }
 
@@ -687,6 +786,7 @@
 
             const card = document.createElement("div");
             card.className = "job-card";
+            card.dataset.search = buildJobSearchText(job, iAmSignedUp);
 
             let badgeClass = "open", badgeText = `${job.filled}/${job.capacity} filled`;
             if (iAmSignedUp) { badgeClass = "mine"; badgeText = "You're in"; }
@@ -695,16 +795,16 @@
             const namesHtml = job.signups.length
               ? job.signups.map(s => {
                   const mine = (s.email || "").toLowerCase() === myEmail;
-                  return `<span class="name-chip${mine ? ' mine' : ''}">${s.name || s.email}</span>`;
+                  return `<span class="name-chip${mine ? ' mine' : ''}">${escHtml(s.name || s.email)}</span>`;
                 }).join("")
               : `<span style="color:var(--muted);">Nobody signed up yet</span>`;
 
             card.innerHTML = `
               <div class="job-top">
                 <div class="info">
-                  <div class="job-name">${job.job || job.id}</div>
-                  <div class="job-time">${job.time}</div>
-                  <div class="job-desc">${job.description || ""}</div>
+                  <div class="job-name">${escHtml(job.job || job.id)}</div>
+                  <div class="job-time">${escHtml(job.time)}</div>
+                  <div class="job-desc">${escHtml(job.description || "")}</div>
                 </div>
                 <div class="capacity-badge ${badgeClass}">${badgeText}</div>
               </div>
@@ -732,11 +832,209 @@
 
           listEl.appendChild(group);
         });
+        applyJobSearch();
       } catch (err) {
         console.error(err);
         statusEl.textContent = "Could not load the job schedule. Please try again shortly.";
       }
     };
+
+    // ---------- Shared helpers (summary, search, and the edit form) ----------
+
+    // Escapes text before it's placed into innerHTML. Names and descriptions
+    // are typed by people, so they must never be treated as markup.
+    function escHtml(str) {
+      const d = document.createElement("div");
+      d.textContent = str == null ? "" : String(str);
+      return d.innerHTML;
+    }
+
+    // Reads the date format this app stores ("12/4/2026"), with ISO as a fallback.
+    function parseJobDate(str) {
+      const s = String(str || "").trim();
+      let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (m) return new Date(+m[3], +m[1] - 1, +m[2]);
+      m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+      if (/^\d{4}-\d{2}-\d{2}T/.test(s)) {
+        const d = new Date(s);
+        if (!isNaN(d)) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+      return null;
+    }
+
+    function toISODate(d) {
+      const p = n => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    }
+
+    // Pulls start/end out of strings like "3:00PM - 6:00PM" or "3:00 PM - 6:00 PM".
+    // Returns [] / [start] / [start, end], each as { minutes, value: "HH:MM" }.
+    function parseTimeRange(str) {
+      const re = /(\d{1,2}):(\d{2})\s*(AM|PM)/gi;
+      const found = [];
+      let m;
+      while ((m = re.exec(String(str || ""))) !== null) {
+        let h = parseInt(m[1], 10) % 12;
+        if (m[3].toUpperCase() === "PM") h += 12;
+        found.push({ minutes: h * 60 + parseInt(m[2], 10), value: `${String(h).padStart(2, "0")}:${m[2]}` });
+      }
+      return found;
+    }
+
+    // ---------- Job search ----------
+    function buildJobSearchText(job, iAmSignedUp) {
+      const d = parseJobDate(job.date);
+      const dayWords = d ? d.toLocaleDateString("en-US", { weekday: "long", month: "long" }) : "";
+      const names = (job.signups || []).map(s => s.name || "").join(" ");
+      const status = ((job.filled || 0) >= (job.capacity || 0) ? "full" : "open") + (iAmSignedUp ? " mine" : "");
+      return [job.job, job.description, job.date, dayWords, job.time, names, status].join(" ").toLowerCase();
+    }
+
+    // Every word you type must match somewhere on the card (job, description,
+    // day, time, or a signed-up person's name). Non-matching cards are only
+    // hidden — the page itself scrolls exactly as before.
+    function applyJobSearch() {
+      const input = document.getElementById("jobsSearch");
+      const info = document.getElementById("jobsSearchInfo");
+      const clearBtn = document.getElementById("jobsSearchClear");
+      const raw = input.value.trim();
+      const terms = raw.toLowerCase().split(/\s+/).filter(Boolean);
+      clearBtn.style.display = raw ? "block" : "none";
+
+      let total = 0, visible = 0;
+      document.querySelectorAll("#jobsList .job-day-group").forEach(group => {
+        let groupVisible = 0;
+        group.querySelectorAll(".job-card").forEach(card => {
+          total++;
+          const match = terms.every(t => (card.dataset.search || "").includes(t));
+          card.style.display = match ? "" : "none";
+          if (match) groupVisible++;
+        });
+        visible += groupVisible;
+        group.style.display = groupVisible ? "" : "none";
+        const heading = group.previousElementSibling;
+        if (heading && heading.classList.contains("job-day-heading")) {
+          heading.style.display = groupVisible ? "" : "none";
+        }
+      });
+
+      if (!terms.length || total === 0) {
+        info.textContent = "";
+        info.className = "search-info";
+      } else if (visible === 0) {
+        info.textContent = `No shifts match "${raw}". Try fewer or different words.`;
+        info.className = "search-info none";
+      } else {
+        info.textContent = `Showing ${visible} of ${total} shift${total !== 1 ? "s" : ""}`;
+        info.className = "search-info";
+      }
+    }
+
+    document.getElementById("jobsSearch").addEventListener("input", applyJobSearch);
+    document.getElementById("jobsSearch").addEventListener("keydown", e => {
+      if (e.key === "Escape") { e.target.value = ""; applyJobSearch(); }
+    });
+    document.getElementById("jobsSearchClear").addEventListener("click", () => {
+      const input = document.getElementById("jobsSearch");
+      input.value = "";
+      applyJobSearch();
+      input.focus();
+    });
+
+    // ---------- Schedule summary (timeline) ----------
+    function renderJobsSummary() {
+      if (!jobsSummaryOpen) return;
+      const box = document.getElementById("jobsSummary");
+      const jobs = lastLoadedJobs || [];
+      const myEmail = (currentUserEmail || "").toLowerCase();
+
+      if (jobs.length === 0) {
+        box.innerHTML = `<div class="sum-head"><div class="sum-title">Schedule Summary</div></div>
+          <p style="color:var(--muted);">No shifts have been posted yet.</p>`;
+        return;
+      }
+
+      const groups = new Map();
+      jobs.forEach(j => {
+        const key = j.date || "Date TBD";
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(j);
+      });
+      const dayKeys = Array.from(groups.keys()).sort((a, b) => {
+        const da = parseJobDate(a), db = parseJobDate(b);
+        if (da && db) return da - db;
+        if (da) return -1;
+        if (db) return 1;
+        return 0;
+      });
+
+      const totalCap = jobs.reduce((n, j) => n + (j.capacity || 0), 0);
+      const totalFilled = jobs.reduce((n, j) => n + Math.min(j.filled || 0, j.capacity || 0), 0);
+
+      let html = `
+        <div class="sum-head">
+          <div class="sum-title">Schedule Summary</div>
+          <div class="sum-totals">${totalFilled} of ${totalCap} spots filled &middot; ${totalCap - totalFilled} still open &middot; ${jobs.length} shift${jobs.length !== 1 ? "s" : ""}</div>
+        </div>
+        <div class="sum-legend">
+          <span style="--dot:#2f9e46">Fully staffed</span>
+          <span style="--dot:#e0a100">Partly staffed</span>
+          <span style="--dot:var(--red)">Nobody yet</span>
+        </div>`;
+
+      dayKeys.forEach(key => {
+        const d = parseJobDate(key);
+        const label = d
+          ? d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })
+          : key;
+
+        const dayJobs = groups.get(key).slice().sort((a, b) => {
+          const ta = (parseTimeRange(a.time)[0] || { minutes: 99999 }).minutes;
+          const tb = (parseTimeRange(b.time)[0] || { minutes: 99999 }).minutes;
+          return (ta - tb) || String(a.job || "").localeCompare(String(b.job || ""));
+        });
+
+        html += `<div class="sum-day"><div class="sum-day-heading">${escHtml(label)}</div>`;
+        dayJobs.forEach(j => {
+          const cap = j.capacity || 0, filled = j.filled || 0;
+          const state = filled >= cap ? "full" : (filled === 0 ? "empty" : "partial");
+          const open = Math.max(0, cap - filled);
+
+          const chips = (j.signups || []).map(s => {
+            const mine = myEmail && (s.email || "").toLowerCase() === myEmail;
+            return `<span class="sum-chip${mine ? " mine" : ""}">${escHtml(s.name || s.email)}</span>`;
+          }).join("");
+          const openChips = open === 0 ? ""
+            : open <= 5 ? '<span class="sum-chip open">Open</span>'.repeat(open)
+            : `<span class="sum-chip open">${open} open</span>`;
+
+          html += `
+            <div class="sum-row">
+              <div class="sum-time">${escHtml(j.time)}</div>
+              <div class="sum-body ${state}">
+                <div class="sum-job-line">
+                  <span class="sum-job">${escHtml(j.job || j.id)}</span>
+                  <span class="sum-count">${filled}/${cap}</span>
+                </div>
+                <div class="sum-people">${chips}${openChips}</div>
+              </div>
+            </div>`;
+        });
+        html += `</div>`;
+      });
+
+      box.innerHTML = html;
+    }
+
+    document.getElementById("summaryJobsBtn").addEventListener("click", () => {
+      jobsSummaryOpen = !jobsSummaryOpen;
+      const btn = document.getElementById("summaryJobsBtn");
+      document.getElementById("jobsSummary").style.display = jobsSummaryOpen ? "block" : "none";
+      btn.textContent = jobsSummaryOpen ? "Hide Summary" : "Show Summary";
+      btn.setAttribute("aria-expanded", jobsSummaryOpen ? "true" : "false");
+      if (jobsSummaryOpen) renderJobsSummary();
+    });
 
     async function claimOrRelease(kind, jobId, btn) {
       const user = window.netlifyIdentity.currentUser();
@@ -769,6 +1067,194 @@
     }
 
     // ---------- Shift Admin (Executives only) ----------
+    // Inline "Edit" form for one shift in the Shift Admin list. Fields the
+    // person doesn't touch are sent back exactly as stored, so editing just a
+    // description never rewrites the shift's date, time, or ID.
+    function attachEditPanel(row, job, idx) {
+      const editBtn = row.querySelector(".edit-btn");
+      const capInput = row.querySelector(".cap-control input");
+      const capLabel = row.querySelector(".cap-control label");
+
+      let origISO = "", origStart = "", origEnd = "";
+      function snapshotOriginals() {
+        const d = parseJobDate(job.date);
+        origISO = d ? toISODate(d) : "";
+        const t = parseTimeRange(job.time);
+        origStart = t[0] ? t[0].value : "";
+        origEnd = t[1] ? t[1].value : "";
+      }
+      snapshotOriginals();
+
+      const panel = document.createElement("div");
+      panel.className = "edit-panel";
+      panel.style.display = "none";
+      panel.innerHTML = `
+        <div class="field-row">
+          <div class="form-group">
+            <label for="ef-job-${idx}">Job</label>
+            <input type="text" class="ef-job" id="ef-job-${idx}" list="jobTypeOptions" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="ef-cap-${idx}">Capacity</label>
+            <input type="number" class="ef-cap" id="ef-cap-${idx}" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="ef-desc-${idx}">Description</label>
+          <input type="text" class="ef-desc" id="ef-desc-${idx}">
+        </div>
+        <div class="field-row">
+          <div class="form-group">
+            <label for="ef-date-${idx}">Date</label>
+            <input type="date" class="ef-date" id="ef-date-${idx}">
+          </div>
+          <div class="form-group">
+            <label for="ef-start-${idx}">Time</label>
+            <div class="time-pair">
+              <input type="time" class="ef-start" id="ef-start-${idx}">
+              <span style="color:var(--muted);">to</span>
+              <input type="time" class="ef-end" id="ef-end-${idx}" aria-label="End time">
+            </div>
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button type="button" class="ef-save">Save Changes</button>
+          <button type="button" class="ef-cancel">Cancel</button>
+          <span class="edit-status"></span>
+        </div>
+        <p class="edit-note"></p>
+      `;
+      row.appendChild(panel);
+
+      const fJob = panel.querySelector(".ef-job");
+      const fCap = panel.querySelector(".ef-cap");
+      const fDesc = panel.querySelector(".ef-desc");
+      const fDate = panel.querySelector(".ef-date");
+      const fStart = panel.querySelector(".ef-start");
+      const fEnd = panel.querySelector(".ef-end");
+      const statusEl = panel.querySelector(".edit-status");
+      const noteEl = panel.querySelector(".edit-note");
+      const saveBtn = panel.querySelector(".ef-save");
+      const cancelBtn = panel.querySelector(".ef-cancel");
+
+      function setStatus(msg, kind) {
+        statusEl.textContent = msg;
+        statusEl.style.color = kind === "error" ? "var(--red)" : kind === "ok" ? "#2f9e46" : "var(--muted)";
+      }
+
+      function fillFields() {
+        fJob.value = job.job || "";
+        fCap.value = job.capacity;
+        fDesc.value = job.description || "";
+        fDate.value = origISO;
+        fStart.value = origStart;
+        fEnd.value = origEnd;
+        setStatus("", "muted");
+
+        const notes = [];
+        if (job.filled > 0) {
+          notes.push(`${job.filled} ${job.filled === 1 ? "person is" : "people are"} signed up for this shift. They stay signed up if you change the job, date, or time, but they won't be notified.`);
+        }
+        if (!origISO) notes.push("The current date couldn't be read automatically, so please pick it again.");
+        if (!origStart || !origEnd) notes.push("The current time couldn't be read automatically. Leave the time blank to keep it as it is, or set a new start and end.");
+        noteEl.textContent = notes.join(" ");
+      }
+
+      editBtn.addEventListener("click", () => {
+        const opening = panel.style.display === "none";
+        panel.style.display = opening ? "block" : "none";
+        editBtn.textContent = opening ? "Close" : "Edit";
+        if (opening) fillFields();
+      });
+
+      cancelBtn.addEventListener("click", () => {
+        panel.style.display = "none";
+        editBtn.textContent = "Edit";
+      });
+
+      saveBtn.addEventListener("click", async () => {
+        const jobName = fJob.value.trim();
+        const capVal = fCap.value;
+        const descVal = fDesc.value.trim();
+        const dateVal = fDate.value;
+        const start = fStart.value, end = fEnd.value;
+
+        if (!jobName) return setStatus("Job name is required.", "error");
+        if (capVal === "" || isNaN(Number(capVal)) || Number(capVal) < 0) return setStatus("Capacity must be 0 or more.", "error");
+
+        // Date: untouched -> keep what's stored. Cleared -> ask for it again.
+        if (!dateVal && origISO) return setStatus("Please pick a date.", "error");
+        const dateChanged = dateVal !== origISO;
+        const dateStr = dateVal ? formatDateMDY_(dateVal) : job.date;
+        if (!dateStr) return setStatus("Please pick a date.", "error");
+
+        // Time: untouched -> send the stored string back exactly as it was.
+        const timeChanged = start !== origStart || end !== origEnd;
+        let timeStr = job.time;
+        if (timeChanged || !job.time) {
+          if (!start || !end) return setStatus("Please set both a start and an end time.", "error");
+          timeStr = `${formatTime12_(start)} - ${formatTime12_(end)}`;
+        }
+
+        const jobChanged = jobName !== (job.job || "");
+        if (job.filled > 0 && (jobChanged || dateChanged || timeChanged)) {
+          const ok = confirm(`${job.filled} ${job.filled === 1 ? "person is" : "people are"} signed up for this shift. They'll stay signed up under the new details, but they won't be notified. Save these changes?`);
+          if (!ok) return;
+        }
+
+        saveBtn.disabled = true;
+        cancelBtn.disabled = true;
+        setStatus("Saving...", "muted");
+
+        const params = new URLSearchParams();
+        params.append("action", "updateJob");
+        params.append("jobId", job.id);
+        params.append("job", jobName);
+        params.append("description", descVal);
+        params.append("date", dateStr);
+        params.append("time", timeStr);
+        params.append("capacity", capVal);
+
+        try {
+          const res = await fetch(scriptUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params.toString()
+          });
+          const result = await res.json();
+          if (result.success) {
+            // Update this row in place (no full reload, so the page doesn't jump).
+            if (result.jobId) job.id = result.jobId;
+            job.job = jobName;
+            job.description = descVal;
+            job.date = dateStr;
+            job.time = timeStr;
+            job.capacity = Number(capVal);
+            snapshotOriginals();
+
+            row.querySelector(".info .job-name").textContent = job.job;
+            row.querySelector(".info .job-time").innerHTML =
+              `${escHtml(job.date)} &middot; ${escHtml(job.time)} &mdash; currently ${job.filled} signed up`;
+            capInput.value = job.capacity;
+            capInput.id = "cap-" + job.id;
+            capLabel.htmlFor = capInput.id;
+
+            setStatus("Saved.", "ok");
+            setTimeout(() => {
+              panel.style.display = "none";
+              editBtn.textContent = "Edit";
+            }, 900);
+          } else {
+            setStatus(result.message || "Could not save those changes.", "error");
+          }
+        } catch (err) {
+          setStatus("Error: " + err.message, "error");
+        }
+        saveBtn.disabled = false;
+        cancelBtn.disabled = false;
+      });
+    }
+
     window.loadAdminPanel = async function loadAdminPanel() {
       const statusEl = document.getElementById("adminStatus");
       const listEl = document.getElementById("adminList");
@@ -785,18 +1271,19 @@
           return;
         }
 
-        data.jobs.forEach(job => {
+        data.jobs.forEach((job, idx) => {
           const row = document.createElement("div");
           row.className = "admin-row";
           row.innerHTML = `
             <div class="info">
-              <div class="job-name">${job.job || job.id}</div>
-              <div class="job-time">${job.date} &middot; ${job.time} &mdash; currently ${job.filled} signed up</div>
+              <div class="job-name">${escHtml(job.job || job.id)}</div>
+              <div class="job-time">${escHtml(job.date)} &middot; ${escHtml(job.time)} &mdash; currently ${job.filled} signed up</div>
             </div>
             <div class="cap-control">
               <label for="cap-${job.id}">Capacity</label>
               <input type="number" min="0" id="cap-${job.id}" value="${job.capacity}">
               <button type="button">Save</button>
+              <button type="button" class="edit-btn">Edit</button>
               <span class="saved-note" style="display:none;">Saved</span>
             </div>
           `;
@@ -833,6 +1320,7 @@
             saveBtn.disabled = false;
           });
 
+          attachEditPanel(row, job, idx);
           listEl.appendChild(row);
         });
       } catch (err) {
@@ -850,6 +1338,16 @@
         const res = await fetch(scriptUrl + "?action=jobTypes");
         const data = await res.json();
         knownJobTypes = data.jobTypes || [];
+
+        const dl = document.getElementById("jobTypeOptions");
+        if (dl) {
+          dl.innerHTML = "";
+          knownJobTypes.forEach(jt => {
+            const o = document.createElement("option");
+            o.value = jt.name;
+            dl.appendChild(o);
+          });
+        }
 
         select.innerHTML = '<option value="">-- Select a job --</option>';
         knownJobTypes.forEach(jt => {
