@@ -201,6 +201,47 @@
   .admin-row .edit-panel .edit-status { font-size:13.5px; }
   .admin-row .edit-panel .edit-note { font-size:12.5px; color:var(--muted); margin:12px 0 0; }
 
+  /* ---- Payments overview ---- */
+  .pay-overview { background:var(--ice); border:1px solid var(--line); border-radius:10px; padding:20px 22px; margin-bottom:8px; }
+  .pay-headline { display:flex; align-items:baseline; flex-wrap:wrap; gap:4px 16px; }
+  .pay-pct { font-family:var(--font-display); font-weight:800; font-size:46px; line-height:1; color:var(--navy); }
+  .pay-headline-text { font-size:15px; color:var(--muted); }
+  .pay-headline-text strong { color:var(--navy); }
+  .pay-bar { display:flex; height:12px; background:#dbe4ea; border-radius:20px; overflow:hidden; margin:14px 0 6px; }
+  .pay-bar .seg-paid { background:#2f9e46; }
+  .pay-bar .seg-pending { background:#e0a100; }
+  .pay-basis { font-size:12.5px; color:var(--muted); margin-bottom:16px; }
+  .pay-tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px; margin-top:4px; }
+  .pay-tiles + .pay-tiles { margin-top:12px; }
+  .pay-tile { background:#fff; border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
+  .pay-tile .n { font-family:'Oswald', sans-serif; font-weight:700; font-size:28px; line-height:1; color:var(--navy); }
+  .pay-tile .l { font-family:var(--font-display); font-weight:600; text-transform:uppercase; letter-spacing:.04em; font-size:12.5px; color:var(--muted); margin-top:7px; }
+  .pay-tile .s { font-size:12.5px; color:var(--muted); margin-top:4px; }
+  .pay-tile .s.warn { color:#8a6500; font-weight:600; }
+  .pay-tile .s.bad { color:var(--red); font-weight:600; }
+  .pay-tile.paid .n { color:#2f9e46; }
+  .pay-tile.pending .n { color:#b8860b; }
+  .pay-tile.unpaid .n { color:var(--red); }
+  .pay-attn { background:#fdf0f2; border:1px solid #f1c9d0; color:var(--red-dk); border-radius:8px; padding:12px 16px; font-size:13.5px; margin-top:14px; }
+  .pay-attn ul { margin:8px 0 0; padding-left:18px; }
+  .pay-attn li { margin-bottom:3px; }
+  .pay-attn .pay-attn-note { color:var(--muted); }
+  .pay-section-title { font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:15px; color:var(--navy); margin:28px 0 12px; }
+  .pay-div-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(290px, 1fr)); gap:16px; }
+  .pay-div-card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px 18px 8px; }
+  .pay-div-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .pay-div-name { font-family:var(--font-display); font-weight:700; font-size:17px; color:var(--navy); text-transform:uppercase; letter-spacing:.02em; }
+  .pay-div-count { font-size:12.5px; color:var(--muted); font-weight:600; }
+  .pay-div-bar { height:6px; background:#e6edf2; border-radius:20px; overflow:hidden; margin:8px 0 8px; }
+  .pay-div-bar span { display:block; height:100%; background:#2f9e46; }
+  .pay-team { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--line); font-size:14px; }
+  .pay-team-name { min-width:0; overflow-wrap:anywhere; }
+  .pay-team-note { font-size:12px; color:#8a6500; margin-top:2px; }
+  .pay-pill { font-size:11.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:3px 10px; border-radius:20px; white-space:nowrap; flex:none; }
+  .pay-pill.paid { background:#d9f2df; color:#1c7a37; }
+  .pay-pill.pending { background:#fbf0cf; color:#8a6500; }
+  .pay-pill.unpaid { background:#fde8e8; color:var(--red); }
+
   /* ---- Job search ---- */
   .jobs-search { margin:18px 0 6px; }
   .jobs-search .search-field { position:relative; }
@@ -545,6 +586,8 @@
         <h2>Payments</h2>
         <p class="sub">Square payments are recorded automatically. E-transfer claims need manual verification against your bank/email.</p>
         <div id="paymentsStatus">Loading payments...</div>
+        <div id="paymentsSummary"></div>
+        <div id="paymentsListHeading" class="pay-section-title" style="display:none;">All payment records</div>
         <div id="paymentsList" style="display:flex; flex-direction:column; gap:10px;"></div>
       </section>
 
@@ -1506,73 +1549,262 @@
     });
 
     // ---------- Payments (Executives only) ----------
+    //
+    // The overview joins two things that already exist on the backend, so it
+    // needs no new server code: the payment records (?action=payments) and the
+    // public list of CONFIRMED teams (?action=registeredTeams). "Outstanding"
+    // means a confirmed team with no verified payment yet. Waitlisted teams
+    // aren't expected to pay, so they're not part of the totals.
+    const PAY_DIVISION_ORDER = ["Peppler", "Conlin", "Clarke", "McKenzie", "Murr", "Calvin", "Nickerson"];
+    const PAY_DIVISION_LABEL = {
+      Peppler: "Men's 35+", Conlin: "Men's 45+", Clarke: "Men's 45+",
+      McKenzie: "Men's 55+", Murr: "Men's 55+", Calvin: "Women's Open", Nickerson: "Women's Open"
+    };
+    let paymentsLoadSeq = 0;
+
+    function payMoney(n) {
+      const v = Number(n) || 0;
+      return "$" + v.toLocaleString("en-CA", { minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2 });
+    }
+
+    // Works out where every confirmed team stands. No DOM access in here.
+    function computePaymentStatus(payments, teams) {
+      const norm = s => String(s == null ? "" : s).trim().toLowerCase();
+      const isPaid = st => st === "Paid" || st === "Verified";
+      const isPending = st => st === "Claimed - Pending Verification";
+      const isReview = st => String(st || "").startsWith("Needs Review");
+
+      // Team names are matched ignoring case and stray spaces.
+      const byKey = new Map();
+      (teams || []).forEach(t => byKey.set(norm(t.team), { team: t.team, division: t.division, payments: [] }));
+
+      // Anything that can't be tied to a confirmed team (typo'd name on an
+      // e-transfer claim, a Square payment with no team note, a waitlisted
+      // team) is set aside so it's visible instead of silently ignored.
+      const needsReview = [];
+      payments.forEach(p => {
+        const t = byKey.get(norm(p.team));
+        if (t) t.payments.push(p);
+        if (!t || isReview(p.status)) needsReview.push(p);
+      });
+
+      const list = Array.from(byKey.values());
+      list.forEach(t => {
+        t.paid = t.payments.filter(p => isPaid(p.status));
+        t.pending = t.payments.filter(p => isPending(p.status));
+        t.state = t.paid.length ? "paid" : (t.pending.length ? "pending" : "unpaid");
+      });
+      const counts = { paid: 0, pending: 0, unpaid: 0 };
+      list.forEach(t => counts[t.state]++);
+      const total = list.length;
+
+      const methods = { "Square": { confirmed: 0, collected: 0, pending: 0, review: 0 },
+                        "E-Transfer": { confirmed: 0, collected: 0, pending: 0, review: 0 } };
+      payments.forEach(p => {
+        const name = p.method || "Other";
+        const m = methods[name] || (methods[name] = { confirmed: 0, collected: 0, pending: 0, review: 0 });
+        if (isPaid(p.status)) { m.confirmed++; m.collected += Number(p.amount) || 0; }
+        else if (isPending(p.status)) m.pending++;
+        else m.review++;
+      });
+
+      return { teams: list, counts, total, pct: total ? Math.round((counts.paid / total) * 100) : 0, methods, needsReview };
+    }
+
+    function renderPaymentsSummary(s) {
+      const { teams, counts, total, pct, methods, needsReview } = s;
+
+      if (total === 0) {
+        return `<div class="pay-overview"><div class="pay-headline-text">There are no confirmed teams yet, so there's nothing to total up.</div></div>`;
+      }
+
+      const outstanding = counts.pending + counts.unpaid;
+      const paidW = (counts.paid / total) * 100;
+      const pendW = (counts.pending / total) * 100;
+
+      let html = `
+        <div class="pay-overview">
+          <div class="pay-headline">
+            <div class="pay-pct">${pct}%</div>
+            <div class="pay-headline-text"><strong>${counts.paid} of ${total}</strong> registered teams have paid &middot; <strong>${outstanding}</strong> outstanding</div>
+          </div>
+          <div class="pay-bar" role="img" aria-label="${pct}% of teams paid">
+            <span class="seg-paid" style="width:${paidW}%"></span><span class="seg-pending" style="width:${pendW}%"></span>
+          </div>
+          <div class="pay-basis">Based on ${total} confirmed team${total !== 1 ? "s" : ""}. Waitlisted teams aren't included.</div>
+
+          <div class="pay-tiles">
+            <div class="pay-tile paid"><div class="n">${counts.paid}</div><div class="l">Paid</div><div class="s">of ${total} teams</div></div>
+            <div class="pay-tile pending"><div class="n">${counts.pending}</div><div class="l">Awaiting verification</div><div class="s">e-transfer claimed, not yet checked</div></div>
+            <div class="pay-tile unpaid"><div class="n">${counts.unpaid}</div><div class="l">Not yet paid</div><div class="s">no payment or claim yet</div></div>
+          </div>`;
+
+      const methodNames = Object.keys(methods).sort((a, b) => {
+        const rank = m => (m === "Square" ? 0 : m === "E-Transfer" ? 1 : 2);
+        return rank(a) - rank(b) || a.localeCompare(b);
+      });
+      html += `<div class="pay-tiles">`;
+      methodNames.forEach(name => {
+        const m = methods[name];
+        html += `
+            <div class="pay-tile">
+              <div class="n">${m.confirmed}</div>
+              <div class="l">${escHtml(name)}</div>
+              <div class="s">${m.confirmed === 1 ? "payment" : "payments"} &middot; ${payMoney(m.collected)} collected</div>
+              ${m.pending ? `<div class="s warn">+${m.pending} awaiting verification</div>` : ""}
+              ${m.review ? `<div class="s bad">+${m.review} need${m.review === 1 ? "s" : ""} review</div>` : ""}
+            </div>`;
+      });
+      html += `</div>`;
+
+      if (needsReview.length) {
+        const shown = needsReview.slice(0, 6).map(p =>
+          `<li>${escHtml(p.team || "Unknown team")} &mdash; ${payMoney(p.amount)} via ${escHtml(p.method || "unknown")} <span class="pay-attn-note">(${escHtml(p.status)})</span></li>`
+        ).join("");
+        const more = needsReview.length > 6 ? `<li>&hellip;and ${needsReview.length - 6} more (see the full list below)</li>` : "";
+        html += `
+          <div class="pay-attn">
+            <strong>${needsReview.length} payment record${needsReview.length !== 1 ? "s" : ""} can't be matched to a confirmed team</strong>
+            (a misspelled team name, a waitlisted team, or a Square payment with no team note), so ${needsReview.length !== 1 ? "they aren't" : "it isn't"} counted above.
+            <ul>${shown}${more}</ul>
+          </div>`;
+      }
+      html += `</div>`;
+
+      // ---- by division ----
+      const byDiv = new Map();
+      teams.forEach(t => {
+        const d = t.division || "Unassigned";
+        if (!byDiv.has(d)) byDiv.set(d, []);
+        byDiv.get(d).push(t);
+      });
+      const divNames = Array.from(byDiv.keys()).sort((a, b) => {
+        const ia = PAY_DIVISION_ORDER.indexOf(a), ib = PAY_DIVISION_ORDER.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+      });
+      const rank = { unpaid: 0, pending: 1, paid: 2 };   // chase-list order: unpaid first
+      const methodsUsed = arr => Array.from(new Set(arr.map(p => p.method || "?"))).join(", ");
+
+      html += `<div class="pay-section-title">By division</div><div class="pay-div-grid">`;
+      divNames.forEach(d => {
+        const ts = byDiv.get(d).slice().sort((a, b) => rank[a.state] - rank[b.state] || String(a.team).localeCompare(String(b.team)));
+        const paidN = ts.filter(t => t.state === "paid").length;
+        const label = PAY_DIVISION_LABEL[d] ? ` (${PAY_DIVISION_LABEL[d]})` : "";
+        html += `
+          <div class="pay-div-card">
+            <div class="pay-div-head">
+              <div class="pay-div-name">${escHtml(d)}${escHtml(label)}</div>
+              <div class="pay-div-count">${paidN} of ${ts.length} paid</div>
+            </div>
+            <div class="pay-div-bar"><span style="width:${(paidN / ts.length) * 100}%"></span></div>`;
+        ts.forEach(t => {
+          let pill, note = "";
+          if (t.state === "paid") {
+            pill = `<span class="pay-pill paid">Paid &middot; ${escHtml(methodsUsed(t.paid))}</span>`;
+            if (t.paid.length > 1) note = `<div class="pay-team-note">${t.paid.length} payments received &mdash; check for a duplicate</div>`;
+          } else if (t.state === "pending") {
+            pill = `<span class="pay-pill pending">Pending &middot; ${escHtml(methodsUsed(t.pending))}</span>`;
+          } else {
+            pill = `<span class="pay-pill unpaid">Unpaid</span>`;
+          }
+          html += `<div class="pay-team"><div class="pay-team-name">${escHtml(t.team)}${note}</div>${pill}</div>`;
+        });
+        html += `</div>`;
+      });
+      html += `</div>`;
+      return html;
+    }
+
+    // The detailed record list (newest first) with the "Mark Verified" action.
+    function renderPaymentRecords(payments, listEl) {
+      payments.slice().reverse().forEach(p => {
+        const row = document.createElement("div");
+        row.className = "admin-row";
+
+        let statusColor = "var(--muted)";
+        if (p.status === "Paid" || p.status === "Verified") statusColor = "#2f9e46";
+        else if (String(p.status).startsWith("Needs Review")) statusColor = "var(--red)";
+        else if (p.status === "Claimed - Pending Verification") statusColor = "#b8860b";
+
+        const canVerify = p.status === "Claimed - Pending Verification";
+
+        // Team, email and status can originate from the public e-transfer form,
+        // so everything is escaped before it goes into the page.
+        row.innerHTML = `
+          <div class="info">
+            <div class="job-name">${escHtml(p.team || "Unknown")} &mdash; $${Number(p.amount).toFixed(2)}</div>
+            <div class="job-time">${escHtml(p.method)} &middot; <span style="color:${statusColor}; font-weight:600;">${escHtml(p.status)}</span> &middot; ${escHtml(p.email || "")}</div>
+          </div>
+          <div class="cap-control"></div>
+        `;
+
+        if (canVerify) {
+          const btn = document.createElement("button");
+          btn.textContent = "Mark Verified";
+          btn.addEventListener("click", async () => {
+            btn.disabled = true;
+            btn.textContent = "Saving...";
+            try {
+              const params = new URLSearchParams();
+              params.append("action", "markPaymentVerified");
+              params.append("paymentId", p.paymentId);
+              const r = await fetch(scriptUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: params.toString()
+              });
+              const result = await r.json();
+              if (!result.success) alert(result.message || "Could not verify payment.");
+              window.loadPayments();
+            } catch (err) {
+              alert("Error: " + err.message);
+            }
+          });
+          row.querySelector(".cap-control").appendChild(btn);
+        }
+
+        listEl.appendChild(row);
+      });
+    }
+
     window.loadPayments = async function loadPayments() {
+      const mySeq = ++paymentsLoadSeq;   // ignore results from an older, slower request
       const statusEl = document.getElementById("paymentsStatus");
+      const summaryEl = document.getElementById("paymentsSummary");
+      const headingEl = document.getElementById("paymentsListHeading");
       const listEl = document.getElementById("paymentsList");
       statusEl.textContent = "Loading payments...";
+      summaryEl.innerHTML = "";
+      headingEl.style.display = "none";
       listEl.innerHTML = "";
 
-      try {
-        const res = await fetch(scriptUrl + "?action=payments");
-        const data = await res.json();
-        const payments = data.payments || [];
+      // Fetched separately so that if the team list is unavailable the
+      // payment records still show.
+      const [payRes, teamRes] = await Promise.allSettled([
+        fetch(scriptUrl + "?action=payments").then(r => r.json()),
+        fetch(scriptUrl + "?action=registeredTeams").then(r => r.json())
+      ]);
+      if (mySeq !== paymentsLoadSeq) return;
 
-        if (payments.length === 0) {
-          statusEl.textContent = "No payments recorded yet.";
-          return;
-        }
-        statusEl.textContent = "";
-
-        payments.slice().reverse().forEach(p => {
-          const row = document.createElement("div");
-          row.className = "admin-row";
-
-          let statusColor = "var(--muted)";
-          if (p.status === "Paid" || p.status === "Verified") statusColor = "#2f9e46";
-          else if (String(p.status).startsWith("Needs Review")) statusColor = "var(--red)";
-          else if (p.status === "Claimed - Pending Verification") statusColor = "#b8860b";
-
-          const canVerify = p.status === "Claimed - Pending Verification";
-
-          row.innerHTML = `
-            <div class="info">
-              <div class="job-name">${p.team || "Unknown"} &mdash; $${Number(p.amount).toFixed(2)}</div>
-              <div class="job-time">${p.method} &middot; <span style="color:${statusColor}; font-weight:600;">${p.status}</span> &middot; ${p.email || ""}</div>
-            </div>
-            <div class="cap-control"></div>
-          `;
-
-          if (canVerify) {
-            const btn = document.createElement("button");
-            btn.textContent = "Mark Verified";
-            btn.addEventListener("click", async () => {
-              btn.disabled = true;
-              btn.textContent = "Saving...";
-              try {
-                const params = new URLSearchParams();
-                params.append("action", "markPaymentVerified");
-                params.append("paymentId", p.paymentId);
-                const r = await fetch(scriptUrl, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                  body: params.toString()
-                });
-                const result = await r.json();
-                if (!result.success) alert(result.message || "Could not verify payment.");
-                loadPayments();
-              } catch (err) {
-                alert("Error: " + err.message);
-              }
-            });
-            row.querySelector(".cap-control").appendChild(btn);
-          }
-
-          listEl.appendChild(row);
-        });
-      } catch (err) {
-        console.error(err);
+      if (payRes.status !== "fulfilled" || !Array.isArray(payRes.value.payments)) {
+        console.error("Could not load payments:", payRes.reason || payRes.value);
         statusEl.textContent = "Could not load payments. Please try again shortly.";
+        return;
       }
+      const payments = payRes.value.payments;
+      const teams = (teamRes.status === "fulfilled" && Array.isArray(teamRes.value.teams)) ? teamRes.value.teams : null;
+      statusEl.textContent = "";
+
+      summaryEl.innerHTML = teams
+        ? renderPaymentsSummary(computePaymentStatus(payments, teams))
+        : `<div class="pay-attn">Couldn't load the registered-team list, so the paid / outstanding totals aren't available right now. The payment records below are still accurate.</div>`;
+
+      headingEl.style.display = "block";
+      if (payments.length === 0) {
+        listEl.innerHTML = `<p style="color:var(--muted); margin:0;">No payment records yet.</p>`;
+        return;
+      }
+      renderPaymentRecords(payments, listEl);
     };
 
     // ---------- Waitlist (Executives only) ----------
