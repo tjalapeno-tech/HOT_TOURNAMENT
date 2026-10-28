@@ -241,6 +241,18 @@
   .pay-pill.paid { background:#d9f2df; color:#1c7a37; }
   .pay-pill.pending { background:#fbf0cf; color:#8a6500; }
   .pay-pill.unpaid { background:#fde8e8; color:var(--red); }
+  .pay-team-right { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; flex:none; }
+  .pay-team.has-msg { align-items:flex-start; }
+  .pay-linkbtn, .pay-copybtn {
+    font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    font-size:11.5px; padding:4px 10px; border-radius:5px; border:1.5px solid var(--navy);
+    background:#fff; color:var(--navy); cursor:pointer;
+  }
+  .pay-linkbtn:hover, .pay-copybtn:hover { background:var(--ice); }
+  .pay-linkbtn:disabled { opacity:.6; cursor:not-allowed; }
+  .pay-linkmsg { margin-top:8px; padding:8px 10px; background:var(--ice); border-radius:6px; font-size:12.5px; color:var(--ink); }
+  .pay-linkmsg code { display:block; margin:4px 0 8px; font-size:12.5px; overflow-wrap:anywhere; user-select:all; }
+  .pay-linkmsg.err { background:#fdf0f2; color:var(--red-dk); }
 
   /* ---- Job search ---- */
   .jobs-search { margin:18px 0 6px; }
@@ -1568,7 +1580,7 @@
     }
 
     // Works out where every confirmed team stands. No DOM access in here.
-    function computePaymentStatus(payments, teams) {
+    function computePaymentStatus(payments, teams, linkMap) {
       const norm = s => String(s == null ? "" : s).trim().toLowerCase();
       const isPaid = st => st === "Paid" || st === "Verified";
       const isPending = st => st === "Claimed - Pending Verification";
@@ -1598,6 +1610,11 @@
       list.forEach(t => counts[t.state]++);
       const total = list.length;
 
+      // Does each team have a payment link on file? (null = couldn't find out.)
+      // Teams added by hand in the sheet skip the sign-up step that creates one.
+      list.forEach(t => { t.hasLink = linkMap ? !!linkMap.get(norm(t.team)) : null; });
+      const noLink = list.filter(t => t.state === "unpaid" && t.hasLink === false).length;
+
       const methods = { "Square": { confirmed: 0, collected: 0, pending: 0, review: 0 },
                         "E-Transfer": { confirmed: 0, collected: 0, pending: 0, review: 0 } };
       payments.forEach(p => {
@@ -1608,11 +1625,11 @@
         else m.review++;
       });
 
-      return { teams: list, counts, total, pct: total ? Math.round((counts.paid / total) * 100) : 0, methods, needsReview };
+      return { teams: list, counts, total, pct: total ? Math.round((counts.paid / total) * 100) : 0, methods, needsReview, noLink };
     }
 
     function renderPaymentsSummary(s) {
-      const { teams, counts, total, pct, methods, needsReview } = s;
+      const { teams, counts, total, pct, methods, needsReview, noLink } = s;
 
       if (total === 0) {
         return `<div class="pay-overview"><div class="pay-headline-text">There are no confirmed teams yet, so there's nothing to total up.</div></div>`;
@@ -1636,7 +1653,7 @@
           <div class="pay-tiles">
             <div class="pay-tile paid"><div class="n">${counts.paid}</div><div class="l">Paid</div><div class="s">of ${total} teams</div></div>
             <div class="pay-tile pending"><div class="n">${counts.pending}</div><div class="l">Awaiting verification</div><div class="s">e-transfer claimed, not yet checked</div></div>
-            <div class="pay-tile unpaid"><div class="n">${counts.unpaid}</div><div class="l">Not yet paid</div><div class="s">no payment or claim yet</div></div>
+            <div class="pay-tile unpaid"><div class="n">${counts.unpaid}</div><div class="l">Not yet paid</div><div class="s">no payment or claim yet</div>${noLink ? `<div class="s warn" id="payNoLinkNote"><span id="payNoLinkCount">${noLink}</span> without a payment link</div>` : ""}</div>
           </div>`;
 
       const methodNames = Object.keys(methods).sort((a, b) => {
@@ -1707,7 +1724,10 @@
           } else {
             pill = `<span class="pay-pill unpaid">Unpaid</span>`;
           }
-          html += `<div class="pay-team"><div class="pay-team-name">${escHtml(t.team)}${note}</div>${pill}</div>`;
+          // Unpaid with no link on file -> offer to create one (data-idx points back into `teams`)
+          const linkBtn = (t.state === "unpaid" && t.hasLink === false)
+            ? `<button type="button" class="pay-linkbtn" data-idx="${teams.indexOf(t)}">Create link</button>` : "";
+          html += `<div class="pay-team"><div class="pay-team-name">${escHtml(t.team)}${note}</div><div class="pay-team-right">${linkBtn}${pill}</div></div>`;
         });
         html += `</div>`;
       });
@@ -1767,6 +1787,84 @@
       });
     }
 
+    // "Create link" buttons: for unpaid teams with no payment link on file.
+    // Everything shown from the server (names, emails, the link) goes in with
+    // textContent, because team and rep details come from public forms.
+    function wirePaymentLinkButtons(rootEl, summary) {
+      rootEl.querySelectorAll(".pay-linkbtn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const team = summary.teams[Number(btn.dataset.idx)];
+          if (!team) return;
+          const row = btn.closest(".pay-team");
+          const nameEl = row.querySelector(".pay-team-name");
+          nameEl.querySelectorAll(".pay-linkmsg").forEach(n => n.remove());
+
+          btn.disabled = true;
+          btn.textContent = "Creating...";
+          const showError = msg => {
+            const box = document.createElement("div");
+            box.className = "pay-linkmsg err";
+            box.textContent = msg;
+            nameEl.appendChild(box);
+            row.classList.add("has-msg");
+            btn.disabled = false;
+            btn.textContent = "Create link";
+          };
+
+          try {
+            const params = new URLSearchParams();
+            params.append("action", "createTeamPaymentLink");
+            params.append("team", team.team);
+            const res = await fetch(scriptUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: params.toString()
+            });
+            const result = await res.json();
+            if (!(result.success && result.link)) return showError(result.message || "Could not create a link for this team.");
+
+            btn.remove();
+            nameEl.appendChild(buildPaymentLinkResult(result));
+            row.classList.add("has-msg");
+
+            const countEl = document.getElementById("payNoLinkCount");
+            if (countEl) {
+              const left = Math.max(0, Number(countEl.textContent) - 1);
+              countEl.textContent = left;
+              if (left === 0) document.getElementById("payNoLinkNote").style.display = "none";
+            }
+          } catch (err) {
+            showError("Error: " + err.message);
+          }
+        });
+      });
+    }
+
+    function buildPaymentLinkResult(result) {
+      const box = document.createElement("div");
+      box.className = "pay-linkmsg";
+      const who = (result.repName || "the team rep") + (result.repEmail ? " (" + result.repEmail + ")" : "");
+
+      const intro = document.createElement("div");
+      intro.textContent = (result.alreadyHad ? "This team already had a link. Send it to " : "Link created and saved in the sheet. Send it to ") + who + ":";
+
+      const code = document.createElement("code");
+      code.textContent = result.link;
+
+      const copy = document.createElement("button");
+      copy.type = "button";
+      copy.className = "pay-copybtn";
+      copy.textContent = "Copy link";
+      copy.addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(result.link); copy.textContent = "Copied"; }
+        catch (e) { window.prompt("Copy this link:", result.link); }
+        setTimeout(() => { copy.textContent = "Copy link"; }, 1500);
+      });
+
+      box.append(intro, code, copy);
+      return box;
+    }
+
     window.loadPayments = async function loadPayments() {
       const mySeq = ++paymentsLoadSeq;   // ignore results from an older, slower request
       const statusEl = document.getElementById("paymentsStatus");
@@ -1780,9 +1878,10 @@
 
       // Fetched separately so that if the team list is unavailable the
       // payment records still show.
-      const [payRes, teamRes] = await Promise.allSettled([
+      const [payRes, teamRes, linkRes] = await Promise.allSettled([
         fetch(scriptUrl + "?action=payments").then(r => r.json()),
-        fetch(scriptUrl + "?action=registeredTeams").then(r => r.json())
+        fetch(scriptUrl + "?action=registeredTeams").then(r => r.json()),
+        fetch(scriptUrl + "?action=linkStatus").then(r => r.json())     // which teams have a payment link on file
       ]);
       if (mySeq !== paymentsLoadSeq) return;
 
@@ -1793,11 +1892,21 @@
       }
       const payments = payRes.value.payments;
       const teams = (teamRes.status === "fulfilled" && Array.isArray(teamRes.value.teams)) ? teamRes.value.teams : null;
+      // If the backend doesn't know "linkStatus" yet (older Code.gs), this stays null
+      // and the page simply behaves as before, with no Create link buttons.
+      const normName = s => String(s == null ? "" : s).trim().toLowerCase();
+      const linkMap = (linkRes.status === "fulfilled" && Array.isArray(linkRes.value.links))
+        ? new Map(linkRes.value.links.map(l => [normName(l.team), !!l.hasLink]))
+        : null;
       statusEl.textContent = "";
 
-      summaryEl.innerHTML = teams
-        ? renderPaymentsSummary(computePaymentStatus(payments, teams))
-        : `<div class="pay-attn">Couldn't load the registered-team list, so the paid / outstanding totals aren't available right now. The payment records below are still accurate.</div>`;
+      if (teams) {
+        const summary = computePaymentStatus(payments, teams, linkMap);
+        summaryEl.innerHTML = renderPaymentsSummary(summary);
+        wirePaymentLinkButtons(summaryEl, summary);
+      } else {
+        summaryEl.innerHTML = `<div class="pay-attn">Couldn't load the registered-team list, so the paid / outstanding totals aren't available right now. The payment records below are still accurate.</div>`;
+      }
 
       headingEl.style.display = "block";
       if (payments.length === 0) {
