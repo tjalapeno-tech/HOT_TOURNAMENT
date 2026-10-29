@@ -254,6 +254,20 @@
   .pay-linkmsg code { display:block; margin:4px 0 8px; font-size:12.5px; overflow-wrap:anywhere; user-select:all; }
   .pay-linkmsg.err { background:#fdf0f2; color:var(--red-dk); }
 
+  /* ---- Committee leaders + job type manager ---- */
+  .job-card .info .job-leader { font-size:13px; color:var(--muted); margin-top:6px; }
+  .job-card .info .job-leader strong { color:var(--navy); font-weight:600; }
+  .jobs-summary .sum-lead { font-size:12.5px; color:var(--muted); }
+  .leader-note { font-size:13px; color:var(--muted); margin:-6px 0 18px; }
+  .jobtype-manager { background:#fff; border:1px solid var(--line); border-radius:10px; margin-bottom:32px; }
+  .jobtype-manager > summary {
+    padding:14px 18px; cursor:pointer; font-family:var(--font-display); font-weight:700;
+    text-transform:uppercase; letter-spacing:.04em; font-size:15px; color:var(--navy);
+  }
+  .jobtype-manager .jt-body { padding:0 18px 18px; }
+  .jobtype-manager .jt-intro { font-size:13.5px; color:var(--muted); margin:0 0 14px; }
+  .jobtype-manager .jt-leader-none { font-style:italic; }
+
   /* ---- Job search ---- */
   .jobs-search { margin:18px 0 6px; }
   .jobs-search .search-field { position:relative; }
@@ -540,6 +554,7 @@
                 <option value="__new__">+ Create New Job&hellip;</option>
               </select>
             </div>
+            <div id="newJobLeaderNote" class="leader-note" style="display:none;"></div>
 
             <div id="newJobTypePanel" class="info-card" style="display:none; background:#fff; border-style:dashed;">
               <div class="field-row">
@@ -551,6 +566,10 @@
                   <label for="newJobTypeCapacity">Default Capacity</label>
                   <input type="number" id="newJobTypeCapacity" min="0" value="1">
                 </div>
+              </div>
+              <div class="form-group">
+                <label for="newJobTypeLeader">Committee Leader</label>
+                <input type="text" id="newJobTypeLeader" placeholder="Name (add a phone number if you like)">
               </div>
               <div class="form-group">
                 <label for="newJobTypeDescription">Description</label>
@@ -588,6 +607,14 @@
             <span id="createJobStatus" style="margin-left:12px; font-size:14px;"></span>
           </form>
         </div>
+
+        <details class="jobtype-manager" id="jobTypeManager" open>
+          <summary>Job types &amp; committee leaders</summary>
+          <div class="jt-body">
+            <p class="jt-intro">Each job type has a committee leader, shown on every shift of that type. A type's description and default capacity are only the starting values for <em>new</em> shifts. Renaming a type renames it on all existing shifts too, and everyone stays signed up.</p>
+            <div id="jobTypeList" style="display:flex; flex-direction:column; gap:10px;"></div>
+          </div>
+        </details>
 
         <div id="adminStatus">Loading shifts...</div>
         <div id="adminList" style="display:flex; flex-direction:column; gap:10px;"></div>
@@ -670,13 +697,13 @@
         return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
       };
 
-      const header = ["Date", "Job", "Time", "Capacity", "Filled", "Signed Up"];
+      const header = ["Date", "Job", "Committee Leader", "Time", "Capacity", "Filled", "Signed Up"];
       const lines = [header.map(escapeCsv).join(",")];
 
       lastLoadedJobs.forEach(job => {
         const names = (job.signups || []).map(s => s.name || s.email).join("; ");
         lines.push([
-          job.date, job.job || job.id, job.time, job.capacity, job.filled, names
+          job.date, job.job || job.id, job.leader || "", job.time, job.capacity, job.filled, names
         ].map(escapeCsv).join(","));
       });
 
@@ -860,6 +887,7 @@
                   <div class="job-name">${escHtml(job.job || job.id)}</div>
                   <div class="job-time">${escHtml(job.time)}</div>
                   <div class="job-desc">${escHtml(job.description || "")}</div>
+                  ${job.leader ? `<div class="job-leader">Committee leader: <strong>${escHtml(job.leader)}</strong></div>` : ""}
                 </div>
                 <div class="capacity-badge ${badgeClass}">${badgeText}</div>
               </div>
@@ -943,7 +971,7 @@
       const dayWords = d ? d.toLocaleDateString("en-US", { weekday: "long", month: "long" }) : "";
       const names = (job.signups || []).map(s => s.name || "").join(" ");
       const status = ((job.filled || 0) >= (job.capacity || 0) ? "full" : "open") + (iAmSignedUp ? " mine" : "");
-      return [job.job, job.description, job.date, dayWords, job.time, names, status].join(" ").toLowerCase();
+      return [job.job, job.description, job.leader, job.date, dayWords, job.time, names, status].join(" ").toLowerCase();
     }
 
     // Every word you type must match somewhere on the card (job, description,
@@ -1071,6 +1099,7 @@
                 <div class="sum-job-line">
                   <span class="sum-job">${escHtml(j.job || j.id)}</span>
                   <span class="sum-count">${filled}/${cap}</span>
+                  ${j.leader ? `<span class="sum-lead">Lead: ${escHtml(j.leader)}</span>` : ""}
                 </div>
                 <div class="sum-people">${chips}${openChips}</div>
               </div>
@@ -1122,6 +1151,161 @@
     }
 
     // ---------- Shift Admin (Executives only) ----------
+    // ---------- Job types & committee leaders ----------
+    function renderJobTypeManager() {
+      const listEl = document.getElementById("jobTypeList");
+      if (!listEl) return;
+      listEl.innerHTML = "";
+
+      if (!knownJobTypes.length) {
+        listEl.innerHTML = '<p style="color:var(--muted); margin:0;">No job types yet. Create one from the shift form above.</p>';
+        return;
+      }
+
+      const shiftCounts = {};
+      (adminJobsCache || []).forEach(j => {
+        const k = String(j.job || "").trim().toLowerCase();
+        shiftCounts[k] = (shiftCounts[k] || 0) + 1;
+      });
+
+      knownJobTypes.forEach((jt, idx) => {
+        const shifts = shiftCounts[String(jt.name).trim().toLowerCase()] || 0;
+        const row = document.createElement("div");
+        row.className = "admin-row";
+        row.innerHTML = `
+          <div class="info">
+            <div class="job-name">${escHtml(jt.name)}</div>
+            <div class="job-time">
+              ${jt.leader ? "Leader: <strong>" + escHtml(jt.leader) + "</strong>" : '<span class="jt-leader-none">No committee leader yet</span>'}
+              &middot; default capacity ${Number(jt.defaultCapacity) || 0}
+              &middot; ${shifts} shift${shifts !== 1 ? "s" : ""}
+            </div>
+          </div>
+          <div class="cap-control"><button type="button" class="edit-btn">Edit</button></div>
+        `;
+        attachJobTypeEditPanel(row, jt, idx, shifts);
+        listEl.appendChild(row);
+      });
+    }
+
+    function attachJobTypeEditPanel(row, jt, idx, shiftCount) {
+      const editBtn = row.querySelector(".edit-btn");
+      const panel = document.createElement("div");
+      panel.className = "edit-panel";
+      panel.style.display = "none";
+      panel.innerHTML = `
+        <div class="field-row">
+          <div class="form-group">
+            <label for="jt-name-${idx}">Job name</label>
+            <input type="text" class="jt-name" id="jt-name-${idx}" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="jt-leader-${idx}">Committee leader</label>
+            <input type="text" class="jt-leader" id="jt-leader-${idx}" placeholder="Name (add a phone number if you like)" autocomplete="off">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="form-group">
+            <label for="jt-cap-${idx}">Default capacity</label>
+            <input type="number" class="jt-cap" id="jt-cap-${idx}" min="0">
+          </div>
+          <div class="form-group">
+            <label for="jt-desc-${idx}">Description</label>
+            <input type="text" class="jt-desc" id="jt-desc-${idx}">
+          </div>
+        </div>
+        <div class="edit-actions">
+          <button type="button" class="ef-save">Save Changes</button>
+          <button type="button" class="ef-cancel">Cancel</button>
+          <span class="edit-status"></span>
+        </div>
+        <p class="edit-note">Leader changes show on every shift of this job straight away. Description and default capacity only apply to shifts you create from now on; existing shifts keep their own.</p>
+      `;
+      row.appendChild(panel);
+
+      const fName = panel.querySelector(".jt-name");
+      const fLeader = panel.querySelector(".jt-leader");
+      const fCap = panel.querySelector(".jt-cap");
+      const fDesc = panel.querySelector(".jt-desc");
+      const statusEl = panel.querySelector(".edit-status");
+      const saveBtn = panel.querySelector(".ef-save");
+      const cancelBtn = panel.querySelector(".ef-cancel");
+
+      function setStatus(msg, kind) {
+        statusEl.textContent = msg;
+        statusEl.style.color = kind === "error" ? "var(--red)" : kind === "ok" ? "#2f9e46" : "var(--muted)";
+      }
+
+      editBtn.addEventListener("click", () => {
+        const opening = panel.style.display === "none";
+        panel.style.display = opening ? "block" : "none";
+        editBtn.textContent = opening ? "Close" : "Edit";
+        if (opening) {
+          fName.value = jt.name || "";
+          fLeader.value = jt.leader || "";
+          fCap.value = jt.defaultCapacity != null ? jt.defaultCapacity : 0;
+          fDesc.value = jt.description || "";
+          setStatus("", "muted");
+        }
+      });
+      cancelBtn.addEventListener("click", () => { panel.style.display = "none"; editBtn.textContent = "Edit"; });
+
+      saveBtn.addEventListener("click", async () => {
+        const newName = fName.value.trim();
+        const leader = fLeader.value.trim();
+        const capVal = fCap.value;
+        const desc = fDesc.value.trim();
+
+        if (!newName) return setStatus("Job name is required.", "error");
+        if (capVal === "" || isNaN(Number(capVal)) || Number(capVal) < 0) return setStatus("Default capacity must be 0 or more.", "error");
+
+        const renaming = newName !== jt.name;
+        if (renaming && shiftCount > 0) {
+          const ok = confirm(`Renaming "${jt.name}" to "${newName}" also renames it on ${shiftCount} existing shift${shiftCount !== 1 ? "s" : ""}. Everyone signed up keeps their spot. Continue?`);
+          if (!ok) return;
+        }
+
+        saveBtn.disabled = true;
+        cancelBtn.disabled = true;
+        setStatus("Saving...", "muted");
+
+        const params = new URLSearchParams();
+        params.append("action", "updateJobType");
+        params.append("oldName", jt.name);
+        params.append("name", newName);
+        params.append("description", desc);
+        params.append("defaultCapacity", capVal);
+        params.append("leader", leader);
+
+        try {
+          const res = await fetch(scriptUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params.toString()
+          });
+          const result = await res.json();
+          if (result.success) {
+            setStatus(renaming && result.renamedShifts ? `Saved. Renamed on ${result.renamedShifts} shift${result.renamedShifts !== 1 ? "s" : ""}.` : "Saved.", "ok");
+            if (renaming) {
+              // Shift names and IDs changed on the server, so reload everything that shows them.
+              setTimeout(() => { loadJobTypesDropdown(); window.loadAdminPanel(); }, 800);
+            } else {
+              jt.description = desc; jt.defaultCapacity = Number(capVal); jt.leader = leader;
+              setTimeout(() => { renderJobTypeManager(); updateLeaderNote(); }, 800);
+            }
+          } else {
+            setStatus(result.message || "Could not save those changes.", "error");
+            saveBtn.disabled = false;
+            cancelBtn.disabled = false;
+          }
+        } catch (err) {
+          setStatus("Error: " + err.message, "error");
+          saveBtn.disabled = false;
+          cancelBtn.disabled = false;
+        }
+      });
+    }
+
     // Inline "Edit" form for one shift in the Shift Admin list. Fields the
     // person doesn't touch are sent back exactly as stored, so editing just a
     // description never rewrites the shift's date, time, or ID.
@@ -1320,6 +1504,8 @@
         const res = await fetch(scriptUrl + "?action=jobs");
         const data = await res.json();
         statusEl.textContent = "";
+        adminJobsCache = data.jobs || [];
+        renderJobTypeManager();
 
         if (!data.jobs || data.jobs.length === 0) {
           statusEl.textContent = "No shifts found.";
@@ -1386,6 +1572,19 @@
 
     // ---------- Job Types dropdown (for Create Shift form) ----------
     let knownJobTypes = [];
+    let adminJobsCache = [];   // the shifts as last loaded in Shift Admin (used for per-type shift counts)
+
+    // Shows the chosen job type's committee leader under the Job dropdown.
+    function updateLeaderNote() {
+      const note = document.getElementById("newJobLeaderNote");
+      const val = document.getElementById("newJobTypeSelect").value;
+      if (!val || val === "__new__") { note.style.display = "none"; return; }
+      const jt = knownJobTypes.find(j => j.name === val);
+      note.style.display = "block";
+      note.textContent = (jt && jt.leader)
+        ? "Committee leader: " + jt.leader
+        : "No committee leader set for this job yet. You can add one under Job types & committee leaders below.";
+    }
 
     async function loadJobTypesDropdown() {
       const select = document.getElementById("newJobTypeSelect");
@@ -1404,6 +1603,7 @@
           });
         }
 
+        const previouslySelected = select.value;
         select.innerHTML = '<option value="">-- Select a job --</option>';
         knownJobTypes.forEach(jt => {
           const opt = document.createElement("option");
@@ -1415,6 +1615,9 @@
         newOpt.value = "__new__";
         newOpt.textContent = "+ Create New Job\u2026";
         select.appendChild(newOpt);
+        if (previouslySelected && Array.from(select.options).some(o => o.value === previouslySelected)) select.value = previouslySelected;
+        updateLeaderNote();
+        renderJobTypeManager();
       } catch (err) {
         console.error("Could not load job types:", err);
       }
@@ -1454,6 +1657,7 @@
           document.getElementById("newJobCapacity").value = jt.defaultCapacity || 0;
         }
       }
+      updateLeaderNote();
     });
 
     document.getElementById("saveJobTypeBtn").addEventListener("click", async function () {
@@ -1461,6 +1665,7 @@
       const name = document.getElementById("newJobTypeName").value.trim();
       const description = document.getElementById("newJobTypeDescription").value.trim();
       const capacity = document.getElementById("newJobTypeCapacity").value;
+      const leader = document.getElementById("newJobTypeLeader").value.trim();
 
       if (!name) { statusEl.textContent = "Job name is required."; statusEl.style.color = "var(--red)"; return; }
 
@@ -1473,6 +1678,7 @@
       params.append("name", name);
       params.append("description", description);
       params.append("defaultCapacity", capacity);
+      params.append("leader", leader);
 
       try {
         const res = await fetch(scriptUrl, {
@@ -1490,6 +1696,7 @@
           select.dispatchEvent(new Event("change"));
           document.getElementById("newJobTypePanel").style.display = "none";
           document.getElementById("newJobTypeName").value = "";
+          document.getElementById("newJobTypeLeader").value = "";
           document.getElementById("newJobTypeDescription").value = "";
           document.getElementById("newJobTypeCapacity").value = 1;
         } else {
