@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Team Roster | Huntsville Oldtimers</title>
+<meta name="description" content="Submit your team roster for the Huntsville Oldtimers tournament." />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" href="assets/images/logo_esig.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Oswald:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+
+</head>
+<body>
+<div class="utility">
+  <div class="row">
+    <span>Muskoka &middot; Est. 1975</span>
+    <span><a href="schedule.html">Schedule</a><a href="standings.html">Standings</a><a href="contact.html">Contact</a></span>
+  </div>
+</div>
+<header class="site-header">
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/images/logo_esig.png" alt="Huntsville Oldtimers logo" />
+      <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Hockey Tournament</span></span>
+    </a>
+    <button class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mainnav">&#9776;</button>
+    <div class="main-nav" id="mainnav">
+      <a href="about.html">About</a>
+      <a href="divisions.html">Divisions</a>
+      <a href="schedule.html">Schedule</a>
+      <a href="standings.html">Standings</a>
+      <a href="accommodations.html">Accommodations</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="contact.html">Contact</a>
+      <a href="members.html">Members</a>
+      <a href="register.html" class="cta">Register</a>
+    </div>
+  </nav>
+</header>
+
+<style>
+  .roster-wrap { max-width:900px; margin:0 auto; padding:40px 24px 80px; }
+  .roster-card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:22px 24px; margin-bottom:18px; }
+  .roster-title { font-family:var(--font-display); font-size:32px; font-weight:800; color:var(--navy); margin:0 0 6px; line-height:1.1; overflow-wrap:anywhere; }
+  .roster-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; color:var(--muted); font-size:15px; }
+  .roster-meta strong { color:var(--navy); }
+  .chip { display:inline-block; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 10px; border-radius:20px; }
+  .chip.submitted { background:#d9f2df; color:#1c7a37; }
+  .chip.draft { background:#fbf0cf; color:#8a6500; }
+  .chip.none { background:#e9eef2; color:var(--muted); }
+  .roster-help { margin:14px 0 0; font-size:14.5px; color:var(--ink); line-height:1.5; }
+  .roster-help ul { margin:8px 0 0; padding-left:20px; color:var(--muted); }
+  .roster-banner { border-radius:8px; padding:12px 16px; font-size:14.5px; margin-bottom:16px; }
+  .roster-banner.locked { background:#fdf0f2; border:1px solid #f1c9d0; color:var(--red-dk); }
+  .roster-banner.ok { background:#e8f6ec; border:1px solid #bfe6c9; color:#1c7a37; }
+  .roster-banner.err { background:#fdf0f2; border:1px solid #f1c9d0; color:var(--red-dk); }
+  .roster-banner.warn { background:#fdf6e3; border:1px solid #f0dfa8; color:#7a5b00; }
+  .roster-banner ul { margin:6px 0 0; padding-left:20px; }
+  .roster-head-row, .roster-row { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1.3fr) 90px 90px 36px; gap:10px; align-items:start; }
+  .roster-head-row { font-family:var(--font-display); font-weight:700; text-transform:uppercase; font-size:12.5px; letter-spacing:.05em; color:var(--muted); margin-bottom:6px; padding:0 2px; }
+  .roster-row { margin-bottom:10px; }
+  .roster-row input { width:100%; min-width:0; padding:11px 12px; border:1.5px solid var(--line); border-radius:6px; font-size:15.5px; font-family:var(--font-body); background:#fff; }
+  .roster-row input:disabled { background:var(--ice); color:var(--ink); }
+  .roster-row input.bad { border-color:var(--red); background:#fdf0f2; }
+  .roster-row input.under { border-color:#e0a100; background:#fdf6e3; }
+  .roster-row .remove { border:0; background:transparent; color:var(--muted); font-size:24px; line-height:1; cursor:pointer; padding:6px 0; }
+  .roster-row .remove:hover { color:var(--red); }
+  .roster-row .rmsg { grid-column:1 / -1; font-size:12.5px; margin:-4px 0 2px; }
+  .rmsg.error { color:var(--red-dk); }
+  .rmsg.warn { color:#7a5b00; }
+  .roster-tools { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:14px 0 6px; }
+  .roster-count { margin-left:auto; font-size:14px; color:var(--muted); }
+  .rbtn { font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.03em; font-size:14px; padding:11px 22px; border-radius:6px; cursor:pointer; border:1.5px solid var(--navy); background:#fff; color:var(--navy); }
+  .rbtn:hover { background:var(--ice); }
+  .rbtn.primary { background:var(--red); border-color:var(--red); color:#fff; }
+  .rbtn.primary:hover { background:var(--red-dk); }
+  .rbtn.dashed { border-style:dashed; padding:9px 16px; font-size:13px; }
+  .rbtn:disabled { opacity:.55; cursor:not-allowed; }
+  .roster-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:20px; }
+  #pastePanel { background:var(--ice); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:10px 0; }
+  #pastePanel textarea { width:100%; min-height:110px; padding:10px 12px; border:1.5px solid var(--line); border-radius:6px; font-family:monospace; font-size:14px; }
+  #pastePanel p { margin:0 0 8px; font-size:13.5px; color:var(--muted); }
+  @media (max-width:640px) {
+    .roster-wrap { padding:28px 16px 64px; }
+    .roster-head-row { display:none; }
+    .roster-row { grid-template-columns:minmax(0,1fr) minmax(0,1fr); background:#fff; border:1px solid var(--line); border-radius:8px; padding:10px; }
+    .roster-row .remove { grid-column:1 / -1; justify-self:end; font-size:14px; padding:2px 4px; }
+    .roster-row .remove::after { content:" Remove player"; }
+    .roster-count { margin-left:0; width:100%; }
+  }
+</style>
+
+<main class="roster-wrap">
+  <div id="rosterState" class="roster-card">Loading your roster&hellip;</div>
+
+  <div id="rosterApp" style="display:none;">
+    <div class="roster-card">
+      <h1 class="roster-title" id="rosterTeam"></h1>
+      <div class="roster-meta">
+        <span>Division: <strong id="rosterDivision"></strong></span>
+        <span class="chip none" id="rosterChip">Not started</span>
+        <span id="rosterUpdated"></span>
+      </div>
+      <div class="roster-help">
+        Add every player on your team. For each player enter their <strong>first name, last name, jersey number and age</strong>
+        (age on the first day of the tournament).
+        <ul>
+          <li id="ageRule" style="display:none;"></li>
+          <li>You can save a draft and come back any time using this same link. Click <strong>Submit roster</strong> when it's final.</li>
+          <li>Only the tournament organizers can see this information.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="rosterBanner"></div>
+
+    <div class="roster-card">
+      <div class="roster-head-row" aria-hidden="true"><div>First name</div><div>Last name</div><div>Jersey #</div><div>Age</div><div></div></div>
+      <div id="rosterRows"></div>
+
+      <div class="roster-tools" id="rosterTools">
+        <button type="button" class="rbtn dashed" id="addPlayerBtn">+ Add player</button>
+        <button type="button" class="rbtn dashed" id="pasteToggleBtn">Paste from a spreadsheet</button>
+        <span class="roster-count" id="rosterCount"></span>
+      </div>
+      <div id="pastePanel" style="display:none;">
+        <p>Copy your rows from Excel or Google Sheets and paste them here, with the columns in this order: <strong>First name, Last name, Jersey #, Age</strong>. A header row is fine; it's skipped.</p>
+        <textarea id="pasteBox" placeholder="Mike	Doe	9	41&#10;Sam	Lee	17	38"></textarea>
+        <div style="margin-top:8px;"><button type="button" class="rbtn" id="pasteAddBtn">Add these players</button> <span id="pasteMsg" style="font-size:13.5px; margin-left:8px;"></span></div>
+      </div>
+
+      <div class="roster-actions" id="rosterButtons">
+        <button type="button" class="rbtn" id="saveDraftBtn">Save draft</button>
+        <button type="button" class="rbtn primary" id="submitBtn">Submit roster</button>
+        <span id="saveStatus" style="font-size:14px;"></span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const scriptUrl = "https://script.google.com/macros/s/AKfycbxYDvsI7rxbCNxc3lh65MwpkkdaOlAmOtd4QiQl2JkRVrC-ZW8hYWmbCmAJFwWxEbNn/exec";
+const divisionGroups = {
+  Peppler: "Men's 35+", Conlin: "Men's 45+", Clarke: "Men's 45+", McKenzie: "Men's 55+",
+  Murr: "Men's 55+", Calvin: "Women's Open", Nickerson: "Women's Rec"
+};
+const rosterKey = (new URLSearchParams(location.search).get("k") || "").trim();
+const $ = id => document.getElementById(id);
+
+let info = null;          // what the server told us about this team
+let baseline = "[]";      // the roster as last saved, to know whether there are unsaved changes
+let busy = false;
+
+function showState(msg, isError) {
+  const el = $("rosterState");
+  el.style.display = "block";
+  el.textContent = msg;                       // plain text, never markup
+  el.style.color = isError ? "var(--red-dk)" : "";
+  if (isError) {
+    el.appendChild(document.createTextNode(" "));
+    const a = document.createElement("a");
+    a.href = "contact.html";
+    a.textContent = "Contact us";
+    el.appendChild(a);
+    el.appendChild(document.createTextNode(" if you need help."));
+  }
+}
+
+function setChip(status, updated) {
+  const chip = $("rosterChip");
+  const s = status === "Submitted" ? "submitted" : (status === "Draft" ? "draft" : "none");
+  chip.className = "chip " + s;
+  chip.textContent = status === "Draft" ? "Draft saved" : (status || "Not started");
+  let when = "";
+  if (updated) { const d = new Date(updated); if (!isNaN(d)) when = "Last saved " + d.toLocaleString("en-CA", { dateStyle: "medium", timeStyle: "short" }); }
+  $("rosterUpdated").textContent = when;
+}
+
+function banner(kind, html) {
+  const b = $("rosterBanner");
+  b.innerHTML = "";
+  if (!html) return;
+  const d = document.createElement("div");
+  d.className = "roster-banner " + kind;
+  if (typeof html === "string") d.textContent = html; else d.appendChild(html);
+  b.appendChild(d);
+}
+
+// ---------- rows ----------
+function addRow(p) {
+  const row = document.createElement("div");
+  row.className = "roster-row";
+  row.innerHTML = `
+    <input type="text" class="f-first" placeholder="First name" aria-label="First name" maxlength="40" autocomplete="off">
+    <input type="text" class="f-last" placeholder="Last name" aria-label="Last name" maxlength="40" autocomplete="off">
+    <input type="text" class="f-jersey" placeholder="Jersey #" aria-label="Jersey number" inputmode="numeric" maxlength="2" autocomplete="off">
+    <input type="text" class="f-age" placeholder="Age" aria-label="Age" inputmode="numeric" maxlength="3" autocomplete="off">
+    <button type="button" class="remove" aria-label="Remove this player" title="Remove this player">&times;</button>
+    <div class="rmsg" style="display:none;"></div>`;
+  if (p) {
+    row.querySelector(".f-first").value = p.first || "";
+    row.querySelector(".f-last").value = p.last || "";
+    row.querySelector(".f-jersey").value = p.jersey == null ? "" : p.jersey;
+    row.querySelector(".f-age").value = p.age == null ? "" : p.age;
+  }
+  if (info && info.locked) row.querySelectorAll("input").forEach(i => i.disabled = true);
+  $("rosterRows").appendChild(row);
+  return row;
+}
+
+function readRows() {
+  return Array.from($("rosterRows").querySelectorAll(".roster-row")).map(row => ({
+    row,
+    first: row.querySelector(".f-first").value.trim(),
+    last: row.querySelector(".f-last").value.trim(),
+    jersey: row.querySelector(".f-jersey").value.trim(),
+    age: row.querySelector(".f-age").value.trim()
+  }));
+}
+const isBlank = r => !r.first && !r.last && !r.jersey && !r.age;
+
+// Same rules as the server. Errors block saving; under-age is only a warning.
+function validate() {
+  const rows = readRows();
+  const filled = rows.filter(r => !isBlank(r));
+  let errors = 0;
+  const warnings = [];
+  const seenJersey = {}, seenPlayer = {};
+
+  rows.forEach(r => {
+    const msgs = { error: [], warn: [] };
+    const bad = { first: false, last: false, jersey: false, age: false };
+    if (!isBlank(r)) {
+      if (!r.first) { msgs.error.push("First name is required."); bad.first = true; }
+      if (!r.last) { msgs.error.push("Last name is required."); bad.last = true; }
+      if (!/^\d{1,2}$/.test(r.jersey)) { msgs.error.push("Jersey # must be a number from 0 to 99."); bad.jersey = true; }
+      const n = Number(r.age);
+      if (!/^\d{1,3}$/.test(r.age) || n < 14 || n > 99) { msgs.error.push("Age must be a whole number from 14 to 99."); bad.age = true; }
+      if (/^\d{1,2}$/.test(r.jersey)) {
+        if (seenJersey[r.jersey]) { msgs.error.push("Jersey #" + r.jersey + " is already used by another player."); bad.jersey = true; seenJersey[r.jersey].bad.jersey = true; seenJersey[r.jersey].msgs.error.push("Jersey #" + r.jersey + " is also used by " + ((r.first + " " + r.last).trim() || "another player") + "."); }
+        else seenJersey[r.jersey] = { bad, msgs };
+      }
+      const pk = (r.first + "|" + r.last).toLowerCase() + "|" + Number(r.age);
+      if (r.first && r.last && /^\d{1,3}$/.test(r.age)) {
+        if (seenPlayer[pk]) { msgs.error.push("This player is listed twice."); bad.first = bad.last = true; }
+        seenPlayer[pk] = true;
+      }
+      if (info && info.minAge && !bad.age && Number(r.age) < info.minAge) {
+        msgs.warn.push("Age " + r.age + " is under this division's minimum of " + info.minAge + ". You can still submit; the organizers will review.");
+        warnings.push((r.first + " " + r.last).trim() + " (" + r.age + ")");
+      }
+    }
+    r.msgs = msgs; r.bad = bad;
+  });
+
+  rows.forEach(r => {
+    const f = r.row;
+    f.querySelector(".f-first").classList.toggle("bad", !!r.bad.first);
+    f.querySelector(".f-last").classList.toggle("bad", !!r.bad.last);
+    f.querySelector(".f-jersey").classList.toggle("bad", !!r.bad.jersey);
+    f.querySelector(".f-age").classList.toggle("bad", !!r.bad.age);
+    f.querySelector(".f-age").classList.toggle("under", !r.bad.age && r.msgs.warn.length > 0);
+    const m = f.querySelector(".rmsg");
+    const text = r.msgs.error.length ? r.msgs.error.join(" ") : r.msgs.warn.join(" ");
+    m.textContent = text;
+    m.className = "rmsg " + (r.msgs.error.length ? "error" : "warn");
+    m.style.display = text ? "block" : "none";
+    errors += r.msgs.error.length ? 1 : 0;
+  });
+
+  $("rosterCount").textContent = filled.length + " player" + (filled.length !== 1 ? "s" : "") + (info ? " (max " + info.maxPlayers + ")" : "");
+  $("addPlayerBtn").disabled = !!(info && (info.locked || rows.length >= info.maxPlayers));
+  return { rows, filled, errors, warnings };
+}
+
+function payload() {
+  return readRows().filter(r => !isBlank(r)).map(r => ({ first: r.first, last: r.last, jersey: r.jersey, age: r.age }));
+}
+const isDirty = () => JSON.stringify(payload()) !== baseline;
+
+// ---------- saving ----------
+async function save(submit) {
+  if (busy || (info && info.locked)) return;
+  const v = validate();
+  banner("", "");
+  if (v.errors) { banner("err", "Please fix the highlighted rows first (" + v.errors + " row" + (v.errors !== 1 ? "s need" : " needs") + " attention)."); return; }
+  if (submit && v.filled.length === 0) { banner("err", "Add at least one player before submitting."); return; }
+
+  busy = true;
+  $("saveDraftBtn").disabled = $("submitBtn").disabled = true;
+  $("saveStatus").textContent = submit ? "Submitting\u2026" : "Saving\u2026";
+  try {
+    const body = new URLSearchParams();
+    body.append("action", "rosterSave");
+    body.append("k", rosterKey);
+    body.append("players", JSON.stringify(payload()));
+    body.append("submit", submit ? "true" : "false");
+    const res = await fetch(scriptUrl, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() });
+    const out = await res.json();
+    if (out.success) {
+      baseline = JSON.stringify(payload());
+      setChip(out.status, out.updated);
+      if (out.warnings && out.warnings.length) {
+        const wrap = document.createElement("div");
+        wrap.appendChild(document.createTextNode((submit ? "Roster submitted. " : "Draft saved. ") + "A few players are under this division's minimum age. They're saved, and the organizers will review:"));
+        const ul = document.createElement("ul");
+        out.warnings.forEach(w => { const li = document.createElement("li"); li.textContent = w; ul.appendChild(li); });
+        wrap.appendChild(ul);
+        banner("warn", wrap);
+      } else {
+        banner("ok", submit ? "Roster submitted. Thank you! You can still make changes until rosters are locked; just submit again afterwards." : "Draft saved. Come back to this same link any time to keep going.");
+      }
+    } else if (out.locked) {
+      info.locked = true; applyLocked(); banner("locked", out.message);
+    } else {
+      banner("err", out.message || "Could not save the roster. Please try again.");
+    }
+  } catch (err) {
+    banner("err", "Could not reach the server (" + err.message + "). Your changes are still on this page. Please try again.");
+  }
+  busy = false;
+  $("saveStatus").textContent = "";
+  if (!(info && info.locked)) $("saveDraftBtn").disabled = $("submitBtn").disabled = false;
+}
+
+function applyLocked() {
+  $("rosterRows").querySelectorAll("input").forEach(i => i.disabled = true);
+  $("rosterRows").querySelectorAll(".remove").forEach(b => b.style.display = "none");
+  $("rosterTools").style.display = "none";
+  $("pastePanel").style.display = "none";
+  $("rosterButtons").style.display = "none";
+  banner("locked", "Rosters are locked, so this roster can no longer be changed. Please contact us if something needs to be corrected.");
+}
+
+// ---------- paste from a spreadsheet ----------
+function parsePasted(text) {
+  const out = [];
+  text.split(/\r?\n/).map(l => l.trim()).filter(Boolean).forEach((line, i) => {
+    const cells = (line.includes("\t") ? line.split("\t") : line.split(",")).map(c => c.trim().replace(/^"(.*)"$/, "$1"));
+    if (i === 0 && /first/i.test(cells[0] || "")) return;           // header row
+    out.push({ first: cells[0] || "", last: cells[1] || "", jersey: cells[2] || "", age: cells[3] || "" });
+  });
+  return out;
+}
+
+$("pasteToggleBtn").addEventListener("click", () => {
+  const p = $("pastePanel");
+  p.style.display = p.style.display === "none" ? "block" : "none";
+});
+$("pasteAddBtn").addEventListener("click", () => {
+  const players = parsePasted($("pasteBox").value);
+  const msg = $("pasteMsg");
+  if (!players.length) { msg.textContent = "Nothing to add yet."; msg.style.color = "var(--red-dk)"; return; }
+  // reuse empty rows first, then add more, up to the limit
+  const empty = readRows().filter(isBlank).map(r => r.row);
+  let added = 0, skipped = 0;
+  players.forEach(p => {
+    if (readRows().length >= info.maxPlayers && !empty.length) { skipped++; return; }
+    const row = empty.length ? empty.shift() : addRow();
+    row.querySelector(".f-first").value = p.first; row.querySelector(".f-last").value = p.last;
+    row.querySelector(".f-jersey").value = p.jersey; row.querySelector(".f-age").value = p.age;
+    added++;
+  });
+  $("pasteBox").value = "";
+  msg.style.color = skipped ? "var(--red-dk)" : "#1c7a37";
+  msg.textContent = "Added " + added + " player" + (added !== 1 ? "s" : "") + (skipped ? " (" + skipped + " skipped: a roster can have at most " + info.maxPlayers + ")" : "") + ". Check the rows below, then save.";
+  validate();
+});
+
+// ---------- wiring ----------
+$("rosterRows").addEventListener("input", validate);
+$("rosterRows").addEventListener("click", e => {
+  const b = e.target.closest(".remove");
+  if (!b || (info && info.locked)) return;
+  b.closest(".roster-row").remove();
+  if (!$("rosterRows").children.length) addRow();
+  validate();
+});
+$("addPlayerBtn").addEventListener("click", () => { addRow().querySelector(".f-first").focus(); validate(); });
+$("saveDraftBtn").addEventListener("click", () => save(false));
+$("submitBtn").addEventListener("click", () => save(true));
+window.addEventListener("beforeunload", e => { if (info && !info.locked && isDirty()) { e.preventDefault(); e.returnValue = ""; } });
+
+async function loadRoster() {
+  if (!/^[0-9a-f]{32}$/i.test(rosterKey)) { showState("This roster link isn't valid. Please use the link you were sent.", true); return; }
+  try {
+    const res = await fetch(scriptUrl + "?action=rosterGet&k=" + encodeURIComponent(rosterKey) + "&_=" + Date.now());
+    const data = await res.json();
+    if (!data.success) { showState(data.message || "This roster link isn't valid.", true); return; }
+    info = data;
+    $("rosterState").style.display = "none";
+    $("rosterApp").style.display = "block";
+    $("rosterTeam").textContent = data.team;
+    $("rosterDivision").textContent = data.division + (divisionGroups[data.division] ? " (" + divisionGroups[data.division] + ")" : "");
+    if (data.minAge) {
+      const r = $("ageRule");
+      r.style.display = "list-item";
+      r.textContent = "This division is " + data.minAge + "+. Players younger than " + data.minAge + " are flagged for review, but you can still add them.";
+    }
+    setChip(data.status, data.updated);
+    (data.players.length ? data.players : []).forEach(p => addRow(p));
+    const target = Math.max(8, data.players.length);
+    while ($("rosterRows").children.length < target) addRow();
+    baseline = JSON.stringify(payload());
+    if (data.locked) applyLocked();
+    validate();
+  } catch (err) {
+    showState("Could not load your roster right now. Please try again in a moment.", true);
+  }
+}
+loadRoster();
+</script>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html" style="color:#fff;">
+        <img src="assets/images/logo_esig.png" alt="" style="height:42px;width:42px;object-fit:contain;" />
+        <span><span class="b1">Huntsville Oldtimers</span><span class="b2">Est. 1975 &middot; Muskoka</span></span>
+      </a>
+      <div class="links">
+        <a href="about.html">About</a>
+        <a href="divisions.html">Divisions</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="accommodations.html">Accommodations</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="fnote">&copy; 2026 Huntsville Oldtimers Hockey Tournament &mdash; entirely volunteer-run, proudly supporting local charities, businesses, and community causes. Muskoka, Ontario. All rights reserved.</div>
+  </div>
+</footer>
+<script>
+  const burger = document.querySelector('.hamburger');
+  const nav = document.getElementById('mainnav');
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open'); burger.setAttribute('aria-expanded','false');
+  }));
+</script>
+</body>
+</html>

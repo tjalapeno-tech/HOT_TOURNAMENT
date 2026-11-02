@@ -297,6 +297,35 @@
     .slot-row input[type="date"], .slot-row input[type="time"] { padding:11px 10px; font-size:15px; }
   }
 
+  /* ---- Rosters (Executives) ---- */
+  .rost-toolbar { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px; margin-bottom:14px; }
+  .rost-toolbar .btns { display:flex; gap:10px; flex-wrap:wrap; }
+  .rost-note { font-size:13px; color:var(--muted); margin:10px 0 0; }
+  .rost-note strong.open { color:#1c7a37; }
+  .rost-note strong.locked { color:var(--red); }
+  .rost-team { border-top:1px solid var(--line); }
+  .rost-team-head { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 0; cursor:pointer; font-size:14px; }
+  .rost-team-head .nm { min-width:0; overflow-wrap:anywhere; font-weight:600; color:var(--navy); }
+  .rost-team-head .meta { display:block; font-size:12.5px; font-weight:400; color:var(--muted); margin-top:2px; }
+  .rost-team-head .meta .flag { color:#8a6500; font-weight:600; }
+  .rost-pill { font-size:11.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:3px 10px; border-radius:20px; white-space:nowrap; flex:none; }
+  .rost-pill.submitted { background:#d9f2df; color:#1c7a37; }
+  .rost-pill.draft { background:#fbf0cf; color:#8a6500; }
+  .rost-pill.none { background:#e9eef2; color:var(--muted); }
+  .rost-players { display:none; margin:0 0 12px; }
+  .rost-players.open { display:block; }
+  .rost-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .rost-table th { text-align:left; font-family:var(--font-display); text-transform:uppercase; letter-spacing:.04em; font-size:12px; color:var(--muted); padding:4px 8px; border-bottom:2px solid var(--line); }
+  .rost-table td { padding:5px 8px; border-bottom:1px solid var(--line); }
+  .rost-table tr.under td { background:#fdf6e3; color:#7a5b00; }
+  .rost-table .num { width:64px; }
+  .rost-empty { font-size:13px; color:var(--muted); padding:4px 8px; }
+  @media print {
+    .rost-players { display:block !important; }
+    .rost-div-card { break-inside:avoid; }
+    .rost-team-head { cursor:default; }
+  }
+
   /* ---- Job search ---- */
   .jobs-search { margin:18px 0 6px; }
   .jobs-search .search-field { position:relative; }
@@ -416,6 +445,7 @@
       <button class="tab-btn" data-tab="admin" id="adminTabBtn" style="display:none;"><span class="dot"></span>Shift Admin</button>
       <button class="tab-btn" data-tab="payments" id="paymentsTabBtn" style="display:none;"><span class="dot"></span>Payments</button>
       <button class="tab-btn" data-tab="waitlist" id="waitlistTabBtn" style="display:none;"><span class="dot"></span>Waitlist</button>
+      <button class="tab-btn" data-tab="rosters" id="rostersTabBtn" style="display:none;"><span class="dot"></span>Rosters</button>
       <div class="logout-row"><button id="logoutBtn">Log Out</button></div>
     </aside>
 
@@ -663,6 +693,24 @@
         <div id="waitlistList" style="display:flex; flex-direction:column; gap:10px;"></div>
       </section>
 
+      <!-- ROSTERS (Executives only) -->
+      <section class="panel" data-panel="rosters">
+        <div class="rost-toolbar no-print">
+          <div>
+            <h2>Rosters</h2>
+            <p class="sub" style="margin-bottom:0;">Each confirmed team enters its own players from a private link. The links are in the <strong>Roster Link</strong> column of your registrations tab (opening this tab creates any that are missing).</p>
+          </div>
+          <div class="btns">
+            <button type="button" class="btn btn-dark" id="rostersExpandBtn" style="padding:10px 18px; font-size:13.5px;">Expand all</button>
+            <button type="button" class="btn btn-dark" id="rostersPrintBtn" style="padding:10px 18px; font-size:13.5px;">Print</button>
+            <button type="button" class="btn btn-dark" id="rostersExportBtn" style="padding:10px 18px; font-size:13.5px;">Export CSV</button>
+          </div>
+        </div>
+        <div id="rostersStatus">Loading rosters...</div>
+        <div id="rostersSummary"></div>
+        <div id="rostersList"></div>
+      </section>
+
     </main>
   </div>
 </div>
@@ -704,6 +752,7 @@
         if (btn.dataset.tab === "admin") { loadAdminPanel(); loadJobTypesDropdown(); }
         if (btn.dataset.tab === "payments") loadPayments();
         if (btn.dataset.tab === "waitlist") loadWaitlist();
+        if (btn.dataset.tab === "rosters") loadRosters();
         if (btn.dataset.tab === "auction") loadAuctionItems();
       });
     });
@@ -789,6 +838,7 @@
         document.getElementById("adminTabBtn").style.display = isExecutive ? "flex" : "none";
         document.getElementById("paymentsTabBtn").style.display = isExecutive ? "flex" : "none";
         document.getElementById("waitlistTabBtn").style.display = isExecutive ? "flex" : "none";
+        document.getElementById("rostersTabBtn").style.display = isExecutive ? "flex" : "none";
       } else {
         document.getElementById("membersApp").style.display = "none";
         document.getElementById("notLoggedIn").style.display = "block";
@@ -2405,6 +2455,170 @@
         statusEl.textContent = "Could not load the waitlist. Please try again shortly.";
       }
     };
+
+    // ---------- Rosters (Executives only) ----------
+    //
+    // One row per confirmed team: its status (Not started / Draft / Submitted), how many
+    // players, and how many are under the division's minimum age. Click a team to see its
+    // players. The private links teams use are NOT shown here — they live only in the Sheet.
+    let rostersData = null;
+    let rostersSeq = 0;
+
+    function rosterUnder(team, p) { return !!(team.minAge && Number(p.age) < team.minAge); }
+
+    window.loadRosters = async function loadRosters() {
+      const mySeq = ++rostersSeq;
+      const statusEl = document.getElementById("rostersStatus");
+      const summaryEl = document.getElementById("rostersSummary");
+      const listEl = document.getElementById("rostersList");
+      statusEl.textContent = "Loading rosters...";
+      summaryEl.innerHTML = "";
+      listEl.innerHTML = "";
+
+      let data;
+      try {
+        const res = await fetch(scriptUrl + "?action=rosterOverview&_=" + Date.now());
+        data = await res.json();
+      } catch (err) {
+        if (mySeq !== rostersSeq) return;
+        statusEl.textContent = "Could not load rosters. Please try again shortly.";
+        return;
+      }
+      if (mySeq !== rostersSeq) return;
+      if (!data || !Array.isArray(data.teams)) {
+        statusEl.textContent = "Rosters aren't available yet. The latest Code.gs (v21 or later) needs to be deployed first.";
+        return;
+      }
+      rostersData = data;
+      statusEl.textContent = "";
+      renderRosters();
+    };
+
+    function renderRosters() {
+      document.getElementById("rostersExpandBtn").textContent = "Expand all";   // a fresh list starts collapsed
+      const data = rostersData;
+      const summaryEl = document.getElementById("rostersSummary");
+      const listEl = document.getElementById("rostersList");
+      const teams = data.teams;
+
+      if (teams.length === 0) {
+        summaryEl.innerHTML = `<div class="pay-overview"><div class="pay-headline-text">There are no confirmed teams yet.</div></div>`;
+        listEl.innerHTML = "";
+        return;
+      }
+
+      const count = s => teams.filter(t => t.status === s).length;
+      const submitted = count("Submitted"), draft = count("Draft");
+      const notStarted = teams.length - submitted - draft;
+      const players = teams.reduce((n, t) => n + t.players.length, 0);
+      const flagged = teams.reduce((n, t) => n + t.players.filter(p => rosterUnder(t, p)).length, 0);
+      const pct = Math.round((submitted / teams.length) * 100);
+
+      summaryEl.innerHTML = `
+        <div class="pay-overview">
+          <div class="pay-headline">
+            <div class="pay-pct">${pct}%</div>
+            <div class="pay-headline-text"><strong>${submitted} of ${teams.length}</strong> teams have submitted their roster &middot; <strong>${teams.length - submitted}</strong> still to go</div>
+          </div>
+          <div class="pay-bar" role="img" aria-label="${pct}% of rosters submitted">
+            <span class="seg-paid" style="width:${(submitted / teams.length) * 100}%"></span><span class="seg-pending" style="width:${(draft / teams.length) * 100}%"></span>
+          </div>
+          <div class="pay-tiles">
+            <div class="pay-tile paid"><div class="n">${submitted}</div><div class="l">Submitted</div></div>
+            <div class="pay-tile pending"><div class="n">${draft}</div><div class="l">Draft saved</div><div class="s">not submitted yet</div></div>
+            <div class="pay-tile"><div class="n">${notStarted}</div><div class="l">Not started</div></div>
+            <div class="pay-tile"><div class="n">${players}</div><div class="l">Players</div><div class="s">across all rosters</div></div>
+            <div class="pay-tile ${flagged ? "unpaid" : ""}"><div class="n">${flagged}</div><div class="l">Under minimum age</div><div class="s">${flagged ? "flagged for your review" : "none flagged"}</div></div>
+          </div>
+          <p class="rost-note">Rosters are currently <strong class="${data.locked ? "locked" : "open"}">${data.locked ? "LOCKED" : "OPEN"}</strong>. Change this with the <em>Roster Status</em> row in the Config tab (OPEN or LOCKED). Up to ${data.maxPlayers} players per team.</p>
+        </div>`;
+
+      const byDiv = new Map();
+      teams.forEach(t => { const d = t.division || "Unassigned"; if (!byDiv.has(d)) byDiv.set(d, []); byDiv.get(d).push(t); });
+      const divNames = Array.from(byDiv.keys()).sort((a, b) => {
+        const ia = PAY_DIVISION_ORDER.indexOf(a), ib = PAY_DIVISION_ORDER.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+      });
+      const rank = { "Not started": 0, "Draft": 1, "Submitted": 2 };      // chase-list order
+
+      let html = `<div class="pay-section-title">By division</div><div class="pay-div-grid">`;
+      divNames.forEach(d => {
+        const ts = byDiv.get(d).slice().sort((a, b) => (rank[a.status] ?? 0) - (rank[b.status] ?? 0) || String(a.team).localeCompare(String(b.team)));
+        const done = ts.filter(t => t.status === "Submitted").length;
+        const label = PAY_DIVISION_LABEL[d] ? ` (${PAY_DIVISION_LABEL[d]})` : "";
+        html += `<div class="pay-div-card rost-div-card">
+          <div class="pay-div-head"><div class="pay-div-name">${escHtml(d)}${escHtml(label)}</div><div class="pay-div-count">${done} of ${ts.length} submitted</div></div>
+          <div class="pay-div-bar"><span style="width:${(done / ts.length) * 100}%"></span></div>`;
+        ts.forEach(t => {
+          const idx = teams.indexOf(t);
+          const under = t.players.filter(p => rosterUnder(t, p)).length;
+          const pill = t.status === "Submitted" ? "submitted" : (t.status === "Draft" ? "draft" : "none");
+          const pillText = t.status === "Draft" ? "Draft" : t.status;
+          const rows = t.players.length
+            ? `<table class="rost-table"><thead><tr><th class="num">#</th><th>First</th><th>Last</th><th class="num">Age</th></tr></thead><tbody>${
+                t.players.slice().sort((a, b) => Number(a.jersey) - Number(b.jersey)).map(p =>
+                  `<tr class="${rosterUnder(t, p) ? "under" : ""}"><td class="num">${escHtml(p.jersey)}</td><td>${escHtml(p.first)}</td><td>${escHtml(p.last)}</td><td class="num">${escHtml(p.age)}${rosterUnder(t, p) ? " (under " + t.minAge + ")" : ""}</td></tr>`).join("")
+              }</tbody></table>`
+            : `<div class="rost-empty">No players entered yet.</div>`;
+          html += `<div class="rost-team">
+            <div class="rost-team-head" data-idx="${idx}" role="button" tabindex="0" aria-expanded="false">
+              <div class="nm">${escHtml(t.team)}<span class="meta">${t.players.length} player${t.players.length !== 1 ? "s" : ""}${under ? ` &middot; <span class="flag">${under} under ${t.minAge}</span>` : ""}</span></div>
+              <span class="rost-pill ${pill}">${escHtml(pillText)}</span>
+            </div>
+            <div class="rost-players" id="rost-players-${idx}">${rows}</div>
+          </div>`;
+        });
+        html += `</div>`;
+      });
+      html += `</div>`;
+      listEl.innerHTML = html;
+
+      listEl.querySelectorAll(".rost-team-head").forEach(h => {
+        const toggle = () => {
+          const box = document.getElementById("rost-players-" + h.dataset.idx);
+          const open = box.classList.toggle("open");
+          h.setAttribute("aria-expanded", open ? "true" : "false");
+        };
+        h.addEventListener("click", toggle);
+        h.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+      });
+    }
+
+    function setAllRostersOpen(open) {
+      document.querySelectorAll("#rostersList .rost-players").forEach(b => b.classList.toggle("open", open));
+      document.querySelectorAll("#rostersList .rost-team-head").forEach(h => h.setAttribute("aria-expanded", open ? "true" : "false"));
+    }
+
+    document.getElementById("rostersExpandBtn").addEventListener("click", () => {
+      const btn = document.getElementById("rostersExpandBtn");
+      const expand = btn.textContent.trim() === "Expand all";
+      setAllRostersOpen(expand);
+      btn.textContent = expand ? "Collapse all" : "Expand all";
+    });
+
+    document.getElementById("rostersPrintBtn").addEventListener("click", () => {
+      setAllRostersOpen(true);
+      document.getElementById("rostersExpandBtn").textContent = "Collapse all";
+      setTimeout(() => window.print(), 50);
+    });
+
+    document.getElementById("rostersExportBtn").addEventListener("click", () => {
+      if (!rostersData || !rostersData.teams.some(t => t.players.length)) { alert("No players have been entered yet."); return; }
+      const esc = v => { const s = String(v == null ? "" : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+      const lines = [["Team", "Division", "First Name", "Last Name", "Jersey #", "Age", "Flag"].map(esc).join(",")];
+      const divIdx = d => { const i = PAY_DIVISION_ORDER.indexOf(d); return i < 0 ? 99 : i; };
+      rostersData.teams.slice().sort((a, b) => divIdx(a.division) - divIdx(b.division) || String(a.team).localeCompare(String(b.team))).forEach(t => {
+        t.players.slice().sort((a, b) => Number(a.jersey) - Number(b.jersey)).forEach(p => {
+          lines.push([t.team, t.division, p.first, p.last, p.jersey, p.age, rosterUnder(t, p) ? "Under " + t.minAge : ""].map(esc).join(","));
+        });
+      });
+      const blob = new Blob([lines.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "rosters.csv";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
 
     // ---------- Auction Items ----------
     let lastLoadedAuctionItems = [];
