@@ -2533,6 +2533,19 @@
           <p class="rost-note">Rosters are currently <strong class="${data.locked ? "locked" : "open"}">${data.locked ? "LOCKED" : "OPEN"}</strong>. Change this with the <em>Roster Status</em> row in the Config tab (OPEN or LOCKED). Up to ${data.maxPlayers} players per team.</p>
         </div>`;
 
+      // If a cell where a team's roster key belongs already holds something else, it's never
+      // overwritten — so say which teams are affected, instead of quietly leaving them without a link.
+      if (data.blocked && data.blocked.length) {
+        const note = document.createElement("div");
+        note.className = "pay-attn";
+        note.appendChild(document.createTextNode(
+          data.blocked.length + " team" + (data.blocked.length !== 1 ? "s" : "") +
+          " couldn't be given a roster link, because the Roster Key / Roster Link cells on " + (data.blocked.length !== 1 ? "their rows" : "its row") +
+          " in your registrations tab already contain something else: " + data.blocked.join(", ") +
+          ". Clear those cells, then reopen this tab."));
+        summaryEl.appendChild(note);
+      }
+
       const byDiv = new Map();
       teams.forEach(t => { const d = t.division || "Unassigned"; if (!byDiv.has(d)) byDiv.set(d, []); byDiv.get(d).push(t); });
       const divNames = Array.from(byDiv.keys()).sort((a, b) => {
