@@ -268,6 +268,35 @@
   .jobtype-manager .jt-intro { font-size:13.5px; color:var(--muted); margin:0 0 14px; }
   .jobtype-manager .jt-leader-none { font-style:italic; }
 
+  /* ---- Create shift: several dates & times ---- */
+  .slot-list { display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
+  .slot-row { background:#fff; border:1px solid var(--line); border-radius:8px; padding:12px 14px; }
+  .slot-row.dup { border-color:#e2a0ab; background:#fdf0f2; }
+  .slot-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .slot-title { font-family:var(--font-display); font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-size:12.5px; color:var(--muted); }
+  .slot-remove { border:0; background:transparent; color:var(--muted); font-size:22px; line-height:1; cursor:pointer; padding:0 6px; }
+  .slot-remove:hover { color:var(--red); }
+  .slot-fields { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.5fr); gap:12px; align-items:center; }
+  .slot-fields .time-pair { display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; }
+  .slot-fields .time-pair input { flex:1 1 120px; }
+  .slot-row input[type="date"], .slot-row input[type="time"] {
+    width:100%; min-width:0; padding:12px 14px; border:1.5px solid var(--line); border-radius:6px;
+    font-size:15.5px; font-family:var(--font-body); background:#fff;
+  }
+  .slot-msg { font-size:12.5px; color:var(--red-dk); margin-top:8px; }
+  .slot-add {
+    background:#fff; border:1.5px dashed var(--navy); color:var(--navy); font-family:var(--font-display);
+    font-weight:700; text-transform:uppercase; letter-spacing:.03em; font-size:13px; padding:9px 16px;
+    border-radius:6px; cursor:pointer; margin-bottom:6px;
+  }
+  .slot-add:hover { background:var(--ice); }
+  .slot-help { font-size:12.5px; color:var(--muted); margin:0 0 18px; }
+  #newJobLeaderHint { margin:6px 0 0; }
+  @media (max-width:640px) {
+    .slot-fields { grid-template-columns:minmax(0, 1fr); }
+    .slot-row input[type="date"], .slot-row input[type="time"] { padding:11px 10px; font-size:15px; }
+  }
+
   /* ---- Job search ---- */
   .jobs-search { margin:18px 0 6px; }
   .jobs-search .search-field { position:relative; }
@@ -554,7 +583,11 @@
                 <option value="__new__">+ Create New Job&hellip;</option>
               </select>
             </div>
-            <div id="newJobLeaderNote" class="leader-note" style="display:none;"></div>
+            <div class="form-group" id="newJobLeaderGroup" style="display:none;">
+              <label for="newJobLeader" id="newJobLeaderLabel">Committee leader</label>
+              <input type="text" id="newJobLeader" placeholder="Name (add a phone number if you like)" autocomplete="off">
+              <div class="leader-note" id="newJobLeaderHint"></div>
+            </div>
 
             <div id="newJobTypePanel" class="info-card" style="display:none; background:#fff; border-style:dashed;">
               <div class="field-row">
@@ -589,21 +622,13 @@
                 <input type="number" id="newJobCapacity" min="0" value="1" required>
               </div>
             </div>
-            <div class="field-row">
-              <div class="form-group">
-                <label for="newJobDate">Date</label>
-                <input type="date" id="newJobDate" required>
-              </div>
-              <div class="form-group">
-                <label>Time</label>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <input type="time" id="newJobTimeStart" required>
-                  <span style="color:var(--muted);">to</span>
-                  <input type="time" id="newJobTimeEnd" required>
-                </div>
-              </div>
+            <div class="form-group" style="margin-bottom:8px;">
+              <label>Dates &amp; times</label>
+              <div class="slot-list" id="slotList"></div>
+              <button type="button" class="slot-add" id="addSlotBtn">+ Add another date &amp; time</button>
+              <p class="slot-help">Each date and time becomes its own shift, with the same job, description and capacity. The same job can't have the same date and time twice.</p>
             </div>
-            <button type="submit" class="btn btn-primary" id="createShiftSubmitBtn" disabled>Create Shift</button>
+            <button type="submit" class="btn btn-primary" id="createShiftSubmitBtn" disabled>Create 1 Shift</button>
             <span id="createJobStatus" style="margin-left:12px; font-size:14px;"></span>
           </form>
         </div>
@@ -1506,6 +1531,7 @@
         statusEl.textContent = "";
         adminJobsCache = data.jobs || [];
         renderJobTypeManager();
+        validateSlots();
 
         if (!data.jobs || data.jobs.length === 0) {
           statusEl.textContent = "No shifts found.";
@@ -1574,16 +1600,21 @@
     let knownJobTypes = [];
     let adminJobsCache = [];   // the shifts as last loaded in Shift Admin (used for per-type shift counts)
 
-    // Shows the chosen job type's committee leader under the Job dropdown.
+    // The committee leader belongs to the job TYPE, so this field shows (and can
+    // change) the leader for every shift of the chosen job — not just the shifts
+    // being created. It's only sent to the server if it was actually changed.
+    let leaderOriginal = "";
     function updateLeaderNote() {
-      const note = document.getElementById("newJobLeaderNote");
+      const group = document.getElementById("newJobLeaderGroup");
       const val = document.getElementById("newJobTypeSelect").value;
-      if (!val || val === "__new__") { note.style.display = "none"; return; }
+      if (!val || val === "__new__") { group.style.display = "none"; return; }
       const jt = knownJobTypes.find(j => j.name === val);
-      note.style.display = "block";
-      note.textContent = (jt && jt.leader)
-        ? "Committee leader: " + jt.leader
-        : "No committee leader set for this job yet. You can add one under Job types & committee leaders below.";
+      leaderOriginal = (jt && jt.leader) || "";
+      document.getElementById("newJobLeader").value = leaderOriginal;
+      document.getElementById("newJobLeaderLabel").textContent = "Committee leader for " + val;
+      document.getElementById("newJobLeaderHint").textContent =
+        "Applies to every " + val + " shift, not just the ones you're adding now. Leave it as it is to keep the current leader.";
+      group.style.display = "block";
     }
 
     async function loadJobTypesDropdown() {
@@ -1658,6 +1689,7 @@
         }
       }
       updateLeaderNote();
+      validateSlots();
     });
 
     document.getElementById("saveJobTypeBtn").addEventListener("click", async function () {
@@ -1710,37 +1742,179 @@
       this.disabled = false;
     });
 
+    // ---------- Create shift: one or more dates & times ----------
+    const SLOT_DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const slotListEl = document.getElementById("slotList");
+
+    const hhmmToMinutes = v => { const m = /^(\d{2}):(\d{2})$/.exec(v || ""); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+    const minutesToHHMM = mins => { const t = ((mins % 1440) + 1440) % 1440; return String(Math.floor(t / 60)).padStart(2, "0") + ":" + String(t % 60).padStart(2, "0"); };
+
+    function addSlotRow(prefill) {
+      const row = document.createElement("div");
+      row.className = "slot-row";
+      row.innerHTML = `
+        <div class="slot-head">
+          <div class="slot-title"></div>
+          <button type="button" class="slot-remove" title="Remove this date and time" aria-label="Remove this date and time">&times;</button>
+        </div>
+        <div class="slot-fields">
+          <input type="date" class="slot-date" aria-label="Date">
+          <div class="time-pair">
+            <input type="time" class="slot-start" aria-label="Start time">
+            <span style="color:var(--muted);">to</span>
+            <input type="time" class="slot-end" aria-label="End time">
+          </div>
+        </div>
+        <div class="slot-msg" style="display:none;"></div>
+      `;
+      if (prefill) {
+        row.querySelector(".slot-date").value = prefill.date || "";
+        row.querySelector(".slot-start").value = prefill.start || "";
+        row.querySelector(".slot-end").value = prefill.end || "";
+      }
+      slotListEl.appendChild(row);
+      renumberSlots();
+      validateSlots();
+    }
+
+    // "Add another" starts the next row where the last one left off: same date,
+    // starting when the previous one ends, and the same length. Everything is editable.
+    function nextSlotPrefill() {
+      const rows = slotListEl.querySelectorAll(".slot-row");
+      const last = rows[rows.length - 1];
+      if (!last) return null;
+      const date = last.querySelector(".slot-date").value;
+      const s = hhmmToMinutes(last.querySelector(".slot-start").value);
+      const e = hhmmToMinutes(last.querySelector(".slot-end").value);
+      if (s == null || e == null) return { date, start: "", end: "" };
+      const len = ((e - s) + 1440) % 1440 || 60;
+      return { date, start: minutesToHHMM(e), end: minutesToHHMM(e + len) };
+    }
+
+    function renumberSlots() {
+      const rows = slotListEl.querySelectorAll(".slot-row");
+      rows.forEach((r, i) => {
+        r.querySelector(".slot-title").textContent = "Date & time " + (i + 1);
+        r.querySelector(".slot-remove").style.visibility = rows.length > 1 ? "visible" : "hidden";
+      });
+      updateSubmitLabel();
+    }
+
+    function updateSubmitLabel() {
+      const n = slotListEl.querySelectorAll(".slot-row").length;
+      document.getElementById("createShiftSubmitBtn").textContent = `Create ${n} Shift${n !== 1 ? "s" : ""}`;
+    }
+
+    function resetSlots() {
+      slotListEl.innerHTML = "";
+      addSlotRow();
+    }
+
+    // Reads every row. `complete` = has a date plus a start and an end.
+    function readSlots() {
+      return Array.from(slotListEl.querySelectorAll(".slot-row")).map((row, i) => {
+        const date = row.querySelector(".slot-date").value;
+        const start = row.querySelector(".slot-start").value;
+        const end = row.querySelector(".slot-end").value;
+        const complete = !!(date && start && end);
+        let info = { row, n: i + 1, date, start, end, complete };
+        if (complete) {
+          const [y, m, d] = date.split("-").map(Number);
+          const dt = new Date(y, m - 1, d);
+          info = Object.assign(info, {
+            mdy: formatDateMDY_(date),
+            time: `${formatTime12_(start)} - ${formatTime12_(end)}`,
+            dayName: SLOT_DAY_NAMES[dt.getDay()],
+            dayMs: dt.getTime(),
+            key: hhmmToMinutes(start) + "-" + hhmmToMinutes(end)
+          });
+        }
+        return info;
+      });
+    }
+
+    // Flags duplicates as you type: against the other rows here, and against
+    // shifts that already exist for this job. (The server checks again.)
+    function validateSlots() {
+      const job = document.getElementById("newJobTypeSelect").value;
+      const jobName = (job && job !== "__new__") ? job : "";
+      const slots = readSlots();
+      let anyProblem = false;
+
+      const existing = jobName
+        ? (adminJobsCache || []).filter(j => String(j.job || "").trim().toLowerCase() === jobName.toLowerCase())
+        : [];
+
+      slots.forEach((s, i) => {
+        let msg = "";
+        if (s.complete) {
+          const id = `${jobName}_${s.time}_${s.dayName}`;
+          const earlier = slots.slice(0, i).find(o => o.complete && (o.dayMs === s.dayMs && o.key === s.key));
+          const idClash = slots.slice(0, i).find(o => o.complete && o.dayMs !== s.dayMs && o.dayName === s.dayName && o.time === s.time);
+          if (earlier) {
+            msg = `Same date and time as date & time ${earlier.n}.`;
+          } else if (idClash) {
+            msg = `Same time on the same weekday as date & time ${idClash.n}. Shifts are identified by job, time and weekday, so use a different time.`;
+          } else if (jobName) {
+            const same = existing.find(j => {
+              const d = parseJobDate(j.date), t = parseTimeRange(j.time);
+              return d && d.getTime() === s.dayMs && t.length >= 2 && (t[0].minutes + "-" + t[1].minutes) === s.key;
+            });
+            const clash = existing.find(j => j.id === id);
+            if (same) msg = `A ${jobName} shift already exists on ${s.mdy} at ${s.time}.`;
+            else if (clash) msg = `A ${jobName} shift already exists at ${s.time} on a ${s.dayName} (${clash.date}). Shifts are identified by job, time and weekday, so use a different time.`;
+          }
+        }
+        const msgEl = s.row.querySelector(".slot-msg");
+        msgEl.textContent = msg;
+        msgEl.style.display = msg ? "block" : "none";
+        s.row.classList.toggle("dup", !!msg);
+        if (msg) anyProblem = true;
+      });
+      return { slots, anyProblem };
+    }
+
+    slotListEl.addEventListener("input", validateSlots);
+    slotListEl.addEventListener("click", e => {
+      const btn = e.target.closest(".slot-remove");
+      if (!btn) return;
+      const rows = slotListEl.querySelectorAll(".slot-row");
+      if (rows.length <= 1) return;
+      btn.closest(".slot-row").remove();
+      renumberSlots();
+      validateSlots();
+    });
+    document.getElementById("addSlotBtn").addEventListener("click", () => addSlotRow(nextSlotPrefill()));
+    resetSlots();
+
     document.getElementById("createJobForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const statusEl = document.getElementById("createJobStatus");
       const submitBtn = document.getElementById("createShiftSubmitBtn");
       const jobName = document.getElementById("newJobTypeSelect").value;
+      const fail = msg => { statusEl.textContent = msg; statusEl.style.color = "var(--red)"; };
 
-      if (!jobName || jobName === "__new__") {
-        statusEl.textContent = "Please select a job first.";
-        statusEl.style.color = "var(--red)";
-        return;
-      }
+      if (!jobName || jobName === "__new__") return fail("Please select a job first.");
 
-      const startTime = document.getElementById("newJobTimeStart").value;
-      const endTime = document.getElementById("newJobTimeEnd").value;
-      if (!startTime || !endTime) {
-        statusEl.textContent = "Please set both a start and end time.";
-        statusEl.style.color = "var(--red)";
-        return;
-      }
+      const { slots, anyProblem } = validateSlots();
+      if (slots.some(s => !s.complete)) return fail("Every date & time needs a date, a start time and an end time.");
+      if (anyProblem) return fail("Please fix the highlighted dates and times first.");
 
       submitBtn.disabled = true;
       statusEl.textContent = "Creating...";
       statusEl.style.color = "var(--muted)";
 
       const params = new URLSearchParams();
-      params.append("action", "createJob");
+      params.append("action", "createJobs");
       params.append("job", jobName);
       params.append("description", document.getElementById("newJobDescription").value.trim());
-      params.append("date", formatDateMDY_(document.getElementById("newJobDate").value));
-      params.append("time", `${formatTime12_(startTime)} - ${formatTime12_(endTime)}`);
       params.append("capacity", document.getElementById("newJobCapacity").value);
+      params.append("slots", JSON.stringify(slots.map(s => ({ date: s.mdy, time: s.time }))));
+      const leader = document.getElementById("newJobLeader").value.trim();
+      if (leader !== leaderOriginal) {            // only when it was actually edited
+        params.append("leader", leader);
+        params.append("leaderChanged", "true");    // explicit, because a blank leader (clearing it) is easy to lose in a web request
+      }
 
       try {
         const res = await fetch(scriptUrl, {
@@ -1750,19 +1924,21 @@
         });
         const result = await res.json();
         if (result.success) {
-          statusEl.textContent = "Shift created.";
+          const n = result.created;
+          statusEl.textContent = `Created ${n} shift${n !== 1 ? "s" : ""}` + (result.leaderUpdated ? ` and updated the committee leader for all ${jobName} shifts.` : ".");
           statusEl.style.color = "#2f9e46";
           e.target.reset();
           document.getElementById("newJobCapacity").value = 1;
-          submitBtn.disabled = true;
+          resetSlots();
+          updateLeaderNote();
+          submitBtn.disabled = true;      // no job is selected any more
           loadAdminPanel();
-        } else {
-          statusEl.textContent = result.message || "Could not create that shift.";
-          statusEl.style.color = "var(--red)";
+          loadJobTypesDropdown();
+          return;
         }
+        fail(result.message || "Could not create those shifts.");
       } catch (err) {
-        statusEl.textContent = "Error: " + err.message;
-        statusEl.style.color = "var(--red)";
+        fail("Error: " + err.message);
       }
       submitBtn.disabled = false;
     });
