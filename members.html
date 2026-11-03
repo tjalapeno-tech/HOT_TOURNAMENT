@@ -2013,11 +2013,12 @@
     }
 
     // Works out where every confirmed team stands. No DOM access in here.
-    function computePaymentStatus(payments, teams, linkMap) {
+    function computePaymentStatus(payments, teams, linkMap, fee) {
       const norm = s => String(s == null ? "" : s).trim().toLowerCase();
       const isPaid = st => st === "Paid" || st === "Verified";
       const isPending = st => st === "Claimed - Pending Verification";
       const isReview = st => String(st || "").startsWith("Needs Review");
+      const isKnown = st => isPaid(st) || isPending(st) || isReview(st);
 
       // Team names are matched ignoring case and stray spaces.
       const byKey = new Map();
@@ -2027,21 +2028,35 @@
       // e-transfer claim, a Square payment with no team note, a waitlisted
       // team) is set aside so it's visible instead of silently ignored.
       const needsReview = [];
+      const odd = [];                      // matched to a team, but the Status isn't one the system understands (e.g. "Received")
       payments.forEach(p => {
         const t = byKey.get(norm(p.team));
         if (t) t.payments.push(p);
         if (!t || isReview(p.status)) needsReview.push(p);
+        else if (!isKnown(p.status)) odd.push(p);
       });
 
       const list = Array.from(byKey.values());
       list.forEach(t => {
         t.paid = t.payments.filter(p => isPaid(p.status));
         t.pending = t.payments.filter(p => isPending(p.status));
-        t.state = t.paid.length ? "paid" : (t.pending.length ? "pending" : "unpaid");
+        t.paidAmount = t.paid.reduce((n, p) => n + (Number(p.amount) || 0), 0);
+        if (fee) {
+          // Knowing the fee, "paid" means paid IN FULL. Money received but less than the fee is "partial".
+          t.balance = Math.max(0, Math.round((fee - t.paidAmount) * 100) / 100);
+          if (t.paid.length && t.balance <= 0.004) t.state = "paid";
+          else if (t.pending.length) t.state = "pending";
+          else if (t.paidAmount > 0) t.state = "partial";
+          else t.state = "unpaid";
+        } else {
+          t.balance = null;                // older backend: no fee given, so any verified payment counts as paid (as before)
+          t.state = t.paid.length ? "paid" : (t.pending.length ? "pending" : "unpaid");
+        }
       });
-      const counts = { paid: 0, pending: 0, unpaid: 0 };
+      const counts = { paid: 0, partial: 0, pending: 0, unpaid: 0 };
       list.forEach(t => counts[t.state]++);
       const total = list.length;
+      const collected = list.reduce((n, t) => n + t.paidAmount, 0);
 
       // Does each team have a payment link on file? (null = couldn't find out.)
       // Teams added by hand in the sheet skip the sign-up step that creates one.
@@ -2058,33 +2073,34 @@
         else m.review++;
       });
 
-      return { teams: list, counts, total, pct: total ? Math.round((counts.paid / total) * 100) : 0, methods, needsReview, noLink };
+      return { teams: list, counts, total, pct: total ? Math.round((counts.paid / total) * 100) : 0, methods, needsReview, odd, noLink, fee: fee || null, collected };
     }
 
     function renderPaymentsSummary(s) {
-      const { teams, counts, total, pct, methods, needsReview, noLink } = s;
+      const { teams, counts, total, pct, methods, needsReview, odd, noLink, fee, collected } = s;
 
       if (total === 0) {
         return `<div class="pay-overview"><div class="pay-headline-text">There are no confirmed teams yet, so there's nothing to total up.</div></div>`;
       }
 
-      const outstanding = counts.pending + counts.unpaid;
+      const outstanding = counts.pending + counts.unpaid + counts.partial;
       const paidW = (counts.paid / total) * 100;
-      const pendW = (counts.pending / total) * 100;
+      const pendW = ((counts.pending + counts.partial) / total) * 100;
 
       let html = `
         <div class="pay-overview">
           <div class="pay-headline">
             <div class="pay-pct">${pct}%</div>
-            <div class="pay-headline-text"><strong>${counts.paid} of ${total}</strong> registered teams have paid &middot; <strong>${outstanding}</strong> outstanding</div>
+            <div class="pay-headline-text"><strong>${counts.paid} of ${total}</strong> registered teams have paid${fee ? " in full" : ""} &middot; <strong>${outstanding}</strong> outstanding</div>
           </div>
           <div class="pay-bar" role="img" aria-label="${pct}% of teams paid">
             <span class="seg-paid" style="width:${paidW}%"></span><span class="seg-pending" style="width:${pendW}%"></span>
           </div>
-          <div class="pay-basis">Based on ${total} confirmed team${total !== 1 ? "s" : ""}. Waitlisted teams aren't included.</div>
+          <div class="pay-basis">Based on ${total} confirmed team${total !== 1 ? "s" : ""}. Waitlisted teams aren't included.${fee ? ` <strong>${payMoney(collected)}</strong> received of ${payMoney(fee * total)} due.` : ""}</div>
 
           <div class="pay-tiles">
-            <div class="pay-tile paid"><div class="n">${counts.paid}</div><div class="l">Paid</div><div class="s">of ${total} teams</div></div>
+            <div class="pay-tile paid"><div class="n">${counts.paid}</div><div class="l">${fee ? "Paid in full" : "Paid"}</div><div class="s">of ${total} teams</div></div>
+            ${fee ? `<div class="pay-tile pending"><div class="n">${counts.partial}</div><div class="l">Part paid</div><div class="s">balance still owing</div></div>` : ""}
             <div class="pay-tile pending"><div class="n">${counts.pending}</div><div class="l">Awaiting verification</div><div class="s">e-transfer claimed, not yet checked</div></div>
             <div class="pay-tile unpaid"><div class="n">${counts.unpaid}</div><div class="l">Not yet paid</div><div class="s">no payment or claim yet</div>${noLink ? `<div class="s warn" id="payNoLinkNote"><span id="payNoLinkCount">${noLink}</span> without a payment link</div>` : ""}</div>
           </div>`;
@@ -2119,6 +2135,17 @@
             <ul>${shown}${more}</ul>
           </div>`;
       }
+      if (odd && odd.length) {
+        const shownOdd = odd.slice(0, 6).map(p =>
+          `<li>${escHtml(p.team)} &mdash; ${payMoney(p.amount)} via ${escHtml(p.method || "unknown")} <span class="pay-attn-note">(status: &ldquo;${escHtml(p.status || "blank")}&rdquo;)</span></li>`).join("");
+        html += `
+          <div class="pay-attn">
+            <strong>${odd.length} payment row${odd.length !== 1 ? "s have" : " has"} a Status the system doesn't recognise</strong>,
+            so ${odd.length !== 1 ? "they aren't" : "it isn't"} counted as money received. Change the Status to <em>Paid</em> or <em>Verified</em> in the Payments tab
+            (or run <em>HOT Tools &gt; Check payment records</em> in your Sheet to see exactly what's wrong).
+            <ul>${shownOdd}</ul>
+          </div>`;
+      }
       html += `</div>`;
 
       // ---- by division ----
@@ -2132,7 +2159,7 @@
         const ia = PAY_DIVISION_ORDER.indexOf(a), ib = PAY_DIVISION_ORDER.indexOf(b);
         return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
       });
-      const rank = { unpaid: 0, pending: 1, paid: 2 };   // chase-list order: unpaid first
+      const rank = { unpaid: 0, partial: 1, pending: 2, paid: 3 };   // chase-list order: unpaid first
       const methodsUsed = arr => Array.from(new Set(arr.map(p => p.method || "?"))).join(", ");
 
       html += `<div class="pay-section-title">By division</div><div class="pay-div-grid">`;
@@ -2152,8 +2179,12 @@
           if (t.state === "paid") {
             pill = `<span class="pay-pill paid">Paid &middot; ${escHtml(methodsUsed(t.paid))}</span>`;
             if (t.paid.length > 1) note = `<div class="pay-team-note">${t.paid.length} payments received &mdash; check for a duplicate</div>`;
+          } else if (t.state === "partial") {
+            pill = `<span class="pay-pill pending">Part paid &middot; ${payMoney(t.paidAmount)} of ${payMoney(fee)}</span>`;
+            note = `<div class="pay-team-note">${payMoney(t.balance)} still owing</div>`;
           } else if (t.state === "pending") {
             pill = `<span class="pay-pill pending">Pending &middot; ${escHtml(methodsUsed(t.pending))}</span>`;
+            if (t.paidAmount > 0) note = `<div class="pay-team-note">${payMoney(t.paidAmount)} already received</div>`;
           } else {
             pill = `<span class="pay-pill unpaid">Unpaid</span>`;
           }
@@ -2334,7 +2365,8 @@
       statusEl.textContent = "";
 
       if (teams) {
-        const summary = computePaymentStatus(payments, teams, linkMap);
+        const fee = Number(payRes.value.fee) > 0 ? Number(payRes.value.fee) : null;   // null = older backend
+        const summary = computePaymentStatus(payments, teams, linkMap, fee);
         summaryEl.innerHTML = renderPaymentsSummary(summary);
         wirePaymentLinkButtons(summaryEl, summary);
       } else {
