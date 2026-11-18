@@ -46,16 +46,97 @@
   <div class="faceoff"></div>
   <div class="redline"></div>
   <h1>Standings</h1>
-  <p>Our new live scoring system is on its way.</p>
+  <p>Updated as scores come in. The full game list is on the <a href="schedule.html">schedule page</a>.</p>
 </section>
 
-<main class="content" style="max-width:720px;">
-  <div class="info-card" style="text-align:center;">
-    <h2>Coming Soon</h2>
-    <p>We're building a brand-new live scheduling and stats system for the 2026 tournament, run right from our own site. Standings will update here automatically as games are played.</p>
-    <p style="color:var(--muted); font-size:14px;">Check back closer to game day &mdash; or <a href="contact.html">contact us</a> if you have a question in the meantime.</p>
-  </div>
+<style>
+  .st-wrap { max-width:1000px; margin:0 auto; padding:26px 24px 70px; }
+  .st-div { margin-bottom:34px; }
+  .st-head { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px 16px;
+    margin-bottom:8px; padding-bottom:7px; border-bottom:3px solid var(--red); }
+  .st-name { font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:.03em;
+    font-size:20px; color:var(--navy); }
+  .st-prog { font-size:13px; color:var(--muted); }
+  .st-prog.done { color:#1c7a37; font-weight:600; }
+  .st-table { width:100%; border-collapse:collapse; }
+  .st-table th { text-align:center; font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+    letter-spacing:.04em; font-size:12px; color:var(--muted); padding:7px 6px; border-bottom:2px solid var(--line); }
+  .st-table th.left, .st-table td.left { text-align:left; }
+  .st-table td { padding:9px 6px; border-bottom:1px solid var(--line); font-size:14.5px; text-align:center; }
+  .st-table td.team { font-weight:600; color:var(--navy); overflow-wrap:anywhere; }
+  .st-table td.pts { font-family:'Oswald',var(--font-display); font-weight:700; font-size:17px; color:var(--navy); }
+  .st-rank { width:34px; color:var(--muted); font-size:13px; }
+  .st-table tr.q td { background:#eef7f0; }
+  .st-table tr.q td.team::after { content:" \2713"; color:#1c7a37; font-weight:700; }
+  .st-foot { font-size:12.5px; color:var(--muted); margin-top:8px; }
+  .st-empty { padding:26px; text-align:center; color:var(--muted); }
+  @media (max-width:640px) {
+    .st-wrap { padding:20px 14px 56px; }
+    .st-table th.hide, .st-table td.hide { display:none; }
+  }
+  @media print { .site-header, .site-footer, .utility, .page-hero { display:none !important; } .st-wrap { padding:0; } }
+</style>
+
+<main class="st-wrap">
+  <div id="stState">Loading standings&hellip;</div>
+  <div id="stList" style="display:none;"></div>
+  <p class="st-foot" id="stLegend" style="display:none;">
+    GP games played &middot; W wins &middot; L losses &middot; T ties &middot; GF goals for &middot; GA goals against &middot;
+    DIFF goal difference &middot; PTS points. A tick marks the teams currently in a final position &mdash; the top two in a four or six team division,
+    or first place in a three team division (first gets a bye to the final while second and third play the semi).
+    Ties are broken by head-to-head, then goal difference, then fewest goals against.
+  </p>
 </main>
+
+<script>
+const scriptUrl = "https://script.google.com/macros/s/AKfycbxYDvsI7rxbCNxc3lh65MwpkkdaOlAmOtd4QiQl2JkRVrC-ZW8hYWmbCmAJFwWxEbNn/exec";
+const $ = id => document.getElementById(id);
+function esc(s) { const d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+
+(async function () {
+  try {
+    const res = await fetch(scriptUrl + "?action=schedule&_=" + Date.now());
+    const data = await res.json();
+    const st = data.standings || {};
+    const names = Object.keys(st);
+    const anyPlayed = names.some(d => st[d].played > 0);
+    if (!names.length || !anyPlayed) {
+      $("stState").innerHTML = '<div class="info-card" style="text-align:center;"><h2>No Results Yet</h2>' +
+        '<p>Standings appear here as soon as scores are posted. The full schedule is on the ' +
+        '<a href="schedule.html">schedule page</a>.</p></div>';
+      return;
+    }
+    // how many teams advance: 2 in a 3-team division (semi), otherwise the top 2 meet in the final
+    let html = "";
+    names.sort().forEach(d => {
+      const s = st[d];
+      if (!s.teams.length) return;
+      // Only flag a position once something has been played. In a 3-team division everybody
+      // plays on (1st has a bye to the final, 2nd and 3rd meet in the semi), so only 1st is marked.
+      const qualify = s.played === 0 ? 0 : (s.teams.length <= 3 ? 1 : 2);
+      html += `<div class="st-div"><div class="st-head"><div class="st-name">${esc(d)}</div>` +
+        `<div class="st-prog ${s.complete ? "done" : ""}">${s.complete ? "Round robin complete" : s.played + " of " + s.total + " games played"}</div></div>` +
+        `<table class="st-table"><thead><tr><th class="st-rank"></th><th class="left">Team</th><th>GP</th><th>W</th><th>L</th><th>T</th>` +
+        `<th class="hide">GF</th><th class="hide">GA</th><th>DIFF</th><th>PTS</th></tr></thead><tbody>`;
+      s.teams.forEach(t => {
+        html += `<tr class="${t.rank <= qualify ? "q" : ""}">` +
+          `<td class="st-rank">${t.rank}</td><td class="left team">${esc(t.team)}</td>` +
+          `<td>${t.gp}</td><td>${t.w}</td><td>${t.l}</td><td>${t.t}</td>` +
+          `<td class="hide">${t.gf}</td><td class="hide">${t.ga}</td>` +
+          `<td>${t.diff > 0 ? "+" : ""}${t.diff}</td><td class="pts">${t.pts}</td></tr>`;
+      });
+      html += `</tbody></table></div>`;
+    });
+    $("stState").style.display = "none";
+    $("stList").style.display = "block";
+    $("stLegend").style.display = "block";
+    $("stList").innerHTML = html;
+  } catch (err) {
+    $("stState").innerHTML = '<p>Could not load standings right now. Please try again shortly, or ' +
+      '<a href="contact.html">contact us</a> if it keeps happening.</p>';
+  }
+})();
+</script>
 <footer class="site-footer">
   <div class="wrap">
     <div class="foot">

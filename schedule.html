@@ -46,16 +46,163 @@
   <div class="faceoff"></div>
   <div class="redline"></div>
   <h1>Tournament Schedule</h1>
-  <p>Our new live schedule system is on its way.</p>
+  <p>All games for December 4–6, 2026. Results appear as they are posted.</p>
 </section>
 
-<main class="content" style="max-width:720px;">
-  <div class="info-card" style="text-align:center;">
-    <h2>Coming Soon</h2>
-    <p>We're building a brand-new live scheduling and stats system for the 2026 tournament, run right from our own site. Game times, matchups, and results will all update here automatically once it's ready.</p>
-    <p style="color:var(--muted); font-size:14px;">Check back closer to game day &mdash; or <a href="contact.html">contact us</a> if you have a question in the meantime.</p>
+<style>
+  .sch-wrap { max-width:1150px; margin:0 auto; padding:26px 24px 70px; }
+  .sch-bar { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; margin-bottom:20px; }
+  .sch-bar label { font-family:var(--font-display); font-weight:600; text-transform:uppercase; letter-spacing:.04em; font-size:12.5px; color:var(--muted); }
+  .sch-bar select, .sch-bar input {
+    padding:9px 12px; border:1.5px solid var(--line); border-radius:6px; font-size:15px;
+    font-family:var(--font-body); background:#fff; min-width:0;
+  }
+  .sch-bar .grow { flex:1 1 200px; }
+  .sch-print { margin-left:auto; }
+  .sch-day { font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:.04em;
+    font-size:20px; color:var(--navy); margin:30px 0 12px; padding-bottom:7px; border-bottom:3px solid var(--red); }
+  .sch-table { width:100%; border-collapse:collapse; }
+  .sch-table th { text-align:left; font-family:var(--font-display); font-weight:700; text-transform:uppercase;
+    letter-spacing:.04em; font-size:12px; color:var(--muted); padding:7px 10px; border-bottom:2px solid var(--line); white-space:nowrap; }
+  .sch-table td { padding:9px 10px; border-bottom:1px solid var(--line); font-size:14.5px; vertical-align:middle; }
+  .sch-table tr.final td, .sch-table tr.semi td { background:#fdf8e7; }
+  .sch-time { font-family:var(--font-display); font-weight:700; color:var(--navy); white-space:nowrap; }
+  .sch-pad { color:var(--muted); font-size:13px; white-space:nowrap; }
+  .m-pad { display:none; }                 /* pad shown beside the time on phones only */
+  .sch-team { overflow-wrap:anywhere; }
+  .sch-team.win { font-weight:700; color:var(--navy); }
+  .sch-vs { color:var(--muted); font-size:12.5px; padding:0 2px; }
+  .sch-score { font-family:'Oswald',var(--font-display); font-weight:700; font-size:17px; color:var(--navy); white-space:nowrap; }
+  .sch-chip { display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    padding:2px 8px; border-radius:20px; background:var(--ice); color:var(--muted); white-space:nowrap; }
+  .sch-chip.final { background:#c8102e; color:#fff; }
+  .sch-chip.semi { background:#fbf0cf; color:#8a6500; }
+  .sch-note { font-size:12.5px; color:var(--muted); }
+  .sch-empty { padding:26px; text-align:center; color:var(--muted); }
+  .sch-legend { font-size:13px; color:var(--muted); margin-top:18px; }
+  @media (max-width:760px) {
+    .sch-wrap { padding:20px 14px 56px; }
+    .sch-table thead { display:none; }
+    .m-pad { display:inline; }
+    .sch-table td.padcell { display:none; }   /* already shown next to the time */
+    .sch-table tr { display:block; border-bottom:1px solid var(--line); padding:10px 2px; }
+    .sch-table td { display:block; border:0; padding:2px 0; }
+    .sch-table td.m-row { display:flex; justify-content:space-between; gap:10px; align-items:baseline; }
+    .sch-print { margin-left:0; }
+  }
+  @media print {
+    .site-header, .site-footer, .utility, .page-hero, .sch-bar, .sch-legend { display:none !important; }
+    .sch-wrap { padding:0; max-width:none; }
+    .sch-day { break-after:avoid; }
+    .sch-table tr { break-inside:avoid; }
+  }
+</style>
+
+<main class="sch-wrap">
+  <div id="schState">Loading the schedule&hellip;</div>
+
+  <div id="schApp" style="display:none;">
+    <div class="sch-bar no-print">
+      <label for="fDiv">Division</label>
+      <select id="fDiv"><option value="">All divisions</option></select>
+      <label for="fTeam">Team</label>
+      <select id="fTeam" class="grow"><option value="">All teams</option></select>
+      <label for="fDay">Day</label>
+      <select id="fDay"><option value="">All days</option></select>
+      <button type="button" class="btn btn-dark sch-print" id="printBtn" style="padding:9px 18px; font-size:13.5px;">Print</button>
+    </div>
+    <div id="schList"></div>
+    <p class="sch-legend">Times are the scheduled puck drop. Games are 50 minutes with a 10 minute flood.
+      Finals and semi-finals are highlighted; the teams fill in automatically as the round robin finishes.</p>
   </div>
 </main>
+
+<script>
+const scriptUrl = "https://script.google.com/macros/s/AKfycbxYDvsI7rxbCNxc3lh65MwpkkdaOlAmOtd4QiQl2JkRVrC-ZW8hYWmbCmAJFwWxEbNn/exec";
+const DAY_NAMES = { Fri: "Friday", Sat: "Saturday", Sun: "Sunday" };
+const $ = id => document.getElementById(id);
+let GAMES = [];
+
+function esc(s) { const d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+
+function teamsFromGames(games) {
+  const set = new Set();
+  games.forEach(g => {
+    [g.homeResolved || g.home, g.awayResolved || g.away].forEach(t => {
+      if (t && !/^(\d(st|nd|rd|th) place|Winner of)/i.test(t)) set.add(t);
+    });
+  });
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function render() {
+  const dv = $("fDiv").value, tm = $("fTeam").value, dy = $("fDay").value;
+  const list = GAMES.filter(g =>
+    (!dv || g.division === dv) && (!dy || g.day === dy) &&
+    (!tm || [g.home, g.away, g.homeResolved, g.awayResolved].indexOf(tm) >= 0));
+  const el = $("schList");
+  if (!list.length) { el.innerHTML = '<div class="sch-empty">No games match those filters.</div>'; return; }
+
+  let html = "", lastDay = null;
+  list.forEach(g => {
+    if (g.day !== lastDay) {
+      if (lastDay !== null) html += "</tbody></table>";
+      html += `<div class="sch-day">${esc(DAY_NAMES[g.day] || g.day)}${g.date ? " &middot; " + esc(g.date) : ""}</div>` +
+        `<table class="sch-table"><thead><tr><th>Time</th><th>Pad</th><th>Division</th><th>Matchup</th><th>Score</th><th></th></tr></thead><tbody>`;
+      lastDay = g.day;
+    }
+    const isFinal = g.stage === "FINAL", isSemi = g.stage === "SEMI-FINAL";
+    const home = g.homeResolved || g.home, away = g.awayResolved || g.away;
+    const hw = g.played && g.homeScore > g.awayScore, aw = g.played && g.awayScore > g.homeScore;
+    const score = g.played ? `${g.homeScore} &ndash; ${g.awayScore}` : "";
+    const chip = isFinal ? '<span class="sch-chip final">Final</span>'
+               : isSemi ? '<span class="sch-chip semi">Semi-final</span>' : "";
+    const statusNote = (g.status && g.status.toLowerCase() !== "scheduled" && g.status.toLowerCase() !== "final")
+      ? `<span class="sch-note">${esc(g.status)}</span>` : "";
+    html += `<tr class="${isFinal ? "final" : isSemi ? "semi" : ""}">
+      <td class="m-row"><span class="sch-time">${esc(g.time)}</span><span class="sch-pad m-pad">${esc(g.pad)}</span></td>
+      <td class="sch-pad padcell">${esc(g.pad)}</td>
+      <td class="sch-pad">${esc(g.division)}</td>
+      <td class="m-row"><span class="sch-team ${hw ? "win" : ""}">${esc(home)}</span>
+        <span class="sch-vs">vs</span>
+        <span class="sch-team ${aw ? "win" : ""}">${esc(away)}</span></td>
+      <td class="sch-score">${score}</td>
+      <td>${chip} ${statusNote} ${g.note ? `<span class="sch-note">${esc(g.note)}</span>` : ""}</td>
+    </tr>`;
+  });
+  html += "</tbody></table>";
+  el.innerHTML = html;
+}
+
+async function load() {
+  try {
+    const res = await fetch(scriptUrl + "?action=schedule&_=" + Date.now());
+    const data = await res.json();
+    GAMES = (data.games || []).filter(g => g.home || g.away);
+    if (!GAMES.length) {
+      $("schState").innerHTML = "<div class=\"info-card\" style=\"text-align:center;\"><h2>Coming Soon</h2>" +
+        "<p>The schedule hasn't been posted yet. Check back closer to game day, or " +
+        "<a href=\"contact.html\">contact us</a> with any questions.</p></div>";
+      return;
+    }
+    $("schState").style.display = "none";
+    $("schApp").style.display = "block";
+    const divs = Array.from(new Set(GAMES.map(g => g.division).filter(Boolean))).sort();
+    divs.forEach(d => { const o = document.createElement("option"); o.value = d; o.textContent = d; $("fDiv").appendChild(o); });
+    teamsFromGames(GAMES).forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = t; $("fTeam").appendChild(o); });
+    Array.from(new Set(GAMES.map(g => g.day))).forEach(d => {
+      const o = document.createElement("option"); o.value = d; o.textContent = DAY_NAMES[d] || d; $("fDay").appendChild(o);
+    });
+    ["fDiv", "fTeam", "fDay"].forEach(id => $(id).addEventListener("change", render));
+    $("printBtn").addEventListener("click", () => window.print());
+    render();
+  } catch (err) {
+    $("schState").innerHTML = "<p>Could not load the schedule right now. Please try again in a moment, " +
+      "or <a href=\"contact.html\">contact us</a> if it keeps happening.</p>";
+  }
+}
+load();
+</script>
 <footer class="site-footer">
   <div class="wrap">
     <div class="foot">
